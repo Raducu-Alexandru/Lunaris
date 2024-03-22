@@ -7,3 +7,5 @@ openssl genrsa -out lunarisapp.com.key 2048
 openssl req -new -key lunarisapp.com.key -out lunarisapp.com.csr -config config.conf
 
 openssl x509 -req -in lunarisapp.com.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out lunarisapp.com.crt -days 1024 -sha256 -extfile lunarisapp.com.ext
+
+!!!!!UPDATE THE PEM FILE
