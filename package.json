@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "npm run copy-services && ng serve --host 0.0.0.0 --disable-host-check --port 4000",
+    "build": "npm run copy-services && ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "copy-services": "bash copy-services.sh"
   },
   "private": true,
   "dependencies": {
