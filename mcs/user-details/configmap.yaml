@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: user-details-configmap
+  namespace: lunaris-mcs
+data:
+  SERVER_NAME: 'User Details'
+  SERVER_PORT: '8080'
+  PATH_PREFIX: '/user-details'

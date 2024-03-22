@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: files-service
+  namespace: lunaris-mcs
+spec:
+  selector:
+    app: files
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: files-service
+    protocol: TCP
+    port: 80
+    targetPort: 8080

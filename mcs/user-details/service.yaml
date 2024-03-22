@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-details-service
+  namespace: lunaris-mcs
+spec:
+  selector:
+    app: user-details
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: user-details-service
+    protocol: TCP
+    port: 80
+    targetPort: 8080

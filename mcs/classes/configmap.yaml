@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: classes-configmap
+  namespace: lunaris-mcs
+data:
+  SERVER_NAME: 'Classes'
+  SERVER_PORT: '8080'
+  PATH_PREFIX: '/classes'

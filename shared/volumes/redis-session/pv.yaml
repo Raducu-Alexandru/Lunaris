@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-session-pv-vol
+  namespace: lunaris-databases
+  labels:
+    type: local
+spec:
+  storageClassName: microk8s-hostpath
+  claimRef:
+    name: redis-session-pvc
+    namespace: lunaris-databases
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/ubuntu/Lunaris/volumes/redis-session"

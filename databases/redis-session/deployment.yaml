@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-session
+  namespace: lunaris-databases
+  labels:
+    app: redis-session
+spec:
+  selector:
+    matchLabels:
+      app: redis-session
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis-session
+    spec:
+      containers:
+      - name: redis-session
+        imagePullPolicy: IfNotPresent
+        image: redis:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 3Gi
+        ports:
+        - containerPort: 6379
+          name: redis-session
+        volumeMounts:
+        - mountPath: /data
+          name: redis-session-pv
+      volumes:
+      - name: redis-session-pv
+        persistentVolumeClaim:
+          claimName: redis-session-pvc
+      restartPolicy: Always

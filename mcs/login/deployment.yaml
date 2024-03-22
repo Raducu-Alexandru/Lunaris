@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: login
+  namespace: lunaris-mcs
+  labels:
+    app: login
+spec:
+  selector:
+    matchLabels:
+      app: login
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: login
+    spec:
+      containers:
+      - name: login
+        imagePullPolicy: Always # TODO: Change to IfNotPresent in production
+        image: raducualexandrumircea/nodejs-ts-mcs-arm64:v1
+        # TODO: Changes resources in production
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+        # TODO: Add redinessProbe in production
+        #readinessProbe:
+        #  httpGet:
+        #    path: /health/check
+        #    port: 8080
+        #  initialDelaySeconds: 10
+        #  failureThreshold: 5
+        #  periodSeconds: 10
+        envFrom:
+          - configMapRef:
+              name: login-configmap
+          - secretRef:
+              name: shared-secret
+          - configMapRef:
+              name: shared-configmap
+        ports:
+        - containerPort: 8080
+          name: login
+        volumeMounts:
+        - mountPath: /usr/src/app # TODO: Remove in production
+          name: login-hostpath
+      volumes:
+      - name: login-hostpath # TODO: Remove in production
+        hostPath:
+          path: "/home/ubuntu/Lunaris/dev/mcs/login"
+          type: Directory
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: docker-hub-secret

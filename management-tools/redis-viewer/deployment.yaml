@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session-viewer
+  namespace: lunaris-management-tools
+  labels:
+    app: session-viewer
+spec:
+  selector:
+    matchLabels:
+      app: session-viewer
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: session-viewer
+    spec:
+      containers:
+      - name: session-viewer
+        imagePullPolicy: Always # TODO: Change to IfNotPresent in production
+        image: raducualexandrumircea/redis-flask-session-viewer:arm64
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        envFrom:
+          - configMapRef:
+              name: session-viewer-configmap
+        ports:
+        - containerPort: 80
+          name: ports
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: docker-hub-secret

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cdn-service
+  namespace: lunaris-mcs
+spec:
+  selector:
+    app: cdn
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: cdn-service
+    protocol: TCP
+    port: 80
+    targetPort: 8080

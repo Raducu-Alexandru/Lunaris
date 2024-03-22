@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: shared-configmap
+  namespace: lunaris-mcs
+data:
+  API_VERSION: "1"
+  DB_CONN_HOST: 'mysql-service.lunaris-databases'
+  DB_CONN_DB: 'Lunaris'

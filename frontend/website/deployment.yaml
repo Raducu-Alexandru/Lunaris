@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+  namespace: lunaris-frontends
+  labels:
+    app: website
+spec:
+  selector:
+    matchLabels:
+      app: website
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+      - name: website
+        imagePullPolicy: Always # TODO: Change to IfNotPresent in production
+        image: raducualexandrumircea/angular-frontend-arm64:v1
+        # TODO: Changes resources in production
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+        ports:
+        - containerPort: 4200
+          name: website
+        volumeMounts:
+        - mountPath: /usr/src/app # TODO: Remove in production
+          name: website-hostpath
+      volumes:
+      - name: website-hostpath # TODO: Remove in production
+        hostPath:
+          path: "/home/ubuntu/Lunaris/dev/frontends/website"
+          type: Directory
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: docker-hub-secret

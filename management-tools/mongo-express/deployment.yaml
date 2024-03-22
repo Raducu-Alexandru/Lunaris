@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  namespace: lunaris-management-tools
+  labels:
+    app: mongo-express
+spec:
+  selector:
+    matchLabels:
+      app: mongo-express
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        imagePullPolicy: IfNotPresent
+        image: mongo-express:latest
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        envFrom:
+          - secretRef:
+              name: mongo-express-secret
+          - configMapRef:
+              name: mongo-express-configmap
+        ports:
+        - containerPort: 8081
+          name: mongo-express
+      restartPolicy: Always

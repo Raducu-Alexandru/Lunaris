@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-socket
+  namespace: lunaris-databases
+  labels:
+    app: redis-socket
+spec:
+  selector:
+    matchLabels:
+      app: redis-socket
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redis-socket
+    spec:
+      containers:
+      - name: redis-socket
+        imagePullPolicy: IfNotPresent
+        image: redis:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 3Gi
+        ports:
+        - containerPort: 6379
+          name: redis-socket
+        volumeMounts:
+        - mountPath: /data
+          name: redis-socket-pv
+      volumes:
+      - name: redis-socket-pv
+        persistentVolumeClaim:
+          claimName: redis-socket-pvc
+      restartPolicy: Always

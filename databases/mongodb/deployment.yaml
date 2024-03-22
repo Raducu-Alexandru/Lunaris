@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: lunaris-databases
+  labels:
+    app: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        imagePullPolicy: IfNotPresent
+        image: mongo:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 300Mi
+        envFrom:
+          - secretRef:
+              name: mongodb-secret
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongodb-pv
+      volumes:
+      - name: mongodb-pv
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+      restartPolicy: Always

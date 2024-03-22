@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-details
+  namespace: lunaris-mcs
+  labels:
+    app: user-details
+spec:
+  selector:
+    matchLabels:
+      app: user-details
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: user-details
+    spec:
+      containers:
+      - name: user-details
+        imagePullPolicy: Always # TODO: Change to IfNotPresent in production
+        image: raducualexandrumircea/nodejs-ts-mcs-arm64:v1
+        # TODO: Changes resources in production
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 1000m
+            memory: 1000Mi
+        # TODO: Add redinessProbe in production
+        #readinessProbe:
+        #  httpGet:
+        #    path: /health/check
+        #    port: 8080
+        #  initialDelaySeconds: 10
+        #  failureThreshold: 5
+        #  periodSeconds: 10
+        envFrom:
+          - configMapRef:
+              name: user-details-configmap
+          - secretRef:
+              name: shared-secret
+          - configMapRef:
+              name: shared-configmap
+        ports:
+        - containerPort: 8080
+          name: user-details
+        volumeMounts:
+        - mountPath: /usr/src/app # TODO: Remove in production
+          name: user-details-hostpath
+      volumes:
+      - name: user-details-hostpath # TODO: Remove in production
+        hostPath:
+          path: "/home/ubuntu/Lunaris/dev/mcs/user-details"
+          type: Directory
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: docker-hub-secret

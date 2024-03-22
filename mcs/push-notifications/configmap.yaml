@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: push-notifications-configmap
+  namespace: lunaris-mcs
+data:
+  SERVER_NAME: 'Push notifications'
+  SERVER_PORT: '8080'
+  PATH_PREFIX: '/push-notifications'
