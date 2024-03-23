@@ -11,8 +11,8 @@ spec:
     name: email-templates-pvc
     namespace: lunaris-mcs
   capacity:
-    storage: 150Kb
+    storage: 150Ki
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/ubuntu/Lunaris/volumes/email-templates"
+    path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/volumes/email-templates"

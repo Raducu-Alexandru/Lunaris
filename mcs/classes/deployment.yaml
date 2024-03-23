@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: classes-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/classes"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/classes"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

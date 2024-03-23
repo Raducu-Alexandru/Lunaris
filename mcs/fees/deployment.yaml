@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: fees-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/fees"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/fees"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

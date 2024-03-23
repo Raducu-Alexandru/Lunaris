@@ -60,7 +60,7 @@ spec:
       volumes:
       - name: cdn-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/cdn"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/cdn"
           type: Directory
       - name: cdn-static-volume
         persistentVolumeClaim:

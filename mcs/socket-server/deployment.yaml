@@ -58,7 +58,7 @@ spec:
       volumes:
       - name: socket-server-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/socket-server"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/socket-server"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

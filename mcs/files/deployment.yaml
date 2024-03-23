@@ -58,7 +58,7 @@ spec:
       volumes:
       - name: files-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/files"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/files"
           type: Directory
       - name: files-volume
         persistentVolumeClaim:

@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phpmyadmin
+  name: phpmyadmin-mysql
   namespace: lunaris-management-tools
   labels:
-    app: phpmyadmin
+    app: phpmyadmin-mysql
 spec:
   selector:
     matchLabels:
-      app: phpmyadmin
+      app: phpmyadmin-mysql
   replicas: 1
   strategy:
     rollingUpdate:
@@ -18,22 +18,22 @@ spec:
   template:
     metadata:
       labels:
-        app: phpmyadmin
+        app: phpmyadmin-mysql
     spec:
       containers:
-      - name: phpmyadmin
+      - name: phpmyadmin-mysql
         imagePullPolicy: IfNotPresent
-        image: phpmyadmin/phpmyadmin:latest
+        image: phpmyadmin:latest
         resources:
           requests:
             cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 100m
-            memory: 100Mi
+            cpu: 300m
+            memory: 300Mi
         envFrom:
           - configMapRef:
-              name: phpmyadmin-configmap
+              name: phpmyadmin-mysql-configmap
         ports:
         - containerPort: 80
           name: phpmyadmin

@@ -15,4 +15,4 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/ubuntu/Lunaris/volumes/files"
+    path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/volumes/files"

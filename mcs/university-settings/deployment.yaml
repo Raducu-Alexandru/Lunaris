@@ -49,14 +49,14 @@ spec:
               name: shared-configmap
         ports:
         - containerPort: 8080
-          name: university-settings
+          name: main-port
         volumeMounts:
         - mountPath: /usr/src/app # TODO: Remove in production
           name: university-settings-hostpath
       volumes:
       - name: university-settings-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/university-settings"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/university-settings"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

@@ -49,14 +49,14 @@ spec:
               name: shared-configmap
         ports:
         - containerPort: 8080
-          name: push-notifications
+          name: main-port
         volumeMounts:
         - mountPath: /usr/src/app # TODO: Remove in production
           name: push-notifications-hostpath
       volumes:
       - name: push-notifications-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/push-notifications"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/push-notifications"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

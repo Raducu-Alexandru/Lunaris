@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: login-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/login"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/login"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

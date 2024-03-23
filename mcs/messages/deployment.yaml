@@ -56,7 +56,7 @@ spec:
       volumes:
       - name: messages-hostpath # TODO: Remove in production
         hostPath:
-          path: "/home/ubuntu/Lunaris/dev/mcs/messages"
+          path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/messages"
           type: Directory
       restartPolicy: Always
       imagePullSecrets:

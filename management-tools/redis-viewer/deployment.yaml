@@ -23,7 +23,7 @@ spec:
       containers:
       - name: session-viewer
         imagePullPolicy: Always # TODO: Change to IfNotPresent in production
-        image: raducualexandrumircea/redis-flask-session-viewer:latest #arm64
+        image: raducualexandrumircea/redis-flask-session-viewer:arm64
         resources:
           requests:
             cpu: 50m

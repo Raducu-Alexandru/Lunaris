@@ -1,9 +1,9 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: phpmyadmin-configmap
+  name: phpmyadmin-mysql-configmap
   namespace: lunaris-management-tools
 data:
-  PMA_HOST: 'mysql-service.clvber-dev'
+  PMA_HOST: 'mysql-service.lunaris-databases'
   PMA_PORT: '3306'
-  PMA_ABSOLUTE_URI: 'https://super-admin.lunarisapp.com/userphpmyadmin'
+  PMA_ABSOLUTE_URI: 'https://super-admin.lunarisapp.com/phpmyadmin'

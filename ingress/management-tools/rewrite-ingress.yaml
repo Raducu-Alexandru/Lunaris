@@ -20,6 +20,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: phpmyadmin-service
+            name: phpmyadmin-mysql-service
             port:
               number: 80

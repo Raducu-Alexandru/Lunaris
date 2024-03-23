@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: session-viewer-service
   namespace: lunaris-management-tools
+spec:
   selector:
     app: session-viewer
   type: ClusterIP
