@@ -1,0 +1,29 @@
+{
+  "name": "user-details",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./build/server.js",
+  "scripts": {
+    "build-tsc": "tsc",
+    "start:build": "nodemon --legacy-watch --watch 'src/**/*' -e ts,tsx --exec 'tsc'",
+    "start:run": "nodemon ./build/server.js --legacy-watch",
+    "start": "tsc && concurrently npm:start:*",
+    "prod:build": "tsc && rm -r /usr/src/app/src",
+    "prod:run": "node ./build/server.js",
+    "prod": "npm run prod:build && npm run prod:run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@raducualexandrumircea/environment-parser": "^2.0.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.3",
+    "typescript": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.0"
+  }
+}
