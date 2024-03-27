@@ -51,6 +51,8 @@ spec:
         - containerPort: 8080
           name: main-port
         volumeMounts:
+        - mountPath: /static
+          name: cdn-static-volume
         - mountPath: /usr/src/app # TODO: Remove in production
           name: university-settings-hostpath
       volumes:
@@ -58,6 +60,9 @@ spec:
         hostPath:
           path: "/mnt/Users/alexmircea/Desktop/PersonalProjects/Lunaris/dev/mcs/university-settings"
           type: Directory
+      - name: cdn-static-volume
+        persistentVolumeClaim:
+          claimName: cdn-static-pvc
       restartPolicy: Always
       imagePullSecrets:
         - name: docker-hub-secret

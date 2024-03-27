@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clamav-service
+  namespace: lunaris-mcs
+spec:
+  selector:
+    app: clamav
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: clamav-service
+    protocol: TCP
+    port: 3310
+    targetPort: 3310

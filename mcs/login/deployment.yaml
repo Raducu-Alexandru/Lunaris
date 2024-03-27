@@ -44,6 +44,8 @@ spec:
           - configMapRef:
               name: login-configmap
           - secretRef:
+              name: login-secret
+          - secretRef:
               name: shared-secret
           - configMapRef:
               name: shared-configmap

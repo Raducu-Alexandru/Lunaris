@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: clamav-configmap
+  namespace: lunaris-mcs
+data:
+  CLAMAV_NO_FRESHCLAMD: 'true'

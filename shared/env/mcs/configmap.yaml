@@ -7,3 +7,45 @@ data:
   API_VERSION: "1"
   DB_CONN_HOST: 'mysql-service.lunaris-databases'
   DB_CONN_DB: 'Lunaris'
+  APP_DOMAIN_NAME: "app.lunarisapp.com"
+  APP_URL: "https://app.lunarisapp.com"
+  APP_URL_PROTOCOL: "https://"
+  API_BASE_URL: "https://api.lunarisapp.com"
+  API_URL_PROTOCOL: "https://"
+  WEBSITE_URL: "https://lunarisapp.com"
+  BUY_WEBSITE_URL: "https://buy.lunarisapp.com"
+  NAMESPACE: "lunaris-mcs"
+  LOGIN_COOKIE_EXP_DAYS: "30"
+  LOGIN_SESSION_EXP_MIN: "30"
+  LOGIN_COOKIE_NAME: "login-token"
+  LOGIN_COOKIE_DOMAIN: ".lunarisapp.com"
+  SESSION_REDIS_URLS: "redis-session-service.lunaris-databases:6379/0"
+  SESSION_MANAGER_PREFIX: "session"
+  SESSION_MANAGER_PARSER: ":"
+  SESSION_MANAGER_SESSION_EXP_SEC: "300"
+  SESSION_MANAGER_COOKIE_NAME: "session-id"
+  SESSION_MANAGER_COOKIE_DOMAIN: ".lunarisapp.com"
+  SESSION_MANAGER_COOKIE_EXP_SEC: "0"
+  SOCKET_MANAGER_SOCKET_PREFIX: "socket"
+  SOCKET_MANAGER_ROOM_PREFIX: "socket-room"
+  SOCKET_MANAGER_PARSER: ":"
+  SHARED_SOCKET_SERVER_EMIT_CHANNEL_NAME: "emit"
+  SHARED_SOCKET_SERVER_ON_CHANNEL_NAME: "on"
+  SHARED_SOCKET_SERVER_CONNECTED_CHANNEL_NAME: "connected"
+  SHARED_SOCKET_SERVER_DISCONNECTED_CHANNEL_NAME: "disconnected"
+  SHARED_SOCKET_SERVER_DISCONNECT_USER_CHANNEL_NAME: "disconnectUser"
+  REDIS_SOCKET_URL: "redis-socket-service.lunaris-databases:6379"
+  EMAIL_TEMPLATES_FOLDER: "/email-templates"
+  APP_BUNDLE_ID: "com.lunarisapp.app"
+  # ------------------------------ MICROSERVICES DOMAIN NAMES ------------------------------
+  CDN_MCS_NAME: cdn-service
+  CLASSES_MCS_NAME: classes-service
+  FEES_MCS_NAME: fees-service
+  FILES_MCS_NAME: files-service
+  LOGIN_MCS_NAME: login-service
+  MESSAGES_MCS_NAME: messages-service
+  PUSH_NOTIFICATIONS_MCS_NAME: push-notifications-service
+  SOCKET_SERVER_MCS_NAME: socket-server-service
+  UNIVERSITY_SETTINGS_MCS_NAME: university-settings-service
+  USER_DETAILS_MCS_NAME: user-details-service
+  CLAMAV_MCS_NAME: clamav-service
