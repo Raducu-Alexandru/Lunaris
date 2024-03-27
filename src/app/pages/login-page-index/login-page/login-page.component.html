@@ -1,0 +1,12 @@
+<div class="container" *ngIf="universityLongId">
+  <img [src]="universityImageUrl + universityLongId + '.png'" alt="university picture">
+  <form (submit)="onFormSubmit($event)">
+    <input type="email" class="input" placeholder="Email" name="email" [(ngModel)]="email">
+    <input type="password" class="input" placeholder="Password" name="password" [(ngModel)]="password">
+    <!-- <span class="forgot-password">Forgot your password?</span> -->
+    <button class="button" type="submit">LOGIN</button>
+  </form>
+  <div class="change-university-wrapper" routerLink="change-university">
+    <span>Change University</span>
+  </div>
+</div>

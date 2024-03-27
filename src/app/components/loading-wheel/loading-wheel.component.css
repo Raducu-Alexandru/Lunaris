@@ -1,0 +1,16 @@
+:host {
+  width: 20px;
+  height: 20px;
+  display: block;
+  position: relative;
+  overflow: auto;
+}
+
+svg {
+  margin: auto;
+  background: none;
+  display: block;
+  shape-rendering: auto;
+  width: 100%;
+  height: 100%;
+}

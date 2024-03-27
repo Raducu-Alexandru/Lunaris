@@ -1,0 +1,9 @@
+<h1 class="page-name">University<br>Settings</h1>
+<button class="button">New Study Year</button>
+<div class="wrapper">
+  <input type="text" class="input" placeholder="University Name" name="university-name" [(ngModel)]="universityName">
+  <label class="label">University Logo</label>
+  <app-image-input [default-src]="universityImageUrl + universityLongId + '.png'"
+    (cropped-image)="onUniversityLogoInput($event)"></app-image-input>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

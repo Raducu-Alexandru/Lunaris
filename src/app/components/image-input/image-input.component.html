@@ -1,0 +1,4 @@
+<div class="wrapper" (click)="onAddPhotoCLick()">
+  <img *ngIf="defaultSrc || editedPhotoBase64" [src]="editedPhotoBase64 || defaultSrc">
+  <input #input type="file" class="hidden" (input)="onFileOpen($event)" accept="image/png" />
+</div>

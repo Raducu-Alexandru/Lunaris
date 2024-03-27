@@ -1,1 +1,202 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Anta&display=swap");
+@import url("./fonts/font-league-spartan.min.css");
+@import url("./fonts/font-montserrat.min.css");
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  -webkit-touch-callout: none;
+}
+
+:root {
+  --color-00dp: #000000;
+  --color-01dp: #1d1d1d;
+  --color-02dp: #212121;
+  --color-03dp: #242424;
+  --color-04dp: #262626;
+  --color-06dp: #2c2c2c;
+  --color-white: #ffffff;
+  --color-primary-1: #1b6ba2;
+  --color-primary-2: #4588c1;
+  --color-primary-3: #67a5e1;
+  --color-08dp: #2d2d2d;
+  --color-12dp: #323232;
+  --color-16dp: #353535;
+  --color-24dp: #373737;
+  --color-grey1: #505050;
+  --color-grey2: #767676;
+  --color-grey3: #868686;
+  --color-grey4: #b3b3b3;
+  --color-primary-4: #88c4ff;
+  --color-primary-5: #a9e4ff;
+  --color-primary-6: #145184;
+  --color-red1: #cf6364;
+  --color-red2: #af2626;
+  --color-green1: #3fb272;
+  --color-yellow1: #e2a524;
+  --league-spartan-font: "League Spartan", sans-serif;
+  --montserrat-font: "Montserrat", sans-serif;
+}
+
+.router-div {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  border: 0;
+  position: relative;
+  background-color: var(--color-01dp);
+  width: 100vw;
+  height: 100svh;
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-01dp);
+  }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.button {
+  border-radius: 25px;
+  background-color: var(--color-primary-1);
+  color: var(--color-white);
+  font-size: 17px;
+  font-weight: 500;
+  font-family: var(--montserrat-font);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 40px;
+  padding-right: 40px;
+  min-width: 150px;
+  max-width: 250px;
+  outline: 0;
+  border: 0;
+  display: block;
+  position: relative;
+  margin: auto;
+  margin-top: 20px;
+  cursor: pointer;
+  &.red {
+    background-color: var(--color-red2);
+  }
+}
+
+.button.overlay {
+  cursor: default;
+}
+
+.button.overlay::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 20px;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  opacity: 0.3;
+  z-index: 2;
+}
+
+.page-subtitle {
+  color: var(--color-white);
+  text-align: center;
+  font-size: 40px;
+  font-weight: 600;
+  font-family: var(--montserrat-font);
+  display: block;
+  width: 100%;
+  letter-spacing: 2px;
+  margin-top: 70px;
+  margin-bottom: 80px;
+}
+
+.page-name {
+  color: var(--color-white);
+  text-align: center;
+  font-size: 50px;
+  font-weight: 600;
+  font-family: var(--montserrat-font);
+  display: block;
+  width: 100%;
+  letter-spacing: 2px;
+  margin-top: 70px;
+  margin-bottom: 80px;
+}
+
+.text {
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--montserrat-font);
+  color: var(--color-white);
+}
+
+.input {
+  border-radius: 25px;
+  background-color: var(--color-12dp);
+  color: var(--color-white);
+  text-align: left;
+  font-size: 17px;
+  font-weight: 500;
+  font-family: var(--montserrat-font);
+  height: 45px;
+  padding-left: 30px;
+  padding-right: 30px;
+  outline: 0;
+  border: 0;
+  display: block;
+  position: relative;
+  margin: auto;
+  box-sizing: border-box;
+  caret-color: currentcolor;
+}
+
+.input:focus {
+  outline: 2px solid var(--color-primary-1);
+}
+
+.textarea {
+  background-color: var(--color-12dp);
+  color: var(--color-white);
+  text-align: left;
+  font-size: 17px;
+  font-weight: 500;
+  font-family: var(--montserrat-font);
+  border-radius: 25px;
+  border: 0;
+  padding: 0;
+  resize: none;
+  box-sizing: border-box;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 30px;
+  padding-right: 30px;
+  caret-color: currentcolor;
+  resize: none;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--color-primary-1);
+}
+
+.label {
+  color: var(--color-grey2);
+  text-align: left;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--montserrat-font);
+  margin-bottom: 10px;
+}

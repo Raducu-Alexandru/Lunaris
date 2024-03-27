@@ -1,0 +1,13 @@
+<div class="filter" (click)="onFilterClick()"></div>
+<app-confirmation-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'confirmation'"
+  [popup-config]="popupConfigObj"></app-confirmation-popup>
+<app-alert-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'alert'"
+  [popup-config]="popupConfigObj"></app-alert-popup>
+<app-alert-confirmation-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'alert-confirmation'"
+  [popup-config]="popupConfigObj"></app-alert-confirmation-popup>
+<app-info-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'info'"
+  [popup-config]="popupConfigObj"></app-info-popup>
+<app-warning-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'warning'"
+  [popup-config]="popupConfigObj"></app-warning-popup>
+<app-text-input-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'text-input'"
+  [popup-config]="popupConfigObj"></app-text-input-popup>

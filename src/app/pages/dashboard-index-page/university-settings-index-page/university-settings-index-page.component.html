@@ -1,0 +1,24 @@
+<div class="menu">
+  <div class="item" [routerLink]="['general']" routerLinkActive="selected">
+    <span>General</span>
+  </div>
+  <div class="item" [routerLink]="['students']" routerLinkActive="selected">
+    <span>Students</span>
+  </div>
+  <div class="item" [routerLink]="['professors']" routerLinkActive="selected">
+    <span>Professors</span>
+  </div>
+  <div class="item" [routerLink]="['admins']" routerLinkActive="selected">
+    <span>Admins</span>
+  </div>
+  <div class="item" [routerLink]="['schools']" routerLinkActive="selected">
+    <span>Schools</span>
+  </div>
+  <div class="item" [routerLink]="['programs']" routerLinkActive="selected">
+    <span>Programs</span>
+  </div>
+  <div class="item" [routerLink]="['courses']" routerLinkActive="selected">
+    <span>Courses</span>
+  </div>
+</div>
+<router-outlet></router-outlet>

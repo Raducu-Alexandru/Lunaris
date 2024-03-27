@@ -1,0 +1,75 @@
+:host {
+  width: 100%;
+  height: calc(100% - 100px);
+  position: relative;
+  display: block;
+  isolation: isolate;
+  overflow: auto;
+}
+
+.container {
+  width: 90%;
+  max-width: 530px;
+  height: auto;
+  box-sizing: border-box;
+  padding: 40px;
+  border-radius: 30px;
+  border: 3px solid var(--color-primary-1);
+  box-shadow: 0 0 40px #2497ce;
+  background-color: var(--color-02dp);
+  display: block;
+  margin: auto;
+  margin-top: 300px;
+  .title {
+    width: 100%;
+    text-align: center;
+    font-family: var(--montserrat-font);
+    font-size: 25px;
+    font-weight: 500;
+    margin: 0;
+    color: white;
+    margin-bottom: 40px;
+  }
+  .input {
+    width: 100%;
+    display: block;
+    margin: auto;
+    margin-bottom: 40px;
+  }
+  .universities {
+    width: 100%;
+    height: 300px;
+    overflow: auto;
+    display: block;
+    .university {
+      width: 95%;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      background-color: var(--color-06dp);
+      box-shadow: 0 0 10px rgba($color: #000000, $alpha: 0.2);
+      border-radius: 15px;
+      box-sizing: border-box;
+      margin: auto;
+      padding: 20px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      img {
+        width: 25%;
+        display: block;
+        margin-right: auto;
+      }
+      span {
+        width: 70%;
+        display: block;
+        margin-left: auto;
+        font-family: var(--montserrat-font);
+        color: white;
+        font-weight: 400;
+        box-sizing: border-box;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
+  }
+}

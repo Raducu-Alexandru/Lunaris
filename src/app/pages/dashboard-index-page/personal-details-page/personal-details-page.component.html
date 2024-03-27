@@ -1,0 +1,12 @@
+<h1 class="page-name">Personal<br>Details</h1>
+<div class="wrapper">
+  <div class="image-wrapper">
+    <img src="/assets/imgs/userProfileIcon.png" alt="user image">
+  </div>
+  <div class="description-wrapper">
+    <textarea [(ngModel)]="description" class="textarea" name="description" placeholder="About you"></textarea>
+  </div>
+  <input [(ngModel)]="publicEmail" type="text" name="public-email" class="input" placeholder="Public Email">
+  <input [(ngModel)]="website" type="text" name="website" class="input" placeholder="Website">
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

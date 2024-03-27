@@ -1,0 +1,14 @@
+:host {
+  width: calc(100% - 300px);
+  height: calc(100% - 30px);
+  position: relative;
+  isolation: isolate;
+  float: right;
+  overflow: auto;
+}
+
+.channel-message {
+  display: block;
+  margin: auto;
+  margin-top: 50px;
+}

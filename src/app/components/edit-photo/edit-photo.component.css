@@ -1,0 +1,236 @@
+:host {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  background-color: var(--color-02dp);
+  color: white;
+  width: 100vw;
+  height: 100svh;
+  z-index: 100;
+  overflow: auto;
+}
+
+.button {
+  margin-bottom: 30px;
+}
+
+.close-wrapper {
+  display: block;
+  height: auto;
+  width: 100%;
+  position: relative;
+  overflow: auto;
+  margin-top: calc(env(safe-area-inset-top, 0px) + 20px);
+}
+
+.close {
+  float: right;
+  margin-right: 20px;
+  width: 30px;
+}
+
+.wrapper {
+  width: 100%;
+  user-select: none;
+  overflow: auto;
+  display: block;
+  margin-top: 300px;
+}
+
+.label {
+  margin-top: 20px;
+  color: whitesmoke;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 15px;
+  text-align: center;
+  display: block;
+}
+
+.mask {
+  width: 70%;
+  max-width: 300px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: block;
+  margin: auto;
+  margin-top: 20px;
+  aspect-ratio: 336 / 608;
+  border: 2px solid white;
+}
+
+.mask img {
+  position: absolute;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+label {
+  margin-top: 30px;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.zoom-slider {
+  width: 90%;
+  display: block;
+  margin: auto;
+  margin-bottom: 50px;
+  margin-top: 10px;
+}
+
+.sticks-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  cursor: move;
+}
+
+.stick {
+  background-color: white;
+  /* box-shadow: 0 0 5px 0 dimgray; */
+}
+
+.stick.vertical {
+  width: 2px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.stick.vertical.postion-1 {
+  left: 33%;
+}
+
+.stick.vertical.postion-2 {
+  left: 66%;
+}
+
+.stick.horizontal {
+  height: 2px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.stick.horizontal.postion-1 {
+  top: 33%;
+}
+
+.stick.horizontal.postion-2 {
+  top: 66%;
+}
+
+input[type="range"] {
+  height: 25px;
+  -webkit-appearance: none;
+  margin: 10px 0;
+  width: 80%;
+  margin: auto;
+  background-color: transparent !important;
+  max-width: 500px;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  animate: 0.2s;
+  box-shadow: 0px 0px 0px #000000;
+  background: var(--color-primary-1);
+  border-radius: 3px;
+  border: 0px solid #000000;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid var(--color-primary-1);
+  height: 25px;
+  width: 25px;
+  border-radius: 25px;
+  background: var(--color-primary-1);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -10px;
+}
+
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  background: var(--color-primary-1);
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  animate: 0.2s;
+  box-shadow: 0px 0px 0px #000000;
+  background: var(--color-primary-1);
+  border-radius: 1px;
+  border: 0px solid #000000;
+}
+
+input[type="range"]::-moz-range-thumb {
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid var(--color-primary-1);
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: var(--color-primary-1);
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  animate: 0.2s;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+input[type="range"]::-ms-fill-lower {
+  background: var(--color-primary-1);
+  border: 0px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0px 0px 0px #000000;
+}
+
+input[type="range"]::-ms-fill-upper {
+  background: var(--color-primary-1);
+  border: 0px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0px 0px 0px #000000;
+}
+
+input[type="range"]::-ms-thumb {
+  margin-top: 1px;
+  box-shadow: 0px 0px 0px #000000;
+  border: 1px solid var(--color-primary-1);
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: var(--color-primary-1);
+  cursor: pointer;
+}
+
+input[type="range"]:focus::-ms-fill-lower {
+  background: var(--color-primary-1);
+}
+
+input[type="range"]:focus::-ms-fill-upper {
+  background: var(--color-primary-1);
+}

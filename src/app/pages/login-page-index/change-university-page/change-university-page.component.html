@@ -1,0 +1,18 @@
+<div class="container">
+  <h3 class="title">Change University</h3>
+  <input type="text" class="input" placeholder="Search by Name" (input)="onSearchInput($event)">
+  <div class="universities" *ngIf="!searchVal">
+    <div class="university" *ngFor="let university of allUniversitiesSelectDetails"
+      (click)="onUniversitySelect(university.universityLongId)">
+      <img [src]="universityImageUrl + university.universityLongId + '.png'" alt="university picture">
+      <span>{{ university.universityName }}</span>
+    </div>
+  </div>
+  <div class="universities" *ngIf="searchVal">
+    <div class="university" *ngFor="let university of filteredUniversities"
+      (click)="onUniversitySelect(university.universityLongId)">
+      <img [src]="universityImageUrl + university.universityLongId + '.png'" alt="university picture">
+      <span>{{ university.universityName }}</span>
+    </div>
+  </div>
+</div>

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "npm run copy-services && ng serve --host 0.0.0.0 --disable-host-check --port 4000",
+    "start": "npm run copy-services && ng serve --host 0.0.0.0 --port 443 --ssl --disable-host-check --ssl-cert ../../k8s/shared/env/certs/lunarisapp.com.crt --ssl-key ../../k8s/shared/env/certs/lunarisapp.com.key",
     "build": "npm run copy-services && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -22,6 +22,12 @@
     "@capacitor/angular": "^2.0.3",
     "@capacitor/core": "latest",
     "@capacitor/keyboard": "^5.0.8",
+    "@raducualexandrumircea/cryptography-network.service": "^2.0.3",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.0.7",
+    "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
+    "@raducualexandrumircea/socket.service": "^2.0.1",
+    "ngx-cookie-service": "^17.1.0",
+    "ngx-image-compress": "^15.1.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

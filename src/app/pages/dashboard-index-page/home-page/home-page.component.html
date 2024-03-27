@@ -1,0 +1,5 @@
+<h1 class="page-name">Home</h1>
+<span class="page-subtitle">Announcements</span>
+<button class="button" (click)="onAnnouncementAddClick()" *ngIf="userRole == 3">Add</button>
+<app-channel-message class="channel-message" *ngFor="let announcement of announcementsInfo" [data]="announcement"
+  [show-delete-options]="userRole == 3" (delete)="onRemovenAnnouncement($event)"></app-channel-message>

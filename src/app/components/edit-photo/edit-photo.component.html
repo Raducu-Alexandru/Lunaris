@@ -1,0 +1,22 @@
+<div *ngIf="showAdjuster" class="wrapper">
+  <div class="close-wrapper">
+    <img src="/assets/imgs/closeIconCF6364.png" class="close" (click)="onCloseClick()" />
+  </div>
+  <div class="mask" #maskImage [ngStyle]="{ 'aspect-ratio': desiredAspectRatio }">
+    <div class="sticks-wrapper" draggable="false" (mouseleave)="endMoveLoadedImageDrag($event)"
+      (mousedown)="startMoveLoadedImageDrag($event)" (mousemove)="moveLoadedImageDrag($event)"
+      (mouseup)="endMoveLoadedImageDrag($event)" (touchstart)="startMoveLoadedImageTouch($event)"
+      (touchmove)="moveLoadedImageTouch($event)" (touchend)="endMoveLoadedImageTouch($event)">
+      <div class="stick vertical postion-1"></div>
+      <div class="stick vertical postion-2"></div>
+      <div class="stick horizontal postion-1"></div>
+      <div class="stick horizontal postion-2"></div>
+    </div>
+    <img #loadedImage [src]="loadedImageBase64" (load)="finishedLoadingImage()"
+      [ngStyle]="{ 'height.%': imageStyleHeight, 'width.%': imageStyleWidth, 'top.px': imageStyleTop, 'left.px': imageStyleLeft }" />
+  </div>
+  <span class="label">Change zoom / size correction</span>
+  <input #zoomRange (input)="onZoomChange($event)" type="range" [min]="minZoomValue" [max]="maxZoomValue"
+    [value]="initialZoomValue" step="1" class="zoom-slider" name="zoom-slider" />
+  <button class="button" (click)="onDoneClick()">Done</button>
+</div>

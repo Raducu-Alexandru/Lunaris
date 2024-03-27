@@ -1,0 +1,7 @@
+<div class="top-wrapper">
+  <img class="user-image" src="/assets/imgs/userProfileIcon.png" alt="user image">
+  <span class="name">{{ data.announcementName }}</span>
+  <img class="trash-image" src="/assets/imgs/trashIconCF6364.png" alt="delete" (click)="onDeleteClick()"
+    *ngIf="showDeleteOptions">
+</div>
+<span class="message">{{ data.announcementText }}</span>

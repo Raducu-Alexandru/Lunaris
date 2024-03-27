@@ -1,0 +1,28 @@
+:host {
+  width: auto;
+  height: auto;
+  position: relative;
+  overflow: auto;
+}
+
+.wrapper {
+  width: auto;
+  height: auto;
+  overflow: auto;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  span {
+    font-size: 20px;
+    color: var(--color-grey2);
+    font-weight: 600;
+    font-family: var(--montserrat-font);
+    text-align: left;
+    margin-left: 10px;
+  }
+  img {
+    width: 30px;
+    height: 30px;
+    transform: rotate(180deg);
+  }
+}

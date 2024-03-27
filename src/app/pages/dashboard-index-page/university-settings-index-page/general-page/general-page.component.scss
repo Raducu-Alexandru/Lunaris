@@ -1,0 +1,28 @@
+:host {
+  width: 100%;
+  height: calc(100% - 80px);
+  position: relative;
+  isolation: isolate;
+  float: left;
+  overflow: auto;
+}
+
+.wrapper {
+  width: 90%;
+  max-width: 800px;
+  display: block;
+  margin: auto;
+  margin-top: 100px;
+  .input {
+    width: 90%;
+    margin-bottom: 50px;
+  }
+  .label {
+    width: 100%;
+    text-align: center;
+    display: block;
+  }
+  .button {
+    margin-top: 50px;
+  }
+}

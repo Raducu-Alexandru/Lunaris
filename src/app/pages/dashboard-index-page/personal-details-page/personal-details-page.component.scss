@@ -1,0 +1,53 @@
+:host {
+  width: calc(100% - 300px);
+  height: calc(100% - 30px);
+  position: relative;
+  isolation: isolate;
+  float: right;
+  overflow: auto;
+}
+
+.wrapper {
+  width: 90%;
+  max-width: 800px;
+  height: auto;
+  overflow: auto;
+  display: flex;
+  margin: auto;
+  flex-flow: row wrap;
+  .image-wrapper {
+    width: 20%;
+    height: auto;
+    overflow: auto;
+    display: inline-flex;
+    float: left;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 20px;
+    flex-flow: column;
+    min-height: 200px;
+    img {
+      max-width: 160px;
+      width: 100%;
+    }
+  }
+  .description-wrapper {
+    width: 80%;
+    box-sizing: border-box;
+    padding: 20px;
+    float: right;
+    flex-flow: column;
+    .textarea {
+      height: 100%;
+      width: 100%;
+    }
+  }
+  .input {
+    width: calc(100% / 2 - 30px);
+    margin-top: 30px;
+  }
+  .button {
+    margin-top: 50px;
+  }
+}

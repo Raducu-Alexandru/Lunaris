@@ -1,0 +1,11 @@
+<h1 class="page-name">New Admin</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper" *ngIf="adminEditDetails">
+  <input [(ngModel)]="adminEditDetails.firstName" type="text" class="input" name="firstname" placeholder="Firstname">
+  <input [(ngModel)]="adminEditDetails.lastName" type="text" class="input" name="lastname" placeholder="Lastname">
+  <input [(ngModel)]="adminEditDetails.email" type="text" class="input" name="email" placeholder="Email">
+  <input [(ngModel)]="password" type="password" class="input" name="new-password" placeholder="New password">
+  <input [(ngModel)]="retypePassword" type="password" class="input" name="re-new-password"
+    placeholder="Re-type New Password">
+  <button class="button" (click)="onCreateClick()">Create</button>
+</div>

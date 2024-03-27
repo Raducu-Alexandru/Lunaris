@@ -1,0 +1,26 @@
+<div class="top-wrapper">
+</div>
+<div class="menu">
+  <app-logo class="logo" [isAdmin]="userRole == 3"></app-logo>
+  <img src="/assets/imgs/userProfileIcon.png" alt="user image">
+  <span class="email">{{ userEmail }}</span>
+  <div class="items">
+    <div class="item" [routerLink]="['home']" routerLinkActive="selected">
+      <span>HOME</span>
+    </div>
+    <div class="item" *ngIf="userRole == 1" [routerLink]="['scholar-situation']" routerLinkActive="selected">
+      <span>SCHOLAR<br>SITUATION</span>
+    </div>
+    <div class="item" [routerLink]="['personal-data']" routerLinkActive="selected">
+      <span>PERSONAL<br>DATA</span>
+    </div>
+    <div class="item" [routerLink]="['classes']" routerLinkActive="selected">
+      <span>CLASSES</span>
+    </div>
+    <div class="item" [routerLink]="['university-settings']" routerLinkActive="selected" *ngIf="userRole == 3">
+      <span>UNIVERSITY<br>SETTINGS</span>
+    </div>
+  </div>
+  <button class="button red" (click)="onLogoutClick()">Log Out</button>
+</div>
+<router-outlet></router-outlet>

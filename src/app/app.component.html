@@ -1,1 +1,6 @@
+<app-edit-photo *ngIf="fullscreenComponentConfigObj != undefined && fullscreenComponentConfigObj.type == 'edit-photo'"
+  [aspect-ratio]="fullscreenComponentConfigObj.inputs['aspectRatio']"
+  [load-image]="fullscreenComponentConfigObj.inputs['openedImage']"></app-edit-photo>
+<app-big-loading-filter *ngIf="bigLoadingFilterState"></app-big-loading-filter>
+<app-general-popup *ngIf="popupConfigObj != undefined" [popup-config]="popupConfigObj"></app-general-popup>
 <router-outlet></router-outlet>

@@ -1,0 +1,17 @@
+<h1 class="page-name">Professor</h1>
+<app-go-back-text class="go-back" link="../.."></app-go-back-text>
+<div class="wrapper" *ngIf="professorEditDetails">
+  <input [(ngModel)]="professorEditDetails.firstName" type="text" class="input" name="firstname"
+    placeholder="Firstname">
+  <input [(ngModel)]="professorEditDetails.lastName" type="text" class="input" name="lastname" placeholder="Lastname">
+  <input [(ngModel)]="professorEditDetails.email" type="text" class="input" name="email" placeholder="Email">
+  <input [(ngModel)]="newPassword" type="password" class="input" name="new-password" placeholder="New password">
+  <input [(ngModel)]="retypeNewPassword" type="password" class="input" name="re-new-password"
+    placeholder="Re-type New Password">
+  <div class="checkbox-wrapper">
+    <app-checkbox class="checkbox" [is-checked]="professorEditDetails.disabled"
+      (custom-input)="onDisableInput($event)"></app-checkbox>
+    <span class="label">Disabled</span>
+  </div>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

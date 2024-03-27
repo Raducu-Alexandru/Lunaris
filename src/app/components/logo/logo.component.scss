@@ -1,0 +1,22 @@
+:host {
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+}
+
+img {
+  float: left;
+  height: 35px;
+  width: 35px;
+}
+
+span {
+  font-family: "Anta", sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  margin-left: 10px;
+  color: var(--color-white);
+  float: right;
+}
