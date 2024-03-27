@@ -4,35 +4,100 @@ import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
 
 import { appRoutes } from './paths/paths';
 import { DbHandler } from '@raducualexandrumircea/custom-db-handler';
+import { SessionManager, handleSessionManagementMiddleware } from '@raducualexandrumircea/redis-session-manager';
+import { RedisConnectionRelation } from '@raducualexandrumircea/redis-connection';
+import { ServerCommunication, secureRoutesMiddleware } from '@raducualexandrumircea/lunaris-server-communication';
+import { JwtMethods } from '@raducualexandrumircea/lunaris-jwt';
+import { LoginMethods } from '@raducualexandrumircea/lunaris-login';
+import { SocketMethods } from '@raducualexandrumircea/lunaris-socket-methods';
+import { getCorsOptions } from '@raducualexandrumircea/lunaris-general';
+import { secureRoutes } from './paths/secure-paths';
+import { healthRoutes } from '@raducualexandrumircea/lunaris-health-paths';
 
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
+
+const appUrl: string = environmentParserObj.get('APP_URL', 'string', true);
+const websiteUrl: string = environmentParserObj.get('WEBSITE_URL', 'string', true);
 
 const apiVersion: string = environmentParserObj.get('API_VERSION', 'string', true);
 const serverPort: number = environmentParserObj.get('SERVER_PORT', 'number', true);
 const pathPrefix: string = environmentParserObj.get('PATH_PREFIX', 'string', true);
 
+const redisSessionUrls: string[] = environmentParserObj.get('SESSION_REDIS_URLS', 'array', true);
+
+const sessionManagerPrefix: string = environmentParserObj.get('SESSION_MANAGER_PREFIX', 'string', true);
+const sessionManagerParser: string = environmentParserObj.get('SESSION_MANAGER_PARSER', 'string', true);
+const sessionManagerSessionExpSec: number = environmentParserObj.get('SESSION_MANAGER_SESSION_EXP_SEC', 'number', true);
+const sessionManagerCookieName: string = environmentParserObj.get('SESSION_MANAGER_COOKIE_NAME', 'string', true);
+const sessionManagerCookieDomain: string = environmentParserObj.get('SESSION_MANAGER_COOKIE_DOMAIN', 'string', true);
+const sessionManagerCookieExpSec: number = environmentParserObj.get('SESSION_MANAGER_COOKIE_EXP_SEC', 'number', true);
+
+const loginCookieExpInDays: number = environmentParserObj.get('LOGIN_COOKIE_EXP_DAYS', 'number', true);
+const loginSessionExpInMin: number = environmentParserObj.get('LOGIN_SESSION_EXP_MIN', 'number', true);
+const loginCookieName: string = environmentParserObj.get('LOGIN_COOKIE_NAME', 'string', true);
+const loginCookieDomain: string = environmentParserObj.get('LOGIN_COOKIE_DOMAIN', 'string', true);
+
+const namespace: string = environmentParserObj.get('NAMESPACE', 'string', true);
+const serverCommunicationKey: string = environmentParserObj.get('SERVER_COMMUNICATION_KEY', 'string', true);
+
+/* const smtpHost: string = environmentParserObj.get('SMTP_HOST', 'string', true);
+const smtpPort: number = environmentParserObj.get('SMTP_PORT', 'number', true);
+const noReplyEmail: string = environmentParserObj.get('NO_REPLY_EMAIL', 'string', true);
+const noReplyPassword: string = environmentParserObj.get('NO_REPLY_PASSWORD', 'string', true);
+const emailTemplatesFolder: string = environmentParserObj.get('EMAIL_TEMPLATES_FOLDER', 'string', true); */
+
+const jwtRsaPrivateKey: string = environmentParserObj.get('JWT_RSA_PRIVATE_KEY', 'string', true);
+const jwtRsaPublicKey: string = environmentParserObj.get('JWT_RSA_PUBLIC_KEY', 'string', true);
+const jwtAudience: string = environmentParserObj.get('APP_DOMAIN_NAME', 'string', true);
+
 const dbConnectionHost: string = environmentParserObj.get('DB_CONN_HOST', 'string', true);
 const dbConnectionUser: string = environmentParserObj.get('DB_CONN_USER', 'string', true);
 const dbConnectionPassword: string = environmentParserObj.get('DB_CONN_PASS', 'string', true);
-const loginConnectionDb: string = environmentParserObj.get('LOGIN_CONN_DB', 'string', true);
+const dbConnectionDb: string = environmentParserObj.get('DB_CONN_DB', 'string', true);
 
-const loginDbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, loginConnectionDb, 'utf8mb4');
+const dbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, dbConnectionDb, 'utf8mb4');
+const redisConnectionObj: RedisConnectionRelation = new RedisConnectionRelation(redisSessionUrls);
+const sessionManagerObj: SessionManager = new SessionManager({
+  redisObj: redisConnectionObj,
+  sessionPrefix: sessionManagerPrefix,
+  sessionParser: sessionManagerParser,
+  sessionExpInSec: sessionManagerSessionExpSec,
+  sessionCookieName: sessionManagerCookieName,
+  sessionCookieDomain: sessionManagerCookieDomain,
+  isSecureCookie: true,
+  sessionCookieExpInSec: sessionManagerCookieExpSec,
+});
+const serverCommunicationObj: ServerCommunication = new ServerCommunication(namespace, serverCommunicationKey);
+const jwtMethodsObj: JwtMethods = new JwtMethods('string', jwtRsaPrivateKey, jwtRsaPublicKey, 'LunarisApp', jwtAudience);
+const loginMethodsObj: LoginMethods = new LoginMethods(loginCookieName, loginCookieDomain, loginCookieExpInDays, loginSessionExpInMin, serverCommunicationObj, jwtMethodsObj);
+const socketMethodsObj: SocketMethods = new SocketMethods(serverCommunicationObj);
+//const emailHandlerNoReplyObj: EmailHandler = new EmailHandler(smtpHost, smtpPort, noReplyEmail, noReplyPassword, emailTemplatesFolder);
 
 const app: Express = express();
 const router: Router = Router();
+const secureRouter: Router = Router();
 
+app.use(cors(getCorsOptions([appUrl, websiteUrl])));
 app.use(cookieParser());
+router.use(express.urlencoded({ extended: false }));
+router.use(express.json());
+router.use(handleSessionManagementMiddleware(sessionManagerObj));
 
-router.use(express.urlencoded({ limit: '50mb', extended: false }));
-router.use(bodyParser.text({ limit: '50mb' }));
+secureRouter.use(express.urlencoded({ extended: false }));
+secureRouter.use(bodyParser.text());
+secureRouter.use(secureRoutesMiddleware(serverCommunicationObj));
 
 app.use(`/apiv${apiVersion}` + pathPrefix, router);
+app.use(pathPrefix, secureRouter);
 
 app.listen(serverPort, () => {
   console.log(`server listening on http://localhost:${serverPort}`);
 });
 
-appRoutes(router);
+appRoutes(router, dbConnection, loginMethodsObj, socketMethodsObj, serverCommunicationObj, jwtMethodsObj);
+secureRoutes(secureRouter, dbConnection, loginMethodsObj, jwtMethodsObj);
+healthRoutes(app);

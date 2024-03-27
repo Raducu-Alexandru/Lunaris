@@ -17,10 +17,25 @@
   "license": "ISC",
   "dependencies": {
     "@raducualexandrumircea/custom-db-handler": "^2.0.1",
+    "@raducualexandrumircea/email-handler": "^2.0.0",
     "@raducualexandrumircea/environment-parser": "^2.0.0",
+    "@raducualexandrumircea/login-authenticate": "^2.0.0",
+    "@raducualexandrumircea/lunaris-general": "^1.0.0",
+    "@raducualexandrumircea/lunaris-health-paths": "^1.0.0",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.0.3",
+    "@raducualexandrumircea/lunaris-jwt": "^1.0.5",
+    "@raducualexandrumircea/lunaris-login": "^1.0.2",
+    "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
+    "@raducualexandrumircea/lunaris-server-communication": "^1.0.3",
+    "@raducualexandrumircea/lunaris-socket-methods": "^1.0.0",
+    "@raducualexandrumircea/lunaris-sql-queries": "^1.0.4",
+    "@raducualexandrumircea/redis-session-manager": "^2.0.0",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.18.3",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "uid-safe": "^2.1.5",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
