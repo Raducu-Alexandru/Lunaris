@@ -1,0 +1,24 @@
+{
+  "name": "@raducualexandrumircea/lunaris-account",
+  "version": "1.0.2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "push": "npm run build && npm publish",
+    "build": "rm -rf ./dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@raducualexandrumircea/custom-db-handler": "^2.0.1",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.0.3",
+    "@raducualexandrumircea/lunaris-login": "^1.0.2",
+    "@raducualexandrumircea/redis-session-manager": "^2.0.0",
+    "express": "^4.19.1",
+    "typescript": "^5.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@raducualexandrumircea/lunaris-socket-methods",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "push": "npm run build && npm publish",
+    "build": "rm -rf ./dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@raducualexandrumircea/lunaris-interfaces": "^1.0.0",
+    "@raducualexandrumircea/lunaris-server-communication": "^1.0.2",
+    "@raducualexandrumircea/lunaris-service-names": "^1.0.0",
+    "typescript": "^5.4.3"
+  }
+}

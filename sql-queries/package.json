@@ -1,0 +1,17 @@
+{
+  "name": "@raducualexandrumircea/lunaris-sql-queries",
+  "version": "1.0.4",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "push": "npm run build && npm publish",
+    "build": "rm -rf ./dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@raducualexandrumircea/custom-db-handler": "^2.0.1",
+    "typescript": "^5.4.3"
+  }
+}

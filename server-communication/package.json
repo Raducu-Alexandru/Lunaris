@@ -1,0 +1,21 @@
+{
+  "name": "@raducualexandrumircea/lunaris-server-communication",
+  "version": "1.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "push": "npm run build && npm publish",
+    "build": "rm -rf ./dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@raducualexandrumircea/lunaris-interfaces": "^1.0.0",
+    "express": "^4.19.1",
+    "typescript": "^5.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30"
+  }
+}
