@@ -1,0 +1,54 @@
+:host {
+  width: 240px;
+  height: 225px;
+  overflow: auto;
+  padding: 20px;
+  background-color: #2d2d2d;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.wrapper {
+  width: auto;
+  height: auto;
+  overflow: auto;
+  display: block;
+  margin-bottom: 10px;
+  h1 {
+    width: 100%;
+    display: block;
+    text-align: center;
+    margin: 0;
+    font-size: 40px;
+    color: #67a5e1;
+    font-family: var(--montserrat-font);
+    font-weight: 600;
+  }
+  h3 {
+    width: 100%;
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    font-size: 25px;
+    color: var(--color-grey2);
+    font-family: var(--montserrat-font);
+    font-weight: 500;
+  }
+  span {
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 25px;
+    color: white;
+    font-family: var(--montserrat-font);
+    font-weight: 500;
+    margin-bottom: 5px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+}

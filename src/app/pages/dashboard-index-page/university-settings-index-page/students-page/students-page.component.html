@@ -1,0 +1,37 @@
+<h1 class="page-name">Students</h1>
+<button class="button" routerLink="create">Create</button>
+<input type="text" class="input" placeholder="Search by Email" (input)="onEmailSearchInput($event)">
+<div class="wrapper">
+  <table *ngIf="!searchedValue">
+    <tr>
+      <th class="user-id">ID</th>
+      <th>Email</th>
+      <th>Fullname</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let student of studentsTableDetails" [routerLink]="'edit/' + student.userId">
+      <td class="user-id">{{ student.userId}}</td>
+      <td>{{ student.email}}</td>
+      <td>{{ student.fullname }}</td>
+      <td>
+        <img src="/assets/imgs/arrowIcon939393.png" alt="edit">
+      </td>
+    </tr>
+  </table>
+  <table *ngIf="searchedValue">
+    <tr>
+      <th class="user-id">ID</th>
+      <th>Email</th>
+      <th>Fullname</th>
+      <th></th>
+    </tr>
+    <tr *ngFor="let student of filteredStudentsTableDetails" [routerLink]="'edit/' + student.userId">
+      <td class="user-id">{{ student.userId}}</td>
+      <td>{{ student.email}}</td>
+      <td>{{ student.fullname }}</td>
+      <td>
+        <img src="/assets/imgs/arrowIcon939393.png" alt="edit">
+      </td>
+    </tr>
+  </table>
+</div>

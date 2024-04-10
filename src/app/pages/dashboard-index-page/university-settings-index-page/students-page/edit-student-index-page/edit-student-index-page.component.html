@@ -1,0 +1,9 @@
+<h1 class="page-name">Student</h1>
+<app-go-back-text class="go-back" link="../.."></app-go-back-text>
+<span class="label">View</span>
+<select class="input" (input)="onSelectInput($event)">
+  <option value="platform-info" selected>Platform info</option>
+  <option value="scholar-situation">Scholar Situation</option>
+  <option value="programs">Programs</option>
+</select>
+<router-outlet></router-outlet>

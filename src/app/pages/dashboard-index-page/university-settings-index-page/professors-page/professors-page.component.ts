@@ -24,7 +24,7 @@ export class ProfessorsPageComponent implements OnInit {
     this.searchedValue = event.target.value;
     this.filteredProfessorsTableDetails = [];
     for (var professor of this.professorsTableDetails) {
-      if (professor.email.includes(this.searchedValue)) {
+      if (professor.email.toLowerCase().includes(this.searchedValue.toLowerCase())) {
         this.filteredProfessorsTableDetails.push(Object.assign({}, professor));
       }
     }
@@ -38,5 +38,4 @@ export class ProfessorsPageComponent implements OnInit {
     var customResponseObject: CustomResponseObject = responseObject.data;
     this.professorsTableDetails = customResponseObject.data.professorsTableDetails;
   }
-
 }

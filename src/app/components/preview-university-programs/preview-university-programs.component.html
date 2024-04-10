@@ -1,0 +1,13 @@
+<h1 class="page-name">Programs</h1>
+<button class="button" [routerLink]="createProgramLink" [queryParams]="{ schoolId: schoolId }">Create</button>
+<input type="text" class="input" placeholder="Search by Name" (input)="onNameSearchInput($event)">
+<div class="wrapper" *ngIf="!searchedValue">
+  <app-preview-info-banner class="program" *ngFor="let program of progamsPreviewDetails"
+    [big-text]="program.programName" [small-text]="program.programType"
+    [click-link]="editProgramLink + '/' + program.programId"></app-preview-info-banner>
+</div>
+<div class="wrapper" *ngIf="searchedValue">
+  <app-preview-info-banner class="program" *ngFor="let program of filteredProgamsPreviewDetails"
+    [big-text]="program.programName" [small-text]="program.programType"
+    [click-link]="editProgramLink + '/' + program.programId"></app-preview-info-banner>
+</div>

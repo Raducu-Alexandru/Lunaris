@@ -24,7 +24,7 @@ export class AdminsPageComponent implements OnInit {
     this.searchedValue = event.target.value;
     this.filteredadminsTableDetails = [];
     for (var admin of this.adminsTableDetails) {
-      if (admin.email.includes(this.searchedValue)) {
+      if (admin.email.toLowerCase().includes(this.searchedValue.toLowerCase())) {
         this.filteredadminsTableDetails.push(Object.assign({}, admin));
       }
     }

@@ -1,0 +1,5 @@
+<span class="label">Year</span>
+<select class="input" (input)="onSelectChange($event)">
+  <option *ngFor="let studyYear of studyYearsDetails" [value]="studyYear.studyYearId">{{ studyYear.fromYear }}
+    - {{ studyYear.toYear }}</option>
+</select>

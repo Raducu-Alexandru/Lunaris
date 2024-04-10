@@ -1,0 +1,8 @@
+<div class="close-wrapper">
+  <img src="/assets/imgs/closeIconCF6364.png" class="close" (click)="onCloseClick()" />
+</div>
+<span class="text">{{ popupConfigObj.text }}</span>
+<select class="input" [(ngModel)]="value">
+  <option *ngFor="let option of popupConfigObj.data.selectOptions" [value]="option.value">{{ option.text }}</option>
+</select>
+<button class="submit-button" (click)="onSubmitClick()">Submit</button>

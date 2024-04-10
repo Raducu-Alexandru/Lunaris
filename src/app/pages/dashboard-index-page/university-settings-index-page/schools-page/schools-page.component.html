@@ -1,0 +1,13 @@
+<h1 class="page-name">Schools</h1>
+<button class="button" routerLink="create">Create</button>
+<input type="text" class="input" placeholder="Search by Name" (input)="onNameSearchInput($event)">
+<div class="wrapper" *ngIf="!searchedValue">
+  <app-preview-info-banner class="info-banner" *ngFor="let school of schoolsPreviewDetails"
+    [big-text]="school.schoolName" [small-text]="'No. Programs: ' + school.noPrograms"
+    [click-link]="'edit/' + school.schoolId"></app-preview-info-banner>
+</div>
+<div class="wrapper" *ngIf="searchedValue">
+  <app-preview-info-banner class="info-banner" *ngFor="let school of filteredschoolsPreviewDetails"
+    [big-text]="school.schoolName" [small-text]="'No. Programs: ' + school.noPrograms"
+    [click-link]="'edit/' + school.schoolId"></app-preview-info-banner>
+</div>

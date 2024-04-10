@@ -1,0 +1,14 @@
+<div class="close-wrapper">
+  <img src="/assets/imgs/closeIconCF6364.png" class="close" (click)="onCloseClick()" />
+</div>
+<span class="text">{{ popupConfigObj.text }}</span>
+<span class="label">Program</span>
+<select class="input" (input)="onProgramSelect($event)">
+  <option *ngFor="let program of progamsPreviewDetails" [value]="program.programId">{{ program.programName }} - {{
+    program.programType }}</option>
+</select>
+<span class="label">Year</span>
+<select class="input" [(ngModel)]="selectedYearId">
+  <option *ngFor="let year of yearsPreviewDetails" [value]="year.yearId">Year {{ year.yearIndex }}</option>
+</select>
+<button class="submit-button" (click)="onSubmitClick()">Submit</button>

@@ -1,0 +1,47 @@
+:host {
+  width: 100%;
+  height: auto;
+  isolation: isolate;
+  overflow: auto;
+  background-color: var(--color-01dp);
+  box-sizing: border-box;
+  padding-top: 50px;
+  display: block;
+}
+
+.wrapper {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+  display: block;
+  margin: auto;
+  max-width: 800px;
+  box-sizing: border-box;
+  padding: 20px;
+  .input {
+    width: 90%;
+    max-width: 400px;
+    margin-bottom: 50px;
+  }
+  .checkbox-wrapper {
+    width: 90%;
+    max-width: 400px;
+    margin-bottom: 50px;
+    display: block;
+    margin: auto;
+    overflow: auto;
+    .checkbox {
+      float: left;
+    }
+    span {
+      color: white;
+      float: left;
+      margin-left: 20px;
+    }
+  }
+  .button {
+    display: block;
+    margin: auto;
+    margin-top: 60px;
+  }
+}

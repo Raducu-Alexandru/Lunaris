@@ -1,0 +1,9 @@
+<h1 class="page-name">School</h1>
+<app-go-back-text class="go-back" link="../.."></app-go-back-text>
+<div class="wrapper" *ngIf="schoolEditDetails">
+  <input [(ngModel)]="schoolEditDetails.schoolName" type="text" class="input" name="school-name"
+    placeholder="School Name">
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>
+<app-preview-university-programs [schoolId]="schoolId" createProgramLink="../../../programs/create"
+  editProgramLink="../../../programs/edit"></app-preview-university-programs>

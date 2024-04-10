@@ -1,0 +1,32 @@
+<h1 class="page-name">New Study Year</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper">
+  <div class="years-wrapper" *ngIf="studyYearDetails">
+    <h1 class="year">{{ studyYearDetails.fromYear + 1 }}</h1>
+    <div class="separator"></div>
+    <h1 class="year">{{ studyYearDetails.toYear + 1 }}</h1>
+  </div>
+  <select class="input" (input)="onChangeSelectMode($event)">
+    <option value="0" selected>Select everybody except</option>
+    <option value="1">Select nobody except</option>
+  </select>
+  <div class="warning-box">
+    <img src="/assets/imgs/warningIconFFFFFF.png" alt="warning">
+    <span *ngIf="selectMode == 0">This selection mode will create a new year for every student from the previous year to
+      this year, except for individual
+      students or groups of students that you select below. For the students that are in the final year of their
+      program(s)
+      nothing will happen.</span>
+    <span *ngIf="selectMode == 1">This selection mode will create a new year only for the
+      students or groups of students that you select below. For the students that are in the final year of their
+      program(s)
+      nothing will happen.</span>
+  </div>
+  <form (submit)="onStudentSearchSubmit($event)">
+    <input type="text" class="input" placeholder="Search by Email" name="student-email" [(ngModel)]="studentEmail">
+    <button class="button" type="submit">Add student</button>
+  </form>
+  <app-preview-info-banner class="student" *ngFor="let student of studyYearStudentsDetails" [big-text]="student.email"
+    [show-delete]="true" [no-click]="true" (delete)="onStudentDelete(student.userId)"></app-preview-info-banner>
+  <button class="button create" (click)="onCreateClick()">Create</button>
+</div>

@@ -11,3 +11,11 @@
   [popup-config]="popupConfigObj"></app-warning-popup>
 <app-text-input-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'text-input'"
   [popup-config]="popupConfigObj"></app-text-input-popup>
+<app-dropdown-select-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'dropdown-select'"
+  [popup-config]="popupConfigObj"></app-dropdown-select-popup>
+<app-select-program-year *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'select-program-year'"
+  [popup-config]="popupConfigObj"></app-select-program-year>
+<app-number-input-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'number-input'"
+  [popup-config]="popupConfigObj"></app-number-input-popup>
+<app-checkmark-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'checkmark'"
+  [popup-config]="popupConfigObj"></app-checkmark-popup>

@@ -1,0 +1,20 @@
+:host {
+  position: relative;
+  display: block;
+  margin: auto;
+  overflow: auto;
+}
+
+.label {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
+.input {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: auto;
+  margin-bottom: 5px;
+}

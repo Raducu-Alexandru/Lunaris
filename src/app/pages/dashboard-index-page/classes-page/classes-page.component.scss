@@ -1,0 +1,39 @@
+:host {
+  width: calc(100% - 300px);
+  height: calc(100% - 30px);
+  position: relative;
+  isolation: isolate;
+  float: right;
+  overflow: auto;
+  display: block;
+  margin-top: 30px;
+}
+
+.button {
+  margin: 50px auto;
+}
+
+.input {
+  display: block;
+  margin: auto;
+  width: 500px;
+  margin-top: 50px;
+}
+
+.wrapper {
+  width: 90%;
+  max-width: 1000px;
+  height: auto;
+  overflow: auto;
+  display: grid;
+  margin: auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 50px;
+}
+
+@media (max-width: 1200px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+}

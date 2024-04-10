@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
-import { AuthenticateService } from '../../custom-services/authenticate/authenticate.service';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 import { UserRoleService } from '../../custom-services/user-role/user-role.service';
 
 @Injectable({
@@ -8,13 +7,17 @@ import { UserRoleService } from '../../custom-services/user-role/user-role.servi
 })
 export class CheckUserRoleGuard implements CanActivate {
   constructor(
-    private _authenticateService: AuthenticateService,
-    private _userRoleService: UserRoleService
+    private _userRoleService: UserRoleService,
+    private _router: Router
   ) { }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-    var checkRole: number = parseInt(route.data['checkRole']);
+    var checkRole: number[] = route.data['checkRole'];
     var userRole: number = await this._userRoleService.getUserRole();
-    return checkRole == userRole;
+    if (checkRole.includes(userRole)) {
+      return true;
+    }
+    this._router.navigate([]);
+    return false;
   }
 }

@@ -1,0 +1,17 @@
+<h1 class="page-name">Year {{ yearIndex || '' }}</h1>
+<app-go-back-text class="go-back" (click)="onGoBackClick()"></app-go-back-text>
+<div class="wrapper">
+  <table>
+    <tr>
+      <th>Subject name</th>
+      <th class="semester-index">Semester</th>
+    </tr>
+    <tr *ngFor="let subject of yearEditDetails">
+      <td>{{ subject.subjectName }}</td>
+      <td class="semester-index">
+        <input type="number" class="input" [(ngModel)]="subject.semesterIndex">
+      </td>
+    </tr>
+  </table>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

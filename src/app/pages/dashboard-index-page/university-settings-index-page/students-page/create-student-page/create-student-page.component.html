@@ -1,0 +1,16 @@
+<h1 class="page-name">New Student</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper" *ngIf="studentEditDetails">
+  <input [(ngModel)]="studentEditDetails.firstName" type="text" class="input" name="firstname" placeholder="Firstname">
+  <input [(ngModel)]="studentEditDetails.lastName" type="text" class="input" name="lastname" placeholder="Lastname">
+  <input [(ngModel)]="studentEditDetails.email" type="text" class="input" name="email" placeholder="Email">
+  <input [(ngModel)]="password" type="password" class="input" name="new-password" placeholder="New password">
+  <input [(ngModel)]="retypePassword" type="password" class="input" name="re-new-password"
+    placeholder="Re-type New Password">
+  <span class="label">Programs</span>
+  <button class="button" (click)="onAddProgramClick()">Add</button>
+  <app-preview-info-banner class="info-banner" *ngFor="let program of studentProgramsPreviewDetails"
+    [big-text]="program.programName" [small-text]="'Year: ' + program.yearIndex"
+    [no-click]="true"></app-preview-info-banner>
+  <button class="button" (click)="onCreateClick()">Create</button>
+</div>

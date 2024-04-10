@@ -1,0 +1,34 @@
+:host {
+  width: 100%;
+  height: auto;
+  isolation: isolate;
+  overflow: auto;
+  background-color: var(--color-01dp);
+  padding-top: 50px;
+  display: block;
+}
+
+.button {
+  margin-bottom: 50px;
+}
+
+.input {
+  display: block;
+  margin: auto;
+  width: 500px;
+  margin-top: 50px;
+}
+
+.wrapper {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+  display: block;
+  margin: auto;
+  max-width: 800px;
+  box-sizing: border-box;
+  padding: 20px;
+  .info-banner {
+    margin-bottom: 50px;
+  }
+}

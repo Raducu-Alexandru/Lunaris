@@ -1,0 +1,21 @@
+<h1 class="page-name">New Program</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper">
+  <input [(ngModel)]="programEditDetails.programName" type="text" class="input" name="program-name"
+    placeholder="Program Name">
+  <input [(ngModel)]="programEditDetails.programShortName" type="text" class="input" name="program-short-name"
+    placeholder="Program Short Name">
+  <span class="label">Program Type</span>
+  <select class="input" name="program-type" [(ngModel)]="programEditDetails.programType">
+    <option value="Bachelor">Bachelor</option>
+    <option value="Master">Master</option>
+  </select>
+  <span class="label">School</span>
+  <select name="school-id" class="input" [(ngModel)]="programEditDetails.schoolId">
+    <option *ngFor="let school of schoolsPreviewDetails" [value]="school.schoolId">{{ school.schoolName }}</option>
+  </select>
+  <button class="button" (click)="onAddYearClick()">Add Year</button>
+  <app-create-program-year *ngFor="let year of years; let i = index" [year]="i + 1" class="year"
+    (delete)="onDeleteYear(i)" (custom-input)="onYearInput($event, i)"></app-create-program-year>
+  <button class="button" (click)="onCreateClick()">Create</button>
+</div>

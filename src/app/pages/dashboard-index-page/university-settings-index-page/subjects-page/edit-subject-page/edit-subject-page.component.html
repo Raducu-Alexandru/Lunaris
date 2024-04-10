@@ -1,0 +1,14 @@
+<h1 class="page-name">Subject</h1>
+<app-go-back-text class="go-back" link="../.."></app-go-back-text>
+<div class="wrapper" *ngIf="subjectEditDetails">
+  <input [(ngModel)]="subjectEditDetails.subjectName" type="text" class="input" name="subject-name"
+    placeholder="Subject Name">
+  <input [(ngModel)]="subjectEditDetails.subjectCredits" type="number" class="input" name="subject-credits"
+    placeholder="Subject Credits">
+  <div class="checkbox-wrapper">
+    <app-checkbox class="checkbox" [is-checked]="subjectEditDetails.archived"
+      (custom-input)="onArchivedInput($event)"></app-checkbox>
+    <span class="label">Archived</span>
+  </div>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

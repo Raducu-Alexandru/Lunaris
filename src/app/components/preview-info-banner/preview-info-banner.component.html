@@ -1,0 +1,9 @@
+<div class="wrapper" (click)="onWrapperClick()" [ngClass]="{ 'no-click': isNoClick }">
+  <div class="info-wrapper">
+    <span class="big" *ngIf="bigText" [ngClass]="{ 'no-small-text': !smallText }">{{ bigText }}</span>
+    <span class="small" *ngIf="smallText">{{ smallText }}</span>
+  </div>
+  <img *ngIf="!isNoClick" src="/assets/imgs/arrowIcon939393.png" alt="edit">
+  <img *ngIf="showDelete" class="delete-img" src="/assets/imgs/trashIconCF6364.png" alt="delete"
+    (click)="onDeleteClick()">
+</div>

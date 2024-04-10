@@ -1,0 +1,97 @@
+:host {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  left: 0;
+  isolation: isolate;
+  overflow: auto;
+  background-color: var(--color-01dp);
+}
+
+.go-back {
+  margin-top: 30px;
+  margin-bottom: 50px;
+  display: block;
+  margin-left: 40px;
+}
+
+.wrapper {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+  display: block;
+  margin: auto;
+  max-width: 800px;
+  box-sizing: border-box;
+  padding: 20px;
+  text-align: center;
+  .years-wrapper {
+    height: auto;
+    overflow: auto;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 50px;
+    .year {
+      font-weight: 600;
+      color: #67a5e1;
+      font-size: 60px;
+      font-family: var(--montserrat-font);
+      margin: 0;
+    }
+    .separator {
+      width: 35px;
+      height: 10px;
+      border-radius: 10px;
+      background-color: white;
+      margin-left: 50px;
+      margin-right: 50px;
+    }
+  }
+  .input {
+    width: 90%;
+    max-width: 400px;
+    margin-bottom: 50px;
+  }
+  .warning-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    height: auto;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    background-color: var(--color-red2);
+    img {
+      width: 70px;
+      height: auto;
+      margin-left: 10px;
+    }
+    span {
+      text-align: left;
+      font-size: 17px;
+      font-weight: 500;
+      color: white;
+      line-height: 30px;
+      font-family: var(--montserrat-font);
+      box-sizing: border-box;
+      padding-left: 30px;
+    }
+  }
+  form {
+    width: 100%;
+    height: auto;
+    overflow: auto;
+    margin-top: 50px;
+    display: block;
+    padding-top: 10px;
+  }
+  .student {
+    margin-top: 30px;
+  }
+  .button.create {
+    margin-top: 100px;
+  }
+}

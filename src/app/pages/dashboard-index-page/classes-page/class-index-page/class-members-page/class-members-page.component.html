@@ -1,0 +1,17 @@
+<h1 class="page-name">Members</h1>
+<div class="wrapper">
+  <div class="add-members-wrapper" *ngIf="userRole != 1">
+    <form (submit)="onEmailSearchSubmit($event)">
+      <input type="text" class="input" placeholder="Search by Email" name="user-email" [(ngModel)]="userEmail">
+      <button class="button" type="submit">Add member</button>
+    </form>
+    <app-preview-info-banner class="student" *ngFor="let student of studyYearStudentsDetails" [big-text]="student.email"
+      [show-delete]="true" [no-click]="true" (delete)="onStudentDelete(student.userId)"></app-preview-info-banner>
+    <button class="button" (click)="onSaveClick()">Save</button>
+  </div>
+  <span class="label">{{ userRole != 1 ? 'Edit' : '' }} Members</span>
+  <app-preview-info-banner class="member" *ngFor="let member of classMembersDetails"
+    [big-text]="member.fullname + ' (' + member.email + ')'"
+    [show-delete]="userRole != 1 && !member.fullname.toLowerCase().includes('you')" [no-click]="true"
+    (delete)="onMemberDelete(member.userId)"></app-preview-info-banner>
+</div>

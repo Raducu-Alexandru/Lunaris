@@ -1,0 +1,28 @@
+<h1 class="page-name">Program</h1>
+<app-go-back-text class="go-back" link="../.."></app-go-back-text>
+<div class="wrapper" *ngIf="programEditDetails">
+  <input [(ngModel)]="programEditDetails.programName" type="text" class="input" name="program-name"
+    placeholder="Program Name">
+  <input [(ngModel)]="programEditDetails.programShortName" type="text" class="input" name="program-short-name"
+    placeholder="Program Short Name">
+  <span class="label">Program Type</span>
+  <select class="input" name="program-type" [(ngModel)]="programEditDetails.programType">
+    <option value="Bachelor">Bachelor</option>
+    <option value="Master">Master</option>
+  </select>
+  <span class="label">School</span>
+  <input type="text" class="input" disabled="true" readonly="true" [value]="selectedSchoolName">
+  <div class="checkbox-wrapper">
+    <app-checkbox class="checkbox" [is-checked]="programEditDetails.archived"
+      (custom-input)="onArchiveInput($event)"></app-checkbox>
+    <span class="label">Archived</span>
+  </div>
+  <button class="button" (click)="onAddYearClick()">Add Year</button>
+  <app-create-program-year *ngFor="let year of years; let i = index" [year]="yearsPreviewDetails.length + i + 1"
+    class="year" (delete)="onDeleteYear(i)" (custom-input)="onYearInput($event, i)"></app-create-program-year>
+  <button class="button" (click)="onSaveClick()">Save</button>
+  <span class="page-subtitle">Years</span>
+  <app-preview-info-banner class="info-banner" *ngFor="let year of yearsPreviewDetails"
+    [big-text]="'Year ' + year.yearIndex" [small-text]="'No. Subjects: ' + year.noSubjects"
+    [click-link]="'../../years/edit/' + year.yearId"></app-preview-info-banner>
+</div>

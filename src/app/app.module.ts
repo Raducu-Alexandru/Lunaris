@@ -35,6 +35,40 @@ import { CheckboxComponent } from './components/checkbox/checkbox.component';
 import { GoBackTextComponent } from './components/go-back-text/go-back-text.component';
 import { CreateAdminPageComponent } from './pages/dashboard-index-page/university-settings-index-page/admins-page/create-admin-page/create-admin-page.component';
 import { CreateProfessorPageComponent } from './pages/dashboard-index-page/university-settings-index-page/professors-page/create-professor-page/create-professor-page.component';
+import { SchoolsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/schools-page/schools-page.component';
+import { PreviewInfoBannerComponent } from './components/preview-info-banner/preview-info-banner.component';
+import { CreateSchoolPageComponent } from './pages/dashboard-index-page/university-settings-index-page/schools-page/create-school-page/create-school-page.component';
+import { EditSchoolPageComponent } from './pages/dashboard-index-page/university-settings-index-page/schools-page/edit-school-page/edit-school-page.component';
+import { PreviewUniversityProgramsComponent } from './components/preview-university-programs/preview-university-programs.component';
+import { ProgramsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/programs-page/programs-page.component';
+import { CreateProgramPageComponent } from './pages/dashboard-index-page/university-settings-index-page/programs-page/create-program-page/create-program-page.component';
+import { EditProgramPageComponent } from './pages/dashboard-index-page/university-settings-index-page/programs-page/edit-program-page/edit-program-page.component';
+import { SubjectsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/subjects-page/subjects-page.component';
+import { CreateSubjectPageComponent } from './pages/dashboard-index-page/university-settings-index-page/subjects-page/create-subject-page/create-subject-page.component';
+import { EditSubjectPageComponent } from './pages/dashboard-index-page/university-settings-index-page/subjects-page/edit-subject-page/edit-subject-page.component';
+import { CreateProgramYearComponent } from './components/create-program-year/create-program-year.component';
+import { DropdownSelectPopupComponent } from './components/popups/dropdown-select-popup/dropdown-select-popup.component';
+import { EditYearPageComponent } from './pages/dashboard-index-page/university-settings-index-page/programs-page/edit-year-page/edit-year-page.component';
+import { StudentsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/students-page.component';
+import { EditStudentIndexPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/edit-student-index-page/edit-student-index-page.component';
+import { PlatformInfoStudentPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/edit-student-index-page/platform-info-student-page/platform-info-student-page.component';
+import { ProgramsStudentPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/edit-student-index-page/programs-student-page/programs-student-page.component';
+import { ScholarSituationStudentPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/edit-student-index-page/scholar-situation-student-page/scholar-situation-student-page.component';
+import { SelectProgramYear } from './components/popups/select-program-year/select-program-year.component';
+import { StudentYearsDropdownComponent } from './components/student-years-dropdown/student-years-dropdown.component';
+import { OutOfBoxComponent } from './components/out-of-box/out-of-box.component';
+import { NumberInputPopupComponent } from './components/popups/number-input-popup/number-input-popup.component';
+import { CreateStudentPageComponent } from './pages/dashboard-index-page/university-settings-index-page/students-page/create-student-page/create-student-page.component';
+import { NewStudyYearPageComponent } from './pages/dashboard-index-page/university-settings-index-page/new-study-year-page/new-study-year-page.component';
+import { CheckmarkPopupComponent } from './components/popups/checkmark-popup/checkmark-popup.component';
+import { ClassesPageComponent } from './pages/dashboard-index-page/classes-page/classes-page.component';
+import { StudyYearDropdownComponent } from './components/study-year-dropdown/study-year-dropdown.component';
+import { ClassPreviewBoxComponent } from './components/class-preview-box/class-preview-box.component';
+import { CreateClassPageComponent } from './pages/dashboard-index-page/classes-page/create-class-page/create-class-page.component';
+import { ClassIndexPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-index-page.component';
+import { ClassHomePageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-home-page/class-home-page.component';
+import { ClassAssigmentsPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/class-assigments-page.component';
+import { ClassMembersPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-members-page/class-members-page.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +101,41 @@ import { CreateProfessorPageComponent } from './pages/dashboard-index-page/unive
     CheckboxComponent,
     GoBackTextComponent,
     CreateAdminPageComponent,
-    CreateProfessorPageComponent
+    CreateProfessorPageComponent,
+    SchoolsPageComponent,
+    PreviewInfoBannerComponent,
+    CreateSchoolPageComponent,
+    EditSchoolPageComponent,
+    PreviewUniversityProgramsComponent,
+    ProgramsPageComponent,
+    CreateProgramPageComponent,
+    EditProgramPageComponent,
+    SubjectsPageComponent,
+    CreateSubjectPageComponent,
+    EditSubjectPageComponent,
+    CreateProgramYearComponent,
+    DropdownSelectPopupComponent,
+    EditYearPageComponent,
+    StudentsPageComponent,
+    EditStudentIndexPageComponent,
+    PlatformInfoStudentPageComponent,
+    ProgramsStudentPageComponent,
+    ScholarSituationStudentPageComponent,
+    SelectProgramYear,
+    StudentYearsDropdownComponent,
+    OutOfBoxComponent,
+    NumberInputPopupComponent,
+    CreateStudentPageComponent,
+    NewStudyYearPageComponent,
+    CheckmarkPopupComponent,
+    ClassesPageComponent,
+    StudyYearDropdownComponent,
+    ClassPreviewBoxComponent,
+    CreateClassPageComponent,
+    ClassIndexPageComponent,
+    ClassHomePageComponent,
+    ClassAssigmentsPageComponent,
+    ClassMembersPageComponent
   ],
   imports: [
     BrowserModule,

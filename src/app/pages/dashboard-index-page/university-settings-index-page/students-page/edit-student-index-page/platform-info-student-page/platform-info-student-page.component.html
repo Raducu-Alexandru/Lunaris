@@ -1,0 +1,14 @@
+<div class="wrapper" *ngIf="studentEditDetails">
+  <input [(ngModel)]="studentEditDetails.firstName" type="text" class="input" name="firstname" placeholder="Firstname">
+  <input [(ngModel)]="studentEditDetails.lastName" type="text" class="input" name="lastname" placeholder="Lastname">
+  <input [(ngModel)]="studentEditDetails.email" type="text" class="input" name="email" placeholder="Email">
+  <input [(ngModel)]="newPassword" type="password" class="input" name="new-password" placeholder="New password">
+  <input [(ngModel)]="retypeNewPassword" type="password" class="input" name="re-new-password"
+    placeholder="Re-type New Password">
+  <div class="checkbox-wrapper">
+    <app-checkbox class="checkbox" [is-checked]="studentEditDetails.disabled"
+      (custom-input)="onDisableInput($event)"></app-checkbox>
+    <span class="label">Disabled</span>
+  </div>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

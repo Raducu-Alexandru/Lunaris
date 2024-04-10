@@ -1,0 +1,18 @@
+<div class="wrapper" [ngClass]="{'open': isOpen}">
+  <div class="top-wrapper" (click)="onToggleState()">
+    <img class="delete-year" src="/assets/imgs/trashIconCF6364.png" alt="delete" (click)="onDeleteYearClick()">
+    <span>Year {{ year }}</span>
+    <img class="arrow" src="/assets/imgs/arrowIcon939393.png" alt="open/close">
+  </div>
+  <button class="button" (click)="onAddSubjectClick()">Add Subject</button>
+  <div class="subjects-wrapper">
+    <div class="subject-wrapper" *ngFor="let yearSubject of yearSubjectsPreviewDetails; let i = index">
+      <span class="name">{{ yearSubject.subjectName }}</span>
+      <div class="input-wrapper">
+        <span class="label">Semester:</span>
+        <input type="number" class="input" (input)="onSemesterInput($event, i)" [value]="yearSubject.semesterIndex">
+      </div>
+      <img class="delete-subject" src="/assets/imgs/trashIconCF6364.png" alt="delete" (click)="onDeleteSubjectClick(i)">
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+:host {
+  width: auto;
+  height: auto;
+  display: block;
+}
+
+.wrapper {
+  width: 100%;
+  height: auto;
+  overflow: auto;
+  position: relative;
+  display: block;
+  margin: auto;
+  .program {
+    display: block;
+    margin-top: 50px;
+  }
+}
+
+.input {
+  display: block;
+  margin: auto;
+  width: 500px;
+  margin-top: 50px;
+}

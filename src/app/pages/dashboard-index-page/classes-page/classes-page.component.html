@@ -1,0 +1,12 @@
+<h1 class="page-name">Classes</h1>
+<app-study-year-dropdown (custom-input)="onStudyYearSelectInput($event)"></app-study-year-dropdown>
+<button class="button" *ngIf="userRole != 1" routerLink="create">Create</button>
+<input type="text" class="input" placeholder="Search by Name" (input)="onNameSearchInput($event)">
+<div class="wrapper" *ngIf="!searchedValue">
+  <app-class-preview-box *ngFor="let class of classesPreviewDetails"
+    [class-preview-details]="class"></app-class-preview-box>
+</div>
+<div class="wrapper" *ngIf="searchedValue">
+  <app-class-preview-box *ngFor="let class of filteredClassesPreviewDetails"
+    [class-preview-details]="class"></app-class-preview-box>
+</div>

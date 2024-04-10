@@ -38,9 +38,8 @@ export type PopupType =
   | 'confirmation'
   | 'alert'
   | 'alert-confirmation'
-  | 'ok'
   | 'info'
-  | 'warning' | 'text-input';
+  | 'warning' | 'text-input' | 'dropdown-select' | 'select-program-year' | 'number-input' | 'checkmark';
 
 export interface PopupConfig {
   type: PopupType;

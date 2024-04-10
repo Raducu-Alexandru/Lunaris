@@ -1,0 +1,31 @@
+<h1 class="page-name">New Class</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper">
+  <div class="checkbox-wrapper">
+    <app-checkbox class="checkbox" [is-checked]="classForSubject"
+      (custom-input)="onCheckboxInput($event)"></app-checkbox>
+    <span class="label">Create class for a subject</span>
+  </div>
+  <app-study-year-dropdown (custom-input)="onStudyYearSelectInput($event)"></app-study-year-dropdown>
+  <div class="container" *ngIf="classForSubject">
+    <input type="text" class="input" placeholder="Class Prefix" name="class-prefix" [(ngModel)]="classPrefix">
+    <input type="text" class="input" placeholder="Class Suffix" name="class-suffix" [(ngModel)]="classSuffix">
+    <span class="label">Subject</span>
+    <select class="input" [(ngModel)]="subjectId" name="subject">
+      <option *ngFor="let subject of subjectsPreviewDetails" [value]="subject.subjectId">{{ subject.subjectName }}
+      </option>
+    </select>
+  </div>
+  <div class="container" *ngIf="!classForSubject">
+    <input type="text" class="input" placeholder="Class Name" name="class-name" [(ngModel)]="className">
+  </div>
+  <textarea class="textarea" name="description" placeholder="Description" [(ngModel)]="description"></textarea>
+  <span class="label">Members</span>
+  <form (submit)="onEmailSearchSubmit($event)">
+    <input type="text" class="input" placeholder="Search by Email" name="user-email" [(ngModel)]="userEmail">
+    <button class="button" type="submit">Add member</button>
+  </form>
+  <app-preview-info-banner class="student" *ngFor="let student of studyYearStudentsDetails" [big-text]="student.email"
+    [show-delete]="true" [no-click]="true" (delete)="onStudentDelete(student.userId)"></app-preview-info-banner>
+  <button class="button create" (click)="onCreateClick()">Create</button>
+</div>

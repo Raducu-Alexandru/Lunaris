@@ -15,6 +15,7 @@ export const environment = {
   useSocketEncryption: false,
   cdnUrl: `${protocol}api.${domain}/apiv${apiVersion}/cdn`,
   userDetailsUrl: `${protocol}api.${domain}/apiv${apiVersion}/user-details`,
+  classesUrl: `${protocol}api.${domain}/apiv${apiVersion}/classes`,
   loginUrl: `${protocol}api.${domain}/apiv${apiVersion}/login`,
   messagesUrl: `${protocol}api.${domain}/apiv${apiVersion}/messages`,
   universitySettingsUrl: `${protocol}api.${domain}/apiv${apiVersion}/university-settings`,

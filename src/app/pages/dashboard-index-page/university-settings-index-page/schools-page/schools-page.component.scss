@@ -1,0 +1,30 @@
+:host {
+  width: 100%;
+  height: calc(100% - 80px);
+  position: relative;
+  isolation: isolate;
+  float: left;
+  overflow: auto;
+}
+
+.input {
+  display: block;
+  margin: auto;
+  width: 500px;
+  margin-top: 50px;
+}
+
+.wrapper {
+  width: 100%;
+  display: block;
+  margin: auto;
+  max-width: 1000px;
+  height: auto;
+  overflow: auto;
+  margin-top: 60px;
+  box-sizing: border-box;
+  padding: 40px;
+  .info-banner {
+    margin-bottom: 50px;
+  }
+}
