@@ -1,6 +1,6 @@
 {
   "name": "@raducualexandrumircea/lunaris-interfaces",
-  "version": "1.0.7",
+  "version": "1.1.11",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
