@@ -40,6 +40,7 @@ import { ClassIndexPageComponent } from './pages/dashboard-index-page/classes-pa
 import { ClassHomePageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-home-page/class-home-page.component';
 import { ClassAssigmentsPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/class-assigments-page.component';
 import { ClassMembersPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-members-page/class-members-page.component';
+import { ClassFinalGradesPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-final-grades-page/class-final-grades-page.component';
 
 const routes: Routes = [
   {
@@ -115,6 +116,12 @@ const routes: Routes = [
               {
                 path: 'assigments',
                 component: ClassAssigmentsPageComponent
+              },
+              {
+                path: 'final-grades',
+                component: ClassFinalGradesPageComponent,
+                canActivate: [CheckUserRoleGuard],
+                data: { checkRole: [3, 2] },
               },
               {
                 path: 'members',

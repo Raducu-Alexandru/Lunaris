@@ -4,13 +4,20 @@ import { AuthenticateService } from '../../../../../custom-services/authenticate
 import { ActivatedRoute } from '@angular/router';
 import { ResponseObject } from '../../../../../services/cryptography-network.service';
 import { environment } from '../../../../../../environments/environment';
-import { CustomResponseObject, StudyYearStudentDetails, UserTableDetails } from '@raducualexandrumircea/lunaris-interfaces';
-import { PopupResult, PopupsService } from '../../../../../custom-services/popup/popups.service';
+import {
+  CustomResponseObject,
+  StudyYearStudentDetails,
+  UserTableDetails,
+} from '@raducualexandrumircea/lunaris-interfaces';
+import {
+  PopupResult,
+  PopupsService,
+} from '../../../../../custom-services/popup/popups.service';
 
 @Component({
   selector: 'app-class-members-page',
   templateUrl: './class-members-page.component.html',
-  styleUrl: './class-members-page.component.scss'
+  styleUrl: './class-members-page.component.scss',
 })
 export class ClassMembersPageComponent implements OnInit {
   userRole: number = 0;
@@ -19,10 +26,17 @@ export class ClassMembersPageComponent implements OnInit {
   studyYearStudentsDetails: StudyYearStudentDetails[] = [];
   userEmail: string = '';
 
-  constructor(private _popupsService: PopupsService, private _activatedRoute: ActivatedRoute, private _authenticateService: AuthenticateService, private _userRoleService: UserRoleService) { }
+  constructor(
+    private _popupsService: PopupsService,
+    private _activatedRoute: ActivatedRoute,
+    private _authenticateService: AuthenticateService,
+    private _userRoleService: UserRoleService
+  ) {}
 
   async ngOnInit(): Promise<void> {
-    this.classId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('classId'));
+    this.classId = parseInt(
+      this._activatedRoute.parent.snapshot.paramMap.get('classId')
+    );
     this.userRole = await this._userRoleService.getUserRole();
     await this._getClassMembersDetails();
   }
@@ -35,7 +49,7 @@ export class ClassMembersPageComponent implements OnInit {
     if (popupResult.result != 'yes') {
       return;
     }
-    if ((await this._addMembers())) {
+    if (await this._addMembers()) {
       this.studyYearStudentsDetails = [];
       await this._getClassMembersDetails();
     }
@@ -47,7 +61,7 @@ export class ClassMembersPageComponent implements OnInit {
     if (!this.userEmail) {
       this._popupsService.openPopup({
         text: 'Please enter a student email',
-        type: 'alert'
+        type: 'alert',
       });
       return;
     }
@@ -58,7 +72,9 @@ export class ClassMembersPageComponent implements OnInit {
 
   onStudentDelete(userId: number): void {
     console.log(userId);
-    this.studyYearStudentsDetails = this.studyYearStudentsDetails.filter((val: StudyYearStudentDetails) => val.userId != userId);
+    this.studyYearStudentsDetails = this.studyYearStudentsDetails.filter(
+      (val: StudyYearStudentDetails) => val.userId != userId
+    );
   }
 
   async onMemberDelete(memberUserId: number): Promise<void> {
@@ -70,9 +86,11 @@ export class ClassMembersPageComponent implements OnInit {
     if (popupResult.result != 'yes') {
       return;
     }
-    if ((await this._deleteMember(memberUserId))) {
+    if (await this._deleteMember(memberUserId)) {
       console.log(this.classMembersDetails);
-      this.classMembersDetails = this.classMembersDetails.filter((val: UserTableDetails) => val.userId != memberUserId);
+      this.classMembersDetails = this.classMembersDetails.filter(
+        (val: UserTableDetails) => val.userId != memberUserId
+      );
       console.log(this.classMembersDetails);
     }
   }
@@ -84,9 +102,13 @@ export class ClassMembersPageComponent implements OnInit {
     }
     var body: CurrentBody = {
       classId: this.classId,
-      usersIds: this.studyYearStudentsDetails.map((val) => val.userId)
-    }
-    var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + '/add/members', body);
+      usersIds: this.studyYearStudentsDetails.map((val) => val.userId),
+    };
+    var responseObject: ResponseObject =
+      await this._authenticateService.sendPostReq(
+        environment.classesUrl + '/add/members',
+        body
+      );
     if (!this._authenticateService.checkResponse(responseObject)) {
       return false;
     }
@@ -100,9 +122,13 @@ export class ClassMembersPageComponent implements OnInit {
     }
     var body: CurrentBody = {
       classId: this.classId,
-      memberUserId: memberUserId
-    }
-    var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + '/delete/member', body);
+      memberUserId: memberUserId,
+    };
+    var responseObject: ResponseObject =
+      await this._authenticateService.sendPostReq(
+        environment.classesUrl + '/delete/member',
+        body
+      );
     if (!this._authenticateService.checkResponse(responseObject)) {
       return false;
     }
@@ -110,7 +136,10 @@ export class ClassMembersPageComponent implements OnInit {
   }
 
   private async _getClassMembersDetails(): Promise<void> {
-    var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.classesUrl + `/get/members/${this.classId}`);
+    var responseObject: ResponseObject =
+      await this._authenticateService.sendGetReq(
+        environment.classesUrl + `/get/members/${this.classId}`
+      );
     if (!this._authenticateService.checkResponse(responseObject)) {
       return null;
     }
@@ -123,23 +152,34 @@ export class ClassMembersPageComponent implements OnInit {
       email: string;
     }
     var body: CurrentBody = {
-      email: email
-    }
-    var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + '/get/user-id/from/email', body);
+      email: email,
+    };
+    var responseObject: ResponseObject =
+      await this._authenticateService.sendPostReq(
+        environment.classesUrl + '/get/user-id/from/email',
+        body
+      );
     if (!this._authenticateService.checkResponse(responseObject)) {
       return;
     }
     var customResponseObject: CustomResponseObject = responseObject.data;
-    var studyYearStudentDetails: StudyYearStudentDetails = customResponseObject.data.studyYearStudentDetails;
-    if (this.studyYearStudentsDetails.find((val: StudyYearStudentDetails) => val.userId == studyYearStudentDetails.userId) ||
-      this.classMembersDetails.find((val: UserTableDetails) => val.userId == studyYearStudentDetails.userId)) {
+    var studyYearStudentDetails: StudyYearStudentDetails =
+      customResponseObject.data.studyYearStudentDetails;
+    if (
+      this.studyYearStudentsDetails.find(
+        (val: StudyYearStudentDetails) =>
+          val.userId == studyYearStudentDetails.userId
+      ) ||
+      this.classMembersDetails.find(
+        (val: UserTableDetails) => val.userId == studyYearStudentDetails.userId
+      )
+    ) {
       this._popupsService.openPopup({
         type: 'alert',
-        text: 'The user is already in the class'
+        text: 'The user is already in the class',
       });
       return;
     }
     this.studyYearStudentsDetails.push(studyYearStudentDetails);
   }
-
 }

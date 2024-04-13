@@ -1,1 +1,28 @@
-<p>class-home-page works!</p>
+<div class="description">
+  <div class="top-wrapper">
+    <div class="name">
+      <h1>{{ classDetails.className }}</h1>
+    </div>
+    <div class="credits">
+      <div class="text-wrapper">
+        <span class="label">Credits</span>
+        <h2>{{ classDetails.classCredits }}</h2>
+      </div>
+    </div>
+  </div>
+  <span>{{ classDetails.classDescription }}</span>
+</div>
+<div class="wrapper">
+  <app-channel-message class="channel-message" *ngFor="let message of classMessagesDetails" [data]="{
+  announcementId: message.classMessageId,
+  announcementText: message.content,
+  announcementName: message.fullname
+}"></app-channel-message>
+</div>
+<div class="message-wrapper">
+  <form (submit)="onSendMessage($event)">
+    <input type="text" class="input" placeholder="Type a message..." name="new-message" [(ngModel)]="newMessage"
+      autocomplete="off">
+    <button class="button" type="submit">Send</button>
+  </form>
+</div>

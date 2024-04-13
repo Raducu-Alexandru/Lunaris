@@ -11,8 +11,8 @@
     <input type="text" class="input" placeholder="Class Prefix" name="class-prefix" [(ngModel)]="classPrefix">
     <input type="text" class="input" placeholder="Class Suffix" name="class-suffix" [(ngModel)]="classSuffix">
     <span class="label">Subject</span>
-    <select class="input" [(ngModel)]="subjectId" name="subject">
-      <option *ngFor="let subject of subjectsPreviewDetails" [value]="subject.subjectId">{{ subject.subjectName }}
+    <select class="input" [(ngModel)]="yearSubjectId" name="subject" (input)="onYearSubjectIdInput()">
+      <option *ngFor="let subject of classSubjectsDropdownDetails" [value]="subject.yearSubjectId">{{ subject.name }}
       </option>
     </select>
   </div>
@@ -20,8 +20,8 @@
     <input type="text" class="input" placeholder="Class Name" name="class-name" [(ngModel)]="className">
   </div>
   <textarea class="textarea" name="description" placeholder="Description" [(ngModel)]="description"></textarea>
-  <span class="label">Members</span>
-  <form (submit)="onEmailSearchSubmit($event)">
+  <span class="label" *ngIf="yearSubjectId">Members</span>
+  <form (submit)="onEmailSearchSubmit($event)" *ngIf="yearSubjectId">
     <input type="text" class="input" placeholder="Search by Email" name="user-email" [(ngModel)]="userEmail">
     <button class="button" type="submit">Add member</button>
   </form>

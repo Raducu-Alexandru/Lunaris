@@ -1,5 +1,8 @@
 <h1 class="page-name">Classes</h1>
-<app-study-year-dropdown (custom-input)="onStudyYearSelectInput($event)"></app-study-year-dropdown>
+<app-student-years-dropdown *ngIf="userRole == 1"
+  (custom-input)="onStudentYearSelectInput($event)"></app-student-years-dropdown>
+<app-study-year-dropdown *ngIf="userRole != 1"
+  (custom-input)="onStudyYearSelectInput($event)"></app-study-year-dropdown>
 <button class="button" *ngIf="userRole != 1" routerLink="create">Create</button>
 <input type="text" class="input" placeholder="Search by Name" (input)="onNameSearchInput($event)">
 <div class="wrapper" *ngIf="!searchedValue">
