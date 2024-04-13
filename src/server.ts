@@ -2,18 +2,37 @@ import express, { NextFunction } from 'express';
 import { Router, Express } from 'express';
 import { Server, Socket } from 'socket.io';
 import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
-import { SessionInterface, SessionManager, handleSessionManagementMiddleware, handleSessionManagementSocketMiddleware } from '@raducualexandrumircea/redis-session-manager';
+import {
+	SessionInterface,
+	SessionManager,
+	handleSessionManagementMiddleware,
+	handleSessionManagementSocketMiddleware,
+} from '@raducualexandrumircea/redis-session-manager';
 import { RedisConnectionRelation } from '@raducualexandrumircea/redis-connection';
 import { healthRoutes } from '@raducualexandrumircea/lunaris-health-paths';
 import { DbHandler } from '@raducualexandrumircea/custom-db-handler';
-import { ServerCommunication, secureRoutesMiddleware } from '@raducualexandrumircea/lunaris-server-communication';
-import { LoginMethods, LoginMethodsInterface, handleCheckLoginMiddleware } from '@raducualexandrumircea/lunaris-login';
+import {
+	ServerCommunication,
+	secureRoutesMiddleware,
+} from '@raducualexandrumircea/lunaris-server-communication';
+import {
+	LoginMethods,
+	LoginMethodsInterface,
+	handleCheckLoginMiddleware,
+} from '@raducualexandrumircea/lunaris-login';
 import { getCorsOptions } from '@raducualexandrumircea/lunaris-general';
 import { SocketMethods } from '@raducualexandrumircea/lunaris-socket-methods';
-import { AccountMethods, handleCheckDisabledMiddleware } from '@raducualexandrumircea/lunaris-account';
+import {
+	AccountMethods,
+	handleCheckDisabledMiddleware,
+} from '@raducualexandrumircea/lunaris-account';
 import { secureRoutes } from './paths/securePaths';
 import { socketRoutes } from './paths/socketPaths';
-import { SocketInterface, SocketManager, handleSocketManagementMiddleware } from '@raducualexandrumircea/redis-socket-manager';
+import {
+	SocketInterface,
+	SocketManager,
+	handleSocketManagementMiddleware,
+} from '@raducualexandrumircea/redis-socket-manager';
 import { SharedSocketServer } from '@raducualexandrumircea/shared-socket-server';
 
 const bodyParser = require('body-parser');
@@ -35,20 +54,56 @@ const redisSocketUrl: string = environmentParserObj.get('REDIS_SOCKET_URL', 'str
 
 const redisSessionUrls: string[] = environmentParserObj.get('SESSION_REDIS_URLS', 'array', true);
 
-const sessionManagerPrefix: string = environmentParserObj.get('SESSION_MANAGER_PREFIX', 'string', true);
-const sessionManagerParser: string = environmentParserObj.get('SESSION_MANAGER_PARSER', 'string', true);
-const sessionManagerSessionExpSec: number = environmentParserObj.get('SESSION_MANAGER_SESSION_EXP_SEC', 'number', true);
-const sessionManagerCookieName: string = environmentParserObj.get('SESSION_MANAGER_COOKIE_NAME', 'string', true);
-const sessionManagerCookieDomain: string = environmentParserObj.get('SESSION_MANAGER_COOKIE_DOMAIN', 'string', true);
-const sessionManagerCookieExpSec: number = environmentParserObj.get('SESSION_MANAGER_COOKIE_EXP_SEC', 'number', true);
+const sessionManagerPrefix: string = environmentParserObj.get(
+	'SESSION_MANAGER_PREFIX',
+	'string',
+	true
+);
+const sessionManagerParser: string = environmentParserObj.get(
+	'SESSION_MANAGER_PARSER',
+	'string',
+	true
+);
+const sessionManagerSessionExpSec: number = environmentParserObj.get(
+	'SESSION_MANAGER_SESSION_EXP_SEC',
+	'number',
+	true
+);
+const sessionManagerCookieName: string = environmentParserObj.get(
+	'SESSION_MANAGER_COOKIE_NAME',
+	'string',
+	true
+);
+const sessionManagerCookieDomain: string = environmentParserObj.get(
+	'SESSION_MANAGER_COOKIE_DOMAIN',
+	'string',
+	true
+);
+const sessionManagerCookieExpSec: number = environmentParserObj.get(
+	'SESSION_MANAGER_COOKIE_EXP_SEC',
+	'number',
+	true
+);
 
-const loginCookieExpInDays: number = environmentParserObj.get('LOGIN_COOKIE_EXP_DAYS', 'number', true);
-const loginSessionExpInMin: number = environmentParserObj.get('LOGIN_SESSION_EXP_MIN', 'number', true);
+const loginCookieExpInDays: number = environmentParserObj.get(
+	'LOGIN_COOKIE_EXP_DAYS',
+	'number',
+	true
+);
+const loginSessionExpInMin: number = environmentParserObj.get(
+	'LOGIN_SESSION_EXP_MIN',
+	'number',
+	true
+);
 const loginCookieName: string = environmentParserObj.get('LOGIN_COOKIE_NAME', 'string', true);
 const loginCookieDomain: string = environmentParserObj.get('LOGIN_COOKIE_DOMAIN', 'string', true);
 
 const namespace: string = environmentParserObj.get('NAMESPACE', 'string', true);
-const serverCommunicationKey: string = environmentParserObj.get('SERVER_COMMUNICATION_KEY', 'string', true);
+const serverCommunicationKey: string = environmentParserObj.get(
+	'SERVER_COMMUNICATION_KEY',
+	'string',
+	true
+);
 
 /* const smtpHost: string = environmentParserObj.get('SMTP_HOST', 'string', true);
 const smtpPort: number = environmentParserObj.get('SMTP_PORT', 'number', true);
@@ -56,19 +111,55 @@ const noReplyEmail: string = environmentParserObj.get('NO_REPLY_EMAIL', 'string'
 const noReplyPassword: string = environmentParserObj.get('NO_REPLY_PASSWORD', 'string', true);
 const emailTemplatesFolder: string = environmentParserObj.get('EMAIL_TEMPLATES_FOLDER', 'string', true); */
 
-const sharedSocketServerEmitChannelName: string = environmentParserObj.get('SHARED_SOCKET_SERVER_EMIT_CHANNEL_NAME', 'string', true);
-const sharedSocketServerOnChannelName: string = environmentParserObj.get('SHARED_SOCKET_SERVER_ON_CHANNEL_NAME', 'string', true);
-const sharedSocketServerConnectedChannelName: string = environmentParserObj.get('SHARED_SOCKET_SERVER_CONNECTED_CHANNEL_NAME', 'string', true);
-const sharedSocketServerDisconnectedChannelName: string = environmentParserObj.get('SHARED_SOCKET_SERVER_DISCONNECTED_CHANNEL_NAME', 'string', true);
-const sharedSocketServerDisconnectUserChannelName: string = environmentParserObj.get('SHARED_SOCKET_SERVER_DISCONNECT_USER_CHANNEL_NAME', 'string', true);
+const sharedSocketServerEmitChannelName: string = environmentParserObj.get(
+	'SHARED_SOCKET_SERVER_EMIT_CHANNEL_NAME',
+	'string',
+	true
+);
+const sharedSocketServerOnChannelName: string = environmentParserObj.get(
+	'SHARED_SOCKET_SERVER_ON_CHANNEL_NAME',
+	'string',
+	true
+);
+const sharedSocketServerConnectedChannelName: string = environmentParserObj.get(
+	'SHARED_SOCKET_SERVER_CONNECTED_CHANNEL_NAME',
+	'string',
+	true
+);
+const sharedSocketServerDisconnectedChannelName: string = environmentParserObj.get(
+	'SHARED_SOCKET_SERVER_DISCONNECTED_CHANNEL_NAME',
+	'string',
+	true
+);
+const sharedSocketServerDisconnectUserChannelName: string = environmentParserObj.get(
+	'SHARED_SOCKET_SERVER_DISCONNECT_USER_CHANNEL_NAME',
+	'string',
+	true
+);
 
-const socketManagerSocketPrefix: string = environmentParserObj.get('SOCKET_MANAGER_SOCKET_PREFIX', 'string', true);
-const socketManagerRoomPrefix: string = environmentParserObj.get('SOCKET_MANAGER_ROOM_PREFIX', 'string', true);
-const socketManagerParser: string = environmentParserObj.get('SOCKET_MANAGER_PARSER', 'string', true);
-const socketManagerPrivateRsaKey: string = environmentParserObj.get('SOCKET_RSA_PRIVATE_KEY', 'string', false) || '';
-const socketManagerPublicRsaKey: string = environmentParserObj.get('SOCKET_RSA_PUBLIC_KEY', 'string', false) || '';
-const socketManagerPublicRsaKeyHash: string = environmentParserObj.get('SOCKET_RSA_PUBLIC_HASH', 'string', false) || '';
-const useCustomAesSocketProtocol: boolean = environmentParserObj.get('USE_CUSTOM_AES_SOCKET_PROTOCOL', 'boolean', false) || false;
+const socketManagerSocketPrefix: string = environmentParserObj.get(
+	'SOCKET_MANAGER_SOCKET_PREFIX',
+	'string',
+	true
+);
+const socketManagerRoomPrefix: string = environmentParserObj.get(
+	'SOCKET_MANAGER_ROOM_PREFIX',
+	'string',
+	true
+);
+const socketManagerParser: string = environmentParserObj.get(
+	'SOCKET_MANAGER_PARSER',
+	'string',
+	true
+);
+const socketManagerPrivateRsaKey: string =
+	environmentParserObj.get('SOCKET_RSA_PRIVATE_KEY', 'string', false) || '';
+const socketManagerPublicRsaKey: string =
+	environmentParserObj.get('SOCKET_RSA_PUBLIC_KEY', 'string', false) || '';
+const socketManagerPublicRsaKeyHash: string =
+	environmentParserObj.get('SOCKET_RSA_PUBLIC_HASH', 'string', false) || '';
+const useCustomAesSocketProtocol: boolean =
+	environmentParserObj.get('USE_CUSTOM_AES_SOCKET_PROTOCOL', 'boolean', false) || false;
 
 const dbConnectionHost: string = environmentParserObj.get('DB_CONN_HOST', 'string', true);
 const dbConnectionUser: string = environmentParserObj.get('DB_CONN_USER', 'string', true);
@@ -79,8 +170,22 @@ const socketServer: Server = new Server(socketPort, {
 	cors: getCorsOptions([appUrl]),
 });
 
-const sharedSocketServerObj: SharedSocketServer = new SharedSocketServer(redisSocketUrl, socketServer, sharedSocketServerEmitChannelName, sharedSocketServerOnChannelName, sharedSocketServerConnectedChannelName, sharedSocketServerDisconnectedChannelName, sharedSocketServerDisconnectUserChannelName);
-const dbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, dbConnectionDb, 'utf8mb4');
+const sharedSocketServerObj: SharedSocketServer = new SharedSocketServer(
+	redisSocketUrl,
+	socketServer,
+	sharedSocketServerEmitChannelName,
+	sharedSocketServerOnChannelName,
+	sharedSocketServerConnectedChannelName,
+	sharedSocketServerDisconnectedChannelName,
+	sharedSocketServerDisconnectUserChannelName
+);
+const dbConnection: DbHandler = new DbHandler(
+	dbConnectionHost,
+	dbConnectionUser,
+	dbConnectionPassword,
+	dbConnectionDb,
+	'utf8mb4'
+);
 const redisConnectionObj: RedisConnectionRelation = new RedisConnectionRelation(redisSessionUrls);
 const sessionManagerObj: SessionManager = new SessionManager({
 	redisObj: redisConnectionObj,
@@ -92,13 +197,37 @@ const sessionManagerObj: SessionManager = new SessionManager({
 	isSecureCookie: true,
 	sessionCookieExpInSec: sessionManagerCookieExpSec,
 });
-const socketManagerObj: SocketManager = new SocketManager(redisConnectionObj, sharedSocketServerObj, socketManagerSocketPrefix, socketManagerRoomPrefix, socketManagerParser, 'string', socketManagerPrivateRsaKey, socketManagerPublicRsaKey, socketManagerPublicRsaKeyHash, useCustomAesSocketProtocol);
-const serverCommunicationObj: ServerCommunication = new ServerCommunication(namespace, serverCommunicationKey);
-const loginMethodsObj: LoginMethods = new LoginMethods(loginCookieName, loginCookieDomain, loginCookieExpInDays, loginSessionExpInMin, serverCommunicationObj);
+const socketManagerObj: SocketManager = new SocketManager(
+	redisConnectionObj,
+	sharedSocketServerObj,
+	socketManagerSocketPrefix,
+	socketManagerRoomPrefix,
+	socketManagerParser,
+	'string',
+	socketManagerPrivateRsaKey,
+	socketManagerPublicRsaKey,
+	socketManagerPublicRsaKeyHash,
+	useCustomAesSocketProtocol
+);
+const serverCommunicationObj: ServerCommunication = new ServerCommunication(
+	namespace,
+	serverCommunicationKey
+);
+const loginMethodsObj: LoginMethods = new LoginMethods(
+	loginCookieName,
+	loginCookieDomain,
+	loginCookieExpInDays,
+	loginSessionExpInMin,
+	serverCommunicationObj
+);
 const socketMethodsObj: SocketMethods = new SocketMethods(serverCommunicationObj);
 const accountMethodsObj: AccountMethods = new AccountMethods(dbConnection);
 
-const handleCheckLoginSocketMiddleware = (sessionManagerObj: SessionManager, loginMethodsObj: LoginMethods, socketManagerObj: SocketManager) => {
+const handleCheckLoginSocketMiddleware = (
+	sessionManagerObj: SessionManager,
+	loginMethodsObj: LoginMethods,
+	socketManagerObj: SocketManager
+) => {
 	return async function (socket: Socket, next: NextFunction) {
 		try {
 			var sessionId: string = socket['sessionId'];
@@ -133,12 +262,23 @@ const handleCheckLoginSocketMiddleware = (sessionManagerObj: SessionManager, log
 	};
 };
 
-const handleCheckUserDisabledSocketMiddleware = (sessionManagerObj: SessionManager, loginMethodsObj: LoginMethods, socketMethodsObj: SocketMethods, accountMethodsObj: AccountMethods) => {
+const handleCheckUserDisabledSocketMiddleware = (
+	sessionManagerObj: SessionManager,
+	loginMethodsObj: LoginMethods,
+	socketMethodsObj: SocketMethods,
+	accountMethodsObj: AccountMethods
+) => {
 	return async function (socket: Socket, next: NextFunction) {
 		try {
 			var sessionId: string = socket['sessionId'];
-			var sessionInterfaceObj: SessionInterface = new SessionInterface(sessionManagerObj, sessionId);
-			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+			var sessionInterfaceObj: SessionInterface = new SessionInterface(
+				sessionManagerObj,
+				sessionId
+			);
+			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(
+				sessionInterfaceObj,
+				loginMethodsObj
+			);
 			var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
 			if (await accountMethodsObj.checkIfUserIsDisabled(userId)) {
 				await socketMethodsObj.disconnectSessionsSockets(sessionId);
@@ -155,8 +295,17 @@ const handleCheckUserDisabledSocketMiddleware = (sessionManagerObj: SessionManag
 
 socketServer.use(handleSessionManagementSocketMiddleware(sessionManagerObj));
 socketServer.use(handleSocketManagementMiddleware(socketManagerObj));
-socketServer.use(handleCheckLoginSocketMiddleware(sessionManagerObj, loginMethodsObj, socketManagerObj));
-socketServer.use(handleCheckUserDisabledSocketMiddleware(sessionManagerObj, loginMethodsObj, socketMethodsObj, accountMethodsObj));
+socketServer.use(
+	handleCheckLoginSocketMiddleware(sessionManagerObj, loginMethodsObj, socketManagerObj)
+);
+socketServer.use(
+	handleCheckUserDisabledSocketMiddleware(
+		sessionManagerObj,
+		loginMethodsObj,
+		socketMethodsObj,
+		accountMethodsObj
+	)
+);
 
 const app: Express = express();
 const router: Router = Router();
@@ -177,6 +326,6 @@ app.listen(serverPort, () => {
 	console.log(`server listening on http://localhost:${serverPort}`);
 });
 
-secureRoutes(router);
+secureRoutes(router, socketManagerObj);
 socketRoutes(socketManagerObj, serverCommunicationObj, accountMethodsObj);
 healthRoutes(app);
