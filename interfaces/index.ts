@@ -1,129 +1,151 @@
 export interface CustomResponseObject {
-    succ: boolean;
-    mes?: string;
-    debugMes?: string;
-    loggedIn?: boolean;
-    disabled?: boolean;
-    data?: any;
+	succ: boolean;
+	mes?: string;
+	debugMes?: string;
+	loggedIn?: boolean;
+	disabled?: boolean;
+	data?: any;
 }
 
 export type DeviceTypes = 'ios' | 'android' | 'web';
 
 export interface UniversitySelectDetails {
-    universityLongId: string;
-    universityName: string;
+	universityLongId: string;
+	universityName: string;
 }
 
 export interface AnnouncementInfo {
-    announcementId: number;
-    announcementText: string;
-    announcementName: string;
+	announcementId: number;
+	announcementText: string;
+	announcementName: string;
 }
 
 export interface UserTableDetails {
-    userId: number;
-    email: string;
-    fullname: string;
+	userId: number;
+	email: string;
+	fullname: string;
 }
 
 export interface UserEditDetails {
-    email: string;
-    firstName: string;
-    lastName: string;
-    disabled: boolean;
+	email: string;
+	firstName: string;
+	lastName: string;
+	disabled: boolean;
 }
 
 export interface SchoolPreviewDetails {
-    schoolId: number;
-    schoolName: string;
-    noPrograms: number;
+	schoolId: number;
+	schoolName: string;
+	noPrograms: number;
 }
 
 export interface SchoolEditDetails {
-    schoolName: string;
+	schoolName: string;
 }
 
 export interface ProgamPreviewDetails {
-    programId: number;
-    programName: string;
-    programType: string;
+	programId: number;
+	programName: string;
+	programType: string;
 }
 
 export interface ProgramEditDetails {
-    programName: string;
-    programType: string;
-    programShortName: string;
-    schoolId: number;
-    archived: boolean;
+	programName: string;
+	programType: string;
+	programShortName: string;
+	schoolId: number;
+	archived: boolean;
 }
 
 export interface SubjectPreviewDetails {
-    subjectId: number;
-    subjectName: string;
-    subjectCredits: string;
+	subjectId: number;
+	subjectName: string;
+	subjectCredits: string;
 }
 
 export interface SubjectEditDetails {
-    subjectName: string;
-    subjectCredits: number;
-    archived: boolean;
+	subjectName: string;
+	subjectCredits: number;
+	archived: boolean;
 }
 
 export interface ProgramYearSubjectEditDetails {
-    subjectId: number;
-    semesterIndex: number;
+	subjectId: number;
+	semesterIndex: number;
 }
 
 export type ProgramYearEditDetails = ProgramYearSubjectEditDetails[];
 
 export interface YearPreviewDetails {
-    yearId: number;
-    yearIndex: number;
-    noSubjects: number;
+	yearId: number;
+	yearIndex: number;
+	noSubjects: number;
 }
 
 export interface YearEditDetails {
-    subjectId: number;
-    subjectName: string;
-    semesterIndex: number;
+	subjectId: number;
+	subjectName: string;
+	semesterIndex: number;
 }
 
 export interface StudentProgramPreviewDetails {
-    programId: number;
-    programName: string;
-    yearIndex: number;
+	programId: number;
+	programName: string;
+	yearIndex: number;
 }
 
 export interface StudentYearsDetails {
-    studentYearId: number;
-    fromYear: number;
-    toYear: number;
-    yearIndex: number;
-    programShortName: string;
+	studentYearId: number;
+	fromYear: number;
+	toYear: number;
+	yearIndex: number;
+	programShortName: string;
 }
 
 export interface SubjectScholarSituation {
-    subjectId: number;
-    subjectName: string;
-    semesterIndex: number;
-    grade: number;
-    credits: number;
+	subjectId: number;
+	subjectName: string;
+	semesterIndex: number;
+	grade: number;
+	credits: number;
 }
 
 export interface StudyYearDetails {
-    studyYearId: number;
-    fromYear: number;
-    toYear: number;
+	studyYearId: number;
+	fromYear: number;
+	toYear: number;
 }
 
 export interface StudyYearStudentDetails {
-    userId: number;
-    email: string;
+	userId: number;
+	email: string;
 }
 
 export interface ClassPreviewDetails {
-    classId: number;
-    classLongId: string;
-    className: string;
-    classCredits: number;
+	classId: number;
+	classLongId: string;
+	className: string;
+	classCredits: number;
+}
+
+export interface ClassDetails {
+	className: string;
+	classDescription: string;
+	classCredits: number;
+}
+
+export interface ClassMessageDetails {
+	classMessageId: number;
+	content: string;
+	fullname: string;
+}
+
+export interface SocketSendClassMessage {
+	classId: number;
+	content: string;
+}
+
+export interface ClassSubjectDropdownDetails {
+	yearSubjectId: number;
+	name: string;
 }
