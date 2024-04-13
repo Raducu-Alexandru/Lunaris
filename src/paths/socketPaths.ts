@@ -1,10 +1,23 @@
 import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
-import { ClassMessageDetails, CustomResponseObject, SocketSendClassMessage } from '@raducualexandrumircea/lunaris-interfaces';
+import {
+	ClassMessageDetails,
+	CustomResponseObject,
+	SocketSendClassMessage,
+} from '@raducualexandrumircea/lunaris-interfaces';
 import { ServerCommunication } from '@raducualexandrumircea/lunaris-server-communication';
 import { MESSAGES_MCS_NAME } from '@raducualexandrumircea/lunaris-service-names';
-import { SocketAknowlegment, SocketData, SocketInterface, SocketManager } from '@raducualexandrumircea/redis-socket-manager';
+import {
+	SocketAknowlegment,
+	SocketData,
+	SocketInterface,
+	SocketManager,
+} from '@raducualexandrumircea/redis-socket-manager';
 
-export function socketRoutes(socketManagerObj: SocketManager, serverCommunicationObj: ServerCommunication, accountMethodsObj: AccountMethods) {
+export function socketRoutes(
+	socketManagerObj: SocketManager,
+	serverCommunicationObj: ServerCommunication,
+	accountMethodsObj: AccountMethods
+) {
 	socketManagerObj.on({
 		eventName: 'send-class-message',
 		manualAck: true,
@@ -13,11 +26,15 @@ export function socketRoutes(socketManagerObj: SocketManager, serverCommunicatio
 			var socketInterfaceObj: SocketInterface = socketData.socketInterfaceObj;
 			var data: SocketSendClassMessage = socketData.data;
 			var userId: number = await getSocketUserId(socketInterfaceObj);
-			var response: CustomResponseObject = await serverCommunicationObj.sendPostRequest(MESSAGES_MCS_NAME, '/messages/create/class/message', {
-				userId: userId,
-				classId: data.classId,
-				content: data.content,
-			});
+			var response: CustomResponseObject = await serverCommunicationObj.sendPostRequest(
+				MESSAGES_MCS_NAME,
+				'/messages/create/class/message',
+				{
+					userId: userId,
+					classId: data.classId,
+					content: data.content,
+				}
+			);
 			var socketAknowlegment: SocketAknowlegment;
 			if (!response.succ) {
 				console.log(response);
@@ -41,7 +58,12 @@ export function socketRoutes(socketManagerObj: SocketManager, serverCommunicatio
 				},
 			};
 			await socketInterfaceObj.sendManualAck(socketData.id, socketAknowlegment);
-			socketInterfaceObj.emit({ eventName: 'on-new-class-message', rooms: [String(data.classId)], data: socketSendObject, ackTimeoutSec: 0 });
+			socketInterfaceObj.emit({
+				eventName: 'on-new-class-message',
+				rooms: ['class-' + String(data.classId)],
+				data: socketSendObject,
+				ackTimeoutSec: 0,
+			});
 		},
 	});
 
@@ -55,10 +77,12 @@ export function socketRoutes(socketManagerObj: SocketManager, serverCommunicatio
 			var userId: number = await getSocketUserId(socketInterfaceObj);
 			var userRole: number = await accountMethodsObj.getUserRole(userId);
 			if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(classId, userId))) {
-				console.log('You don not permissions to get the class messages as you are not in that class');
+				console.log(
+					'You don not permissions to get the class messages as you are not in that class'
+				);
 				return;
 			}
-			await socketInterfaceObj.addUserToRoom(String(classId));
+			await socketInterfaceObj.addUserToRoom('class-' + String(classId));
 		},
 	});
 
@@ -69,7 +93,7 @@ export function socketRoutes(socketManagerObj: SocketManager, serverCommunicatio
 		callback: async (socketData: SocketData) => {
 			var classId: number = socketData.data.classId;
 			var socketInterfaceObj: SocketInterface = socketData.socketInterfaceObj;
-			await socketInterfaceObj.removeUserFromRoom(String(classId));
+			await socketInterfaceObj.removeUserFromRoom('class-' + String(classId));
 		},
 	});
 }
