@@ -12,6 +12,7 @@ import { LoginMethods, handleCheckLoginMiddleware } from '@raducualexandrumircea
 import { getCorsOptions } from '@raducualexandrumircea/lunaris-general';
 import { SocketMethods } from '@raducualexandrumircea/lunaris-socket-methods';
 import { AccountMethods, handleCheckDisabledMiddleware } from '@raducualexandrumircea/lunaris-account';
+import { secureRoutes } from './paths/securePaths';
 
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -95,4 +96,5 @@ app.listen(serverPort, () => {
 });
 
 appRoutes(router, dbConnection, loginMethodsObj, accountMethodsObj);
+secureRoutes(secureRouter, dbConnection, loginMethodsObj, accountMethodsObj);
 healthRoutes(app);
