@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
 import { DbHandler, NormalPacket, SelectPacket } from '@raducualexandrumircea/custom-db-handler';
 import { LoginMethods, LoginMethodsInterface } from '@raducualexandrumircea/lunaris-login';
-import { CustomResponseObject } from '@raducualexandrumircea/lunaris-interfaces';
+import { CustomResponseObject, StudentYearsDetails, StudyYearDetails } from '@raducualexandrumircea/lunaris-interfaces';
 import { SessionInterface } from '@raducualexandrumircea/redis-session-manager';
 import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
 import { checkIfEmailIsValid } from '@raducualexandrumircea/lunaris-regex-checks';
@@ -22,6 +22,64 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
       var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
   
     }); */
+
+  router.get('/get/study-years', async (req: Request, res: Response) => {
+    var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+    var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+    var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+    var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+    var studyYearsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(`SELECT studyYears.studyYearId, studyYears.fromYear, studyYears.toYear FROM studyYears
+WHERE studyYears.universityId = ?
+ORDER BY studyYears.createdDate DESC`, [universityId]);
+    var studyYearsDetails: StudyYearDetails[] = [];
+    for (var i = 0; i < studyYearsSqlResult.length; i++) {
+      studyYearsDetails.push({
+        studyYearId: studyYearsSqlResult[i].studyYearId,
+        fromYear: studyYearsSqlResult[i].fromYear,
+        toYear: studyYearsSqlResult[i].toYear,
+      });
+    }
+    var responseObject: CustomResponseObject = {
+      succ: true,
+      data: {
+        studyYearsDetails: studyYearsDetails
+      }
+    };
+    res.status(200).send(responseObject);
+    return;
+  });
+
+  router.get('/get/student/student-years', async (req: Request, res: Response) => {
+    var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+    var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+    var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+    var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+    var studentYearsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(`SELECT studentsYears.studentYearId, studyYears.fromYear, studyYears.toYear, years.yearIndex, programs.programShortName FROM studentsYears
+INNER JOIN studyYears ON studyYears.studyYearId = studentsYears.studyYearId
+INNER JOIN years ON years.yearId = studentsYears.yearId
+INNER JOIN users ON users.userId = studentsYears.userId
+INNER JOIN programs ON programs.programId = years.programId
+WHERE users.universityId = ? AND studentsYears.userId = ?
+ORDER BY studyYears.createdDate DESC`, [universityId, userId]);
+    var studentYearsDetails: StudentYearsDetails[] = [];
+    for (var i = 0; i < studentYearsSqlResult.length; i++) {
+      studentYearsDetails.push({
+        studentYearId: studentYearsSqlResult[i].studentYearId,
+        fromYear: studentYearsSqlResult[i].fromYear,
+        toYear: studentYearsSqlResult[i].toYear,
+        yearIndex: studentYearsSqlResult[i].yearIndex,
+        programShortName: studentYearsSqlResult[i].programShortName,
+      });
+    }
+    var responseObject: CustomResponseObject = {
+      succ: true,
+      data: {
+        studentYearsDetails: studentYearsDetails
+      }
+    };
+    res.status(200).send(responseObject);
+    return;
+  });
 
   router.get('/get/personal-details', async (req: Request, res: Response) => {
     var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];

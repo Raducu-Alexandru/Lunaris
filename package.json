@@ -18,10 +18,10 @@
   "dependencies": {
     "@raducualexandrumircea/custom-db-handler": "^2.0.1",
     "@raducualexandrumircea/environment-parser": "^2.0.0",
-    "@raducualexandrumircea/lunaris-account": "^1.0.0",
+    "@raducualexandrumircea/lunaris-account": "^1.0.2",
     "@raducualexandrumircea/lunaris-general": "^1.0.3",
     "@raducualexandrumircea/lunaris-health-paths": "^1.0.0",
-    "@raducualexandrumircea/lunaris-interfaces": "^1.0.3",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.1.8",
     "@raducualexandrumircea/lunaris-login": "^1.0.3",
     "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
     "@raducualexandrumircea/lunaris-server-communication": "^1.0.3",
