@@ -16,9 +16,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@raducualexandrumircea/custom-db-handler": "^2.0.1",
     "@raducualexandrumircea/environment-parser": "^2.0.0",
+    "@raducualexandrumircea/lunaris-account": "^1.0.4",
+    "@raducualexandrumircea/lunaris-general": "^1.0.3",
+    "@raducualexandrumircea/lunaris-health-paths": "^1.0.0",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.1.15",
+    "@raducualexandrumircea/lunaris-login": "^1.0.3",
+    "@raducualexandrumircea/lunaris-server-communication": "^1.0.3",
+    "@raducualexandrumircea/lunaris-service-names": "^1.0.1",
+    "@raducualexandrumircea/lunaris-socket-methods": "^1.0.0",
+    "@raducualexandrumircea/redis-session-manager": "^2.0.0",
+    "@raducualexandrumircea/redis-socket-manager": "^2.0.1",
+    "@raducualexandrumircea/shared-socket-server": "^2.0.0",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.18.3",
+    "socket.io": "^4.7.5",
     "typescript": "^5.4.2"
   },
   "devDependencies": {
