@@ -149,3 +149,10 @@ export interface ClassSubjectDropdownDetails {
 	yearSubjectId: number;
 	name: string;
 }
+
+export interface ClassFinalGradeDetails {
+	email: string;
+	fullname: string;
+	grade: number;
+	userId: number;
+}
