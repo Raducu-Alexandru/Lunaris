@@ -70,6 +70,7 @@ import { ClassHomePageComponent } from './pages/dashboard-index-page/classes-pag
 import { ClassAssigmentsPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/class-assigments-page.component';
 import { ClassMembersPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-members-page/class-members-page.component';
 import { ClassFinalGradesPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-final-grades-page/class-final-grades-page.component';
+import { ScholarSituationPageComponent } from './pages/dashboard-index-page/scholar-situation-page/scholar-situation-page.component';
 
 @NgModule({
   declarations: [
@@ -137,7 +138,8 @@ import { ClassFinalGradesPageComponent } from './pages/dashboard-index-page/clas
     ClassHomePageComponent,
     ClassAssigmentsPageComponent,
     ClassMembersPageComponent,
-    ClassFinalGradesPageComponent
+    ClassFinalGradesPageComponent,
+    ScholarSituationPageComponent
   ],
   imports: [
     BrowserModule,

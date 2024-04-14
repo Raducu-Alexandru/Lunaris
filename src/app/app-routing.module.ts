@@ -41,254 +41,259 @@ import { ClassHomePageComponent } from './pages/dashboard-index-page/classes-pag
 import { ClassAssigmentsPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/class-assigments-page.component';
 import { ClassMembersPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-members-page/class-members-page.component';
 import { ClassFinalGradesPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-final-grades-page/class-final-grades-page.component';
+import { ScholarSituationPageComponent } from './pages/dashboard-index-page/scholar-situation-page/scholar-situation-page.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    pathMatch: 'full',
-    component: AppComponent,
-    canActivate: [CheckLoginGuard],
-    data: { page: '' },
-  },
-  {
-    path: 'login',
-    component: LoginPageIndexComponent,
-    canActivate: [CheckLoginGuard],
-    data: { page: 'login' },
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        component: LoginPageComponent
-      },
-      {
-        path: 'change-university',
-        component: ChangeUniversityPageComponent
-      }
-    ]
-  },
-  {
-    path: 'dashboard',
-    component: DashboardIndexPageComponent,
-    canActivate: [CheckLoginGuard],
-    data: { page: 'dashboard' },
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'home',
-      },
-      {
-        path: 'home',
-        component: HomePageComponent
-      },
-      {
-        path: 'personal-data',
-        component: PersonalDetailsPageComponent
-      },
-      {
-        path: 'classes',
-        children: [
-          {
-            path: '',
-            pathMatch: 'full',
-            component: ClassesPageComponent
-          },
-          {
-            path: 'create',
-            component: CreateClassPageComponent,
-            canActivate: [CheckUserRoleGuard],
-            data: { checkRole: [3, 2] },
-          },
-          {
-            path: ':classId',
-            component: ClassIndexPageComponent,
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                redirectTo: 'home',
-              },
-              {
-                path: 'home',
-                component: ClassHomePageComponent
-              },
-              {
-                path: 'assigments',
-                component: ClassAssigmentsPageComponent
-              },
-              {
-                path: 'final-grades',
-                component: ClassFinalGradesPageComponent,
-                canActivate: [CheckUserRoleGuard],
-                data: { checkRole: [3, 2] },
-              },
-              {
-                path: 'members',
-                component: ClassMembersPageComponent,
-              }
-            ]
-          }
-        ]
-      },
-      {
-        path: 'university-settings',
-        component: UniversitySettingsIndexPageComponent,
-        canActivate: [CheckUserRoleGuard],
-        data: { checkRole: [3] },
-        children: [
-          {
-            path: '',
-            pathMatch: 'full',
-            redirectTo: 'general',
-          },
-          {
-            path: 'general',
-            component: GeneralPageComponent
-          },
-          {
-            path: 'professors',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: ProfessorsPageComponent
-              },
-              {
-                path: 'edit/:professorUserId',
-                component: EditProfessorPageComponent
-              },
-              {
-                path: 'create',
-                component: CreateProfessorPageComponent
-              }
-            ]
-          },
-          {
-            path: 'admins',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: AdminsPageComponent
-              },
-              {
-                path: 'edit/:adminUserId',
-                component: EditAdminPageComponent
-              },
-              {
-                path: 'create',
-                component: CreateAdminPageComponent
-              }
-            ]
-          },
-          {
-            path: 'schools',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: SchoolsPageComponent
-              },
-              {
-                path: 'create',
-                component: CreateSchoolPageComponent
-              },
-              {
-                path: 'edit/:schoolId',
-                component: EditSchoolPageComponent
-              }
-            ]
-          },
-          {
-            path: 'programs',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: ProgramsPageComponent
-              },
-              {
-                path: 'create',
-                component: CreateProgramPageComponent
-              },
-              {
-                path: 'edit/:programId',
-                component: EditProgramPageComponent
-              },
-              {
-                path: 'years/edit/:yearId',
-                component: EditYearPageComponent
-              }
-            ]
-          },
-          {
-            path: 'subjects',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: SubjectsPageComponent
-              },
-              {
-                path: 'create',
-                component: CreateSubjectPageComponent
-              },
-              {
-                path: 'edit/:subjectId',
-                component: EditSubjectPageComponent
-              }
-            ]
-          },
-          {
-            path: 'students',
-            children: [
-              {
-                path: '',
-                pathMatch: 'full',
-                component: StudentsPageComponent
-              },
-              {
-                path: 'edit/:studentUserId',
-                component: EditStudentIndexPageComponent,
-                children: [
-                  {
-                    path: '',
-                    pathMatch: 'full',
-                    redirectTo: 'platform-info'
-                  },
-                  {
-                    path: 'platform-info',
-                    component: PlatformInfoStudentPageComponent
-                  },
-                  {
-                    path: 'scholar-situation',
-                    component: ScholarSituationStudentPageComponent
-                  },
-                  {
-                    path: 'programs',
-                    component: ProgramsStudentPageComponent
-                  }
-                ]
-              },
-              {
-                path: 'create',
-                component: CreateStudentPageComponent
-              }
-            ]
-          },
-          {
-            path: 'new-study-year',
-            component: NewStudyYearPageComponent
-          }
-        ]
-      }
-    ]
-  }
+	{
+		path: '',
+		pathMatch: 'full',
+		component: AppComponent,
+		canActivate: [CheckLoginGuard],
+		data: { page: '' },
+	},
+	{
+		path: 'login',
+		component: LoginPageIndexComponent,
+		canActivate: [CheckLoginGuard],
+		data: { page: 'login' },
+		children: [
+			{
+				path: '',
+				pathMatch: 'full',
+				component: LoginPageComponent,
+			},
+			{
+				path: 'change-university',
+				component: ChangeUniversityPageComponent,
+			},
+		],
+	},
+	{
+		path: 'dashboard',
+		component: DashboardIndexPageComponent,
+		canActivate: [CheckLoginGuard],
+		data: { page: 'dashboard' },
+		children: [
+			{
+				path: '',
+				pathMatch: 'full',
+				redirectTo: 'home',
+			},
+			{
+				path: 'home',
+				component: HomePageComponent,
+			},
+			{
+				path: 'personal-data',
+				component: PersonalDetailsPageComponent,
+			},
+			{
+				path: 'scholar-situation',
+				component: ScholarSituationPageComponent,
+			},
+			{
+				path: 'classes',
+				children: [
+					{
+						path: '',
+						pathMatch: 'full',
+						component: ClassesPageComponent,
+					},
+					{
+						path: 'create',
+						component: CreateClassPageComponent,
+						canActivate: [CheckUserRoleGuard],
+						data: { checkRole: [3, 2] },
+					},
+					{
+						path: ':classId',
+						component: ClassIndexPageComponent,
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								redirectTo: 'home',
+							},
+							{
+								path: 'home',
+								component: ClassHomePageComponent,
+							},
+							{
+								path: 'assigments',
+								component: ClassAssigmentsPageComponent,
+							},
+							{
+								path: 'final-grades',
+								component: ClassFinalGradesPageComponent,
+								canActivate: [CheckUserRoleGuard],
+								data: { checkRole: [3, 2] },
+							},
+							{
+								path: 'members',
+								component: ClassMembersPageComponent,
+							},
+						],
+					},
+				],
+			},
+			{
+				path: 'university-settings',
+				component: UniversitySettingsIndexPageComponent,
+				canActivate: [CheckUserRoleGuard],
+				data: { checkRole: [3] },
+				children: [
+					{
+						path: '',
+						pathMatch: 'full',
+						redirectTo: 'general',
+					},
+					{
+						path: 'general',
+						component: GeneralPageComponent,
+					},
+					{
+						path: 'professors',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: ProfessorsPageComponent,
+							},
+							{
+								path: 'edit/:professorUserId',
+								component: EditProfessorPageComponent,
+							},
+							{
+								path: 'create',
+								component: CreateProfessorPageComponent,
+							},
+						],
+					},
+					{
+						path: 'admins',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: AdminsPageComponent,
+							},
+							{
+								path: 'edit/:adminUserId',
+								component: EditAdminPageComponent,
+							},
+							{
+								path: 'create',
+								component: CreateAdminPageComponent,
+							},
+						],
+					},
+					{
+						path: 'schools',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: SchoolsPageComponent,
+							},
+							{
+								path: 'create',
+								component: CreateSchoolPageComponent,
+							},
+							{
+								path: 'edit/:schoolId',
+								component: EditSchoolPageComponent,
+							},
+						],
+					},
+					{
+						path: 'programs',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: ProgramsPageComponent,
+							},
+							{
+								path: 'create',
+								component: CreateProgramPageComponent,
+							},
+							{
+								path: 'edit/:programId',
+								component: EditProgramPageComponent,
+							},
+							{
+								path: 'years/edit/:yearId',
+								component: EditYearPageComponent,
+							},
+						],
+					},
+					{
+						path: 'subjects',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: SubjectsPageComponent,
+							},
+							{
+								path: 'create',
+								component: CreateSubjectPageComponent,
+							},
+							{
+								path: 'edit/:subjectId',
+								component: EditSubjectPageComponent,
+							},
+						],
+					},
+					{
+						path: 'students',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: StudentsPageComponent,
+							},
+							{
+								path: 'edit/:studentUserId',
+								component: EditStudentIndexPageComponent,
+								children: [
+									{
+										path: '',
+										pathMatch: 'full',
+										redirectTo: 'platform-info',
+									},
+									{
+										path: 'platform-info',
+										component: PlatformInfoStudentPageComponent,
+									},
+									{
+										path: 'scholar-situation',
+										component: ScholarSituationStudentPageComponent,
+									},
+									{
+										path: 'programs',
+										component: ProgramsStudentPageComponent,
+									},
+								],
+							},
+							{
+								path: 'create',
+								component: CreateStudentPageComponent,
+							},
+						],
+					},
+					{
+						path: 'new-study-year',
+						component: NewStudyYearPageComponent,
+					},
+				],
+			},
+		],
+	},
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+	imports: [RouterModule.forRoot(routes)],
+	exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

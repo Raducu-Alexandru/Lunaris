@@ -1,3 +1,21 @@
 <h1 class="page-name">Final Grades</h1>
-<div class="wrapper">
+<input type="text" class="input" placeholder="Search by Email" [(ngModel)]="searchedValue" name="emai-search"
+  autocomplete="off" (input)="onEmailSearchInput()">
+<div class="wrapper" *ngIf="!searchedValue">
+  <div class="grade-wrapper" *ngFor="let grade of classFinalGradesDetails; let i = index">
+    <div class="top-wrapper">
+      <span class="name">{{ grade.fullname }}<br>({{ grade.email }})</span>
+      <span class="grade">{{ grade.grade || '-' }}<span class="out-of"> / 10</span></span>
+    </div>
+    <button class="button" (click)="onGradeChangeClick(i)">{{ grade.grade ? 'Change grade' : 'Add grade' }}</button>
+  </div>
+</div>
+<div class="wrapper" *ngIf="searchedValue">
+  <div class="grade-wrapper" *ngFor="let grade of filteredClassFinalGradesDetails; let i = index">
+    <div class="top-wrapper">
+      <span class="name">{{ grade.fullname }}<br>({{ grade.email }})</span>
+      <span class="grade">{{ grade.grade || '-' }}<span class="out-of"> / 10</span></span>
+    </div>
+    <button class="button" (click)="onGradeChangeClick(i)">{{ grade.grade ? 'Change grade' : 'Add grade' }}</button>
+  </div>
 </div>

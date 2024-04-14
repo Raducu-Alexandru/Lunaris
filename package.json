@@ -23,7 +23,7 @@
     "@capacitor/core": "latest",
     "@capacitor/keyboard": "^5.0.8",
     "@raducualexandrumircea/cryptography-network.service": "^2.0.3",
-    "@raducualexandrumircea/lunaris-interfaces": "^1.1.16",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.1.19",
     "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
     "@raducualexandrumircea/socket.service": "^2.0.1",
     "ngx-cookie-service": "^17.1.0",

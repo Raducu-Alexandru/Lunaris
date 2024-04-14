@@ -1,0 +1,24 @@
+<h1 class="page-name">Scholar<br>Situation</h1>
+<app-student-years-dropdown (custom-input)="onYearSelectInput($event)"></app-student-years-dropdown>
+<div class="wrapper">
+  <div class="cards-wrapper">
+    <app-out-of-box class="card" [main-value]="media || '-'" out-of-value="10" title="Media"></app-out-of-box>
+    <app-out-of-box class="card" [main-value]="totalCredits || '-'" [out-of-value]="outOfCredits"
+      title="Credits"></app-out-of-box>
+  </div>
+  <div class="semester" *ngFor="let semester of subjectsScholarSituationPerSemester; let i = index">
+    <h1>Sem {{ i + 1 }}</h1>
+    <table>
+      <tr>
+        <th>Subject</th>
+        <th class="center">Credits</th>
+        <th class="center">Final Grade</th>
+      </tr>
+      <tr *ngFor="let subject of semester; let j = index">
+        <td>{{ subject.subjectName }}</td>
+        <td class="center">{{ subject.credits }}</td>
+        <td class="center">{{ subject.grade || '-' }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

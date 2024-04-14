@@ -103,17 +103,18 @@
 }
 
 .message-wrapper {
-	width: 100%;
+	width: calc(100% - 300px);
 	height: auto;
-	padding: 10px 40px;
+	padding: 20px 40px;
 	box-sizing: border-box;
-	position: sticky;
+	position: fixed;
+	z-index: 100;
 	overflow: auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	bottom: 0;
-	left: 0;
+	right: 0;
 	background-color: var(--color-01dp);
 	form {
 		max-width: 1000px;
