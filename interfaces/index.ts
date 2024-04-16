@@ -156,3 +156,10 @@ export interface ClassFinalGradeDetails {
 	grade: number;
 	userId: number;
 }
+
+export interface AssignmentDetails {
+	classAssigId: number;
+	classAssigName: string;
+	classAssigDesc: string;
+	dueDate: number;
+}
