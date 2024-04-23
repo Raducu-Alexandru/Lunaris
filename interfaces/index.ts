@@ -15,6 +15,7 @@ export interface UniversitySelectDetails {
 }
 
 export interface AnnouncementInfo {
+	userId: number;
 	announcementId: number;
 	announcementText: string;
 	announcementName: string;
@@ -126,15 +127,18 @@ export interface ClassPreviewDetails {
 	classLongId: string;
 	className: string;
 	classCredits: number;
+	classFinalGrade: number;
 }
 
 export interface ClassDetails {
 	className: string;
 	classDescription: string;
 	classCredits: number;
+	classFinalGrade: number;
 }
 
 export interface ClassMessageDetails {
+	userId: number;
 	classMessageId: number;
 	content: string;
 	fullname: string;
@@ -157,9 +161,42 @@ export interface ClassFinalGradeDetails {
 	userId: number;
 }
 
-export interface AssignmentDetails {
+export interface AssignmentPreviewDetails {
 	classAssigId: number;
 	classAssigName: string;
 	classAssigDesc: string;
 	dueDate: number;
+}
+
+export interface AssignmentDetails {
+	classAssigName: string;
+	classAssigDesc: string;
+	filesIds: number[];
+	dueDate: number;
+	grade: number;
+}
+
+export interface FileAssignmentDetails {
+	fileId: number;
+	fileName: string;
+}
+
+export interface UpcommingDeadlinePreviewDetails {
+	classAssigId: number;
+	classAssigName: string;
+	classAssigDesc: string;
+	dueDate: number;
+	classId: number;
+}
+
+export interface UserContactInfo {
+	fullname: string;
+	description: string;
+	website: string;
+	publicEmail: string;
+}
+
+export interface HandInAssignmentDetails {
+	handedInDate: number;
+	filesIds: number[];
 }

@@ -34,7 +34,7 @@ export class ServerCommunication {
 		return fetch(this._constructServiceUrl(serviceName, path, port, namespace), {
 			method: 'POST',
 			headers: this._constructHeaders({}, useJson),
-			body: JSON.stringify(payload),
+			body: useJson ? JSON.stringify(payload) : payload,
 		})
 			.then((response) => {
 				return response.json();
@@ -47,12 +47,11 @@ export class ServerCommunication {
 
 	private _constructHeaders(headers: { [key: string]: string }, isJson: boolean = false): { [key: string]: string } {
 		return Object.assign(
-			{},
+			{ 'server-key': this.serverKey },
 			headers,
 			isJson
 				? {
 						'Content-Type': 'application/json; charset=utf-8',
-						'server-key': this.serverKey,
 				  }
 				: {}
 		);
