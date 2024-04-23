@@ -1,0 +1,7 @@
+<div class="file-wrapper">
+  <span>{{ fileName }}</span>
+  <img *ngIf="isDelete" src="/assets/imgs/trashIconCF6364.png" alt="delete" (click)="onDeleteClick()">
+  <a *ngIf="downloadUrl" [href]="downloadUrl">
+    <img src="/assets/imgs/downloadIcon4688C1.png" alt="download">
+  </a>
+</div>

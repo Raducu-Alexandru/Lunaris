@@ -1,0 +1,19 @@
+<h1 class="page-name">Edit Assignment</h1>
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper">
+  <input type="text" class="input" placeholder="Assignment Name" name="assignment-name" [(ngModel)]="name"
+    [value]="assignmentDetails.classAssigName">
+  <input type="datetime-local" class="input" placeholder="Due Date" name="due-date"
+    [min]="currentDate | date : 'YYYY-MM-ddTHH:mm:ss'" [(ngModel)]="dueDate"
+    [value]="assignmentDetails.dueDate | date : 'YYYY-MM-ddTHH:mm:ss'">
+  <textarea name="description" class="textarea" placeholder="Description" [(ngModel)]="description"
+    [value]="assignmentDetails.classAssigDesc"></textarea>
+  <span class="label">Files</span>
+  <app-file-card class="assignment-file-card" *ngFor="let file of filesAssignmentDetails; let i = index"
+    [is-delete]="true" [file-name]="file.fileName" (delete)="onFileDelete(i)"></app-file-card>
+  <span class="label">New Files</span>
+  <app-upload-button class="upload-button" (file-upload)="onFileUpload($event)"></app-upload-button>
+  <app-file-card class="assignment-file-card" *ngFor="let file of uploadedFiles; let i = index" [file-name]="file.name"
+    [is-delete]="true" (delete)="onNewFileDelete(i)"></app-file-card>
+  <button class="button" (click)="onSaveClick()">Save</button>
+</div>

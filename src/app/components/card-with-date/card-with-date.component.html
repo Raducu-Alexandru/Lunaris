@@ -1,0 +1,14 @@
+<div class="wrapper">
+  <div class="date-wrapper">
+    <div class="date" [ngClass]="{ late: timestamp <= currentTimestamp && showLateDate }">
+      <span>{{ timestamp | date : 'dd' }}<br>{{ timestamp | date : 'MMM' }}</span>
+    </div>
+  </div>
+  <div class="details-wrapper">
+    <span class="name">{{ name }}</span>
+    <span class="description">{{ description }}</span>
+  </div>
+  <div class="arrow-wrapper">
+    <img src="/assets/imgs/arrowIcon939393.png">
+  </div>
+</div>

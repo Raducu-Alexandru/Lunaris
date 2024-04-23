@@ -1,70 +1,70 @@
 :host {
-  width: 100%;
-  height: auto;
-  min-height: 240px;
-  padding: 20px 30px;
-  background-color: var(--color-06dp);
-  border-radius: 20px;
-  display: block;
-  margin: auto;
-  position: relative;
-  isolation: isolate;
-  box-sizing: border-box;
+	width: 100%;
+	height: auto;
+	min-height: 240px;
+	padding: 20px 30px;
+	background-color: var(--color-06dp);
+	border-radius: 20px;
+	display: block;
+	margin: auto;
+	position: relative;
+	isolation: isolate;
+	box-sizing: border-box;
 }
 
 .name {
-  width: 100%;
-  height: auto;
-  display: block;
-  text-align: left;
-  color: white;
-  font-weight: 600;
-  font-family: var(--montserrat-font);
-  text-align: left;
-  font-size: 25px;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	width: 100%;
+	height: auto;
+	display: block;
+	text-align: left;
+	color: white;
+	font-weight: 600;
+	font-family: var(--montserrat-font);
+	text-align: left;
+	font-size: 25px;
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .class-long-id {
-  width: 100%;
-  height: auto;
-  display: block;
-  text-align: left;
-  color: var(--color-grey1);
-  font-weight: 400;
-  font-family: var(--montserrat-font);
-  text-align: left;
-  font-size: 18px;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 20px;
+	width: 100%;
+	height: auto;
+	display: block;
+	text-align: left;
+	color: var(--color-grey1);
+	font-weight: 400;
+	font-family: var(--montserrat-font);
+	text-align: left;
+	font-size: 18px;
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 20px;
 }
 
 span {
-  width: 100%;
-  height: auto;
-  display: block;
-  text-align: left;
-  color: var(--color-grey4);
-  font-weight: 500;
-  font-family: var(--montserrat-font);
-  text-align: left;
-  font-size: 20px;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 20px;
+	width: 50%;
+	height: auto;
+	float: left;
+	text-align: left;
+	color: var(--color-grey4);
+	font-weight: 500;
+	font-family: var(--montserrat-font);
+	text-align: left;
+	font-size: 20px;
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 20px;
 }
 
 button {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
 }

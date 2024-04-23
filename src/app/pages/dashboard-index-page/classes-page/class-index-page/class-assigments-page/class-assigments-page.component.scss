@@ -1,8 +1,29 @@
 :host {
-  width: 100%;
-  height: calc(100% - 80px);
-  position: relative;
-  isolation: isolate;
-  float: left;
-  overflow: auto;
+	width: 100%;
+	height: calc(100% - 80px);
+	position: relative;
+	isolation: isolate;
+	float: left;
+	overflow: auto;
+}
+
+.button {
+	display: block;
+	margin: auto;
+	margin-bottom: 50px;
+}
+
+.wrapper {
+	width: 90%;
+	max-width: 800px;
+	height: auto;
+	overflow: auto;
+	display: block;
+	margin: auto;
+	.assig {
+		width: 100%;
+		display: block;
+		margin: auto;
+		margin-bottom: 50px;
+	}
 }

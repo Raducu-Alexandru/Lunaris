@@ -3,3 +3,8 @@
 <button class="button" (click)="onAnnouncementAddClick()" *ngIf="userRole == 3">Add</button>
 <app-channel-message class="channel-message" *ngFor="let announcement of announcementsInfo" [data]="announcement"
   [show-delete-options]="userRole == 3" (delete)="onRemovenAnnouncement($event)"></app-channel-message>
+<span class="page-subtitle">Upcoming<br>deadlines</span>
+<app-card-with-date class="upcomming-deadline" *ngFor="let upcommingDeadline of upcommingDeadlinePreviewDetails"
+  [timestamp]="upcommingDeadline.dueDate" [name]="upcommingDeadline.classAssigName"
+  [description]="upcommingDeadline.classAssigDesc" [show-late-date]="true"
+  [routerLink]="'../classes/' + upcommingDeadline.classId.toString() + '/assigments/' + upcommingDeadline.classAssigId.toString()"></app-card-with-date>

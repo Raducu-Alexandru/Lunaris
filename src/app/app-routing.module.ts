@@ -42,6 +42,9 @@ import { ClassAssigmentsPageComponent } from './pages/dashboard-index-page/class
 import { ClassMembersPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-members-page/class-members-page.component';
 import { ClassFinalGradesPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-final-grades-page/class-final-grades-page.component';
 import { ScholarSituationPageComponent } from './pages/dashboard-index-page/scholar-situation-page/scholar-situation-page.component';
+import { CreateAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/create-assignment-page/create-assignment-page.component';
+import { ViewAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/view-assignment-page/view-assignment-page.component';
+import { EditAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/edit-assignment-page/edit-assignment-page.component';
 
 const routes: Routes = [
 	{
@@ -120,7 +123,33 @@ const routes: Routes = [
 							},
 							{
 								path: 'assigments',
-								component: ClassAssigmentsPageComponent,
+								children: [
+									{
+										path: '',
+										pathMatch: 'full',
+										component: ClassAssigmentsPageComponent,
+									},
+									{
+										path: 'create',
+										component: CreateAssignmentPageComponent,
+									},
+									{
+										path: ':classAssigId',
+										children: [
+											{
+												path: '',
+												pathMatch: 'full',
+												component: ViewAssignmentPageComponent,
+											},
+											{
+												path: 'edit',
+												component: EditAssignmentPageComponent,
+												canActivate: [CheckUserRoleGuard],
+												data: { checkRole: [3, 2] },
+											},
+										],
+									},
+								],
 							},
 							{
 								path: 'final-grades',

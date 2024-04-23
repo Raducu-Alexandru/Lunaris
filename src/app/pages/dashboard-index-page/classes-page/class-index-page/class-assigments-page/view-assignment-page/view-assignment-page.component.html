@@ -1,0 +1,31 @@
+<app-go-back-text class="go-back" link=".."></app-go-back-text>
+<div class="wrapper">
+  <div class="top-wrapper">
+    <div class="date" [ngClass]="{ late: assignmentDetails.dueDate <= currentTimestamp }">
+      <span>{{ assignmentDetails.dueDate | date : 'dd' }}<br>{{ assignmentDetails.dueDate | date : 'MMM' }}</span>
+    </div>
+    <h1>{{ assignmentDetails.classAssigName }}</h1>
+    <div class="grade-wrapper" *ngIf="userRole == 1">
+      <span class="grade">{{ assignmentDetails.grade }}</span>
+      <span class="out-of">/ 10</span>
+    </div>
+    <button class="button" *ngIf="userRole != 1" routerLink="edit">Edit</button>
+  </div>
+  <span class="label">Due: {{ assignmentDetails.dueDate | date : 'dd.MM.YYYY HH:mm:ss' }}</span>
+  <p>{{ assignmentDetails.classAssigDesc }}</p>
+  <app-file-card class="assignment-file-card" *ngFor="let file of filesAssignmentDetails"
+    [download-url]="downloadUrl + '/' + file.fileId" [file-name]="file.fileName"></app-file-card>
+  <div class="hand-in-wrapper" *ngIf="userRole == 1">
+    <div class="buttons-wrapper">
+      <app-upload-button class="upload-button" (file-upload)="onFileUpload($event)"
+        *ngIf="handInAssignmentDetails.handedInDate == null"></app-upload-button>
+      <button (click)="onHandInClick()" class="button hand-in-button disabled">{{ handInAssignmentDetails.handedInDate
+        == null ? 'Hand In' :
+        'Undo Hand In' }}</button>
+    </div>
+    <span class="label">Your files</span>
+    <app-file-card class="file-card" *ngFor="let file of userFilesAssignmentDetails; let i = index"
+      [file-name]="file.fileName" [is-delete]="handInAssignmentDetails.handedInDate == null"
+      [download-url]="userDownloadUrl + '/' + file.fileId" (delete)="onFileDelete(i)"></app-file-card>
+  </div>
+</div>

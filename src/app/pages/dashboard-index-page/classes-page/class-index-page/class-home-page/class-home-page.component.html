@@ -3,17 +3,25 @@
     <div class="name">
       <h1>{{ classDetails.className }}</h1>
     </div>
-    <div class="credits">
+    <div class="credits" *ngIf="classDetails.classCredits">
       <div class="text-wrapper">
         <span class="label">Credits</span>
         <h2>{{ classDetails.classCredits }}</h2>
+      </div>
+    </div>
+    <div class="final-grade" *ngIf="classDetails.classFinalGrade">
+      <div class="text-wrapper">
+        <span class="label">Grade</span>
+        <h2>{{ classDetails.classFinalGrade }}</h2>
       </div>
     </div>
   </div>
   <span>{{ classDetails.classDescription }}</span>
 </div>
 <div class="wrapper">
-  <app-channel-message class="channel-message" *ngFor="let message of classMessagesDetails" [data]="{
+  <app-channel-message #channelMessages class="channel-message"
+    *ngFor="let message of classMessagesDetails; trackBy: trackChatMessage" [data]="{
+  userId: message.userId,
   announcementId: message.classMessageId,
   announcementText: message.content,
   announcementName: message.fullname

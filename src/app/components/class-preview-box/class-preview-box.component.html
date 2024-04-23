@@ -1,4 +1,5 @@
 <h2 class="name">{{ classPreviewDetails.className }}</h2>
 <h3 class="class-long-id">{{ classPreviewDetails.classLongId }}</h3>
 <span *ngIf="classPreviewDetails.classCredits">Credits: {{ classPreviewDetails.classCredits }}</span>
+<span *ngIf="classPreviewDetails.classFinalGrade">Grade: {{ classPreviewDetails.classFinalGrade }}</span>
 <button class="button" [routerLink]="classPreviewDetails.classId.toString()">View channel</button>

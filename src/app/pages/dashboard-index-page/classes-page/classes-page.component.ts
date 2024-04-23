@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticateService } from '../../../custom-services/authenticate/authenticate.service';
 import { UserRoleService } from '../../../custom-services/user-role/user-role.service';
-import {
-	ClassPreviewDetails,
-	CustomResponseObject,
-} from '@raducualexandrumircea/lunaris-interfaces';
+import { ClassPreviewDetails, CustomResponseObject } from '@raducualexandrumircea/lunaris-interfaces';
 import { ResponseObject } from '../../../services/cryptography-network.service';
 import { environment } from '../../../../environments/environment';
 
@@ -18,11 +15,9 @@ export class ClassesPageComponent implements OnInit {
 	classesPreviewDetails: ClassPreviewDetails[] = [];
 	filteredClassesPreviewDetails: ClassPreviewDetails[] = [];
 	userRole: number = 0;
+	showSelectByStudyYear: boolean = false;
 
-	constructor(
-		private _authenticateService: AuthenticateService,
-		private _userRoleService: UserRoleService
-	) {}
+	constructor(private _authenticateService: AuthenticateService, private _userRoleService: UserRoleService) {}
 
 	async ngOnInit(): Promise<void> {
 		this.userRole = await this._userRoleService.getUserRole();
@@ -33,6 +28,10 @@ export class ClassesPageComponent implements OnInit {
 	}
 
 	async onStudentYearSelectInput(studentYearId: number): Promise<void> {
+		this.showSelectByStudyYear = studentYearId == 0;
+		if (studentYearId == 0) {
+			return;
+		}
 		await this._getClassesPreviewDetailsByStudentYearId(studentYearId);
 	}
 
@@ -47,9 +46,7 @@ export class ClassesPageComponent implements OnInit {
 	}
 
 	private async _getClassesPreviewDetailsByStudyYear(studyYearId: number): Promise<void> {
-		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(
-			environment.classesUrl + `/get/classes/study-year-id/${studyYearId}`
-		);
+		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.classesUrl + `/get/classes/study-year-id/${studyYearId}`);
 		if (!this._authenticateService.checkResponse(responseObject)) {
 			return null;
 		}
@@ -58,9 +55,7 @@ export class ClassesPageComponent implements OnInit {
 	}
 
 	private async _getClassesPreviewDetailsByStudentYearId(studentYearId: number): Promise<void> {
-		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(
-			environment.classesUrl + `/get/classes/student-year-id/${studentYearId}`
-		);
+		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.classesUrl + `/get/classes/student-year-id/${studentYearId}`);
 		if (!this._authenticateService.checkResponse(responseObject)) {
 			return null;
 		}

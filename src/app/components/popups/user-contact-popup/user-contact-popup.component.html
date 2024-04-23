@@ -1,0 +1,22 @@
+<div class="close-wrapper">
+  <img src="/assets/imgs/closeIconCF6364.png" class="close" (click)="onCloseClick()" />
+</div>
+<div class="wrapper">
+  <div class="image-wrapper">
+    <img src="/assets/imgs/userProfileIcon.png" alt="user image">
+  </div>
+  <div class="info-wrapper">
+    <span class="label">Fullname</span>
+    <span class="text">{{ userContactInfo.fullname }}</span>
+    <span class="label">Description</span>
+    <span class="text">{{ userContactInfo.description }}</span>
+    <div class="half">
+      <span class="label">Website</span>
+      <span class="text">{{ userContactInfo.website }}</span>
+    </div>
+    <div class="half">
+      <span class="label">Public Email</span>
+      <span class="text">{{ userContactInfo.publicEmail }}</span>
+    </div>
+  </div>
+</div>

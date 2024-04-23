@@ -3,12 +3,7 @@ import { AuthenticateService } from '../../../../custom-services/authenticate/au
 import { PopupResult, PopupsService } from '../../../../custom-services/popup/popups.service';
 import { ResponseObject } from '../../../../services/cryptography-network.service';
 import { environment } from '../../../../../environments/environment';
-import {
-	ClassSubjectDropdownDetails,
-	CustomResponseObject,
-	StudyYearStudentDetails,
-	SubjectPreviewDetails,
-} from '@raducualexandrumircea/lunaris-interfaces';
+import { ClassSubjectDropdownDetails, CustomResponseObject, StudyYearStudentDetails, SubjectPreviewDetails } from '@raducualexandrumircea/lunaris-interfaces';
 import { BigLoadingFilterService } from '../../../../custom-services/big-loading-filter/big-loading-filter.service';
 import { Location } from '@angular/common';
 
@@ -29,12 +24,7 @@ export class CreateClassPageComponent implements OnInit {
 	description: string = '';
 	studyYearStudentsDetails: StudyYearStudentDetails[] = [];
 
-	constructor(
-		private _location: Location,
-		private _authenticateService: AuthenticateService,
-		private _popupsService: PopupsService,
-		private _bigLoadingFilterService: BigLoadingFilterService
-	) {}
+	constructor(private _location: Location, private _authenticateService: AuthenticateService, private _popupsService: PopupsService, private _bigLoadingFilterService: BigLoadingFilterService) {}
 
 	async ngOnInit(): Promise<void> {
 		await this._getSubjectsPreviewDetails();
@@ -89,11 +79,9 @@ export class CreateClassPageComponent implements OnInit {
 
 	onStudentDelete(userId: number): void {
 		console.log(userId);
-		this.studyYearStudentsDetails = this.studyYearStudentsDetails.filter(
-			(val: StudyYearStudentDetails) => {
-				val.userId == userId;
-			}
-		);
+		this.studyYearStudentsDetails = this.studyYearStudentsDetails.filter((val: StudyYearStudentDetails) => {
+			val.userId == userId;
+		});
 	}
 
 	private async _createClass(): Promise<boolean> {
@@ -112,17 +100,14 @@ export class CreateClassPageComponent implements OnInit {
 		}
 		var body: CurrentBody = {
 			studyYearId: this.studyYearId,
-			classSuffix: this.classSuffix,
-			classPrefix: this.classPrefix,
-			className: this.className,
-			yearSubjectId: this.yearSubjectId,
+			classSuffix: this.classForSubject ? this.classSuffix : '',
+			classPrefix: this.classForSubject ? this.classPrefix : '',
+			className: this.classForSubject ? '' : this.className,
+			yearSubjectId: this.classForSubject ? this.yearSubjectId : null,
 			description: this.description,
 			usersIds: usersIds,
 		};
-		var responseObject: ResponseObject = await this._authenticateService.sendPostReq(
-			environment.classesUrl + '/create/class',
-			body
-		);
+		var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + '/create/class', body);
 		if (!this._authenticateService.checkResponse(responseObject)) {
 			return false;
 		}
@@ -130,9 +115,7 @@ export class CreateClassPageComponent implements OnInit {
 	}
 
 	private async _getSubjectsPreviewDetails(): Promise<void> {
-		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(
-			environment.classesUrl + '/get/class-subjects/0'
-		);
+		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.classesUrl + '/get/class-subjects/0');
 		if (!this._authenticateService.checkResponse(responseObject)) {
 			return;
 		}
@@ -148,24 +131,16 @@ export class CreateClassPageComponent implements OnInit {
 		}
 		var body: CurrentBody = {
 			email: email,
-			yearSubjectId: this.yearSubjectId,
-			studyYearId: this.studyYearId,
+			yearSubjectId: this.classForSubject ? this.yearSubjectId : null,
+			studyYearId: this.classForSubject ? this.studyYearId : null,
 		};
-		var responseObject: ResponseObject = await this._authenticateService.sendPostReq(
-			environment.classesUrl + '/get/user-id/from/email',
-			body
-		);
+		var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + '/get/user-id/from/email', body);
 		if (!this._authenticateService.checkResponse(responseObject)) {
 			return;
 		}
 		var customResponseObject: CustomResponseObject = responseObject.data;
-		var studyYearStudentDetails: StudyYearStudentDetails =
-			customResponseObject.data.studyYearStudentDetails;
-		if (
-			this.studyYearStudentsDetails.find(
-				(val: StudyYearStudentDetails) => val.userId == studyYearStudentDetails.userId
-			)
-		) {
+		var studyYearStudentDetails: StudyYearStudentDetails = customResponseObject.data.studyYearStudentDetails;
+		if (this.studyYearStudentsDetails.find((val: StudyYearStudentDetails) => val.userId == studyYearStudentDetails.userId)) {
 			return;
 		}
 		this.studyYearStudentsDetails.push(studyYearStudentDetails);

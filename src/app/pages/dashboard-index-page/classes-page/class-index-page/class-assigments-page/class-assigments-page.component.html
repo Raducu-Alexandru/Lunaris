@@ -1,1 +1,7 @@
-<p>class-assigments-page works!</p>
+<h1 class="page-name">Assignments</h1>
+<button class="button" *ngIf="userRole != 1" routerLink="create">Create Assignment</button>
+<div class="wrapper">
+  <app-card-with-date class="assig" *ngFor="let assig of assignmentsPreviewDetails" [timestamp]="assig.dueDate"
+    [name]="assig.classAssigName" [description]="assig.classAssigDesc" [show-late-date]="true"
+    [routerLink]="assig.classAssigId.toString()"></app-card-with-date>
+</div>

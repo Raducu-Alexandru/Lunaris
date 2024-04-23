@@ -19,3 +19,5 @@
   [popup-config]="popupConfigObj"></app-number-input-popup>
 <app-checkmark-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'checkmark'"
   [popup-config]="popupConfigObj"></app-checkmark-popup>
+<app-user-contact-popup *ngIf="popupConfigObj != undefined && popupConfigObj.type == 'user-contact'"
+  [popup-config]="popupConfigObj"></app-user-contact-popup>

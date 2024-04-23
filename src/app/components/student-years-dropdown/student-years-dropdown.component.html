@@ -1,5 +1,7 @@
 <span class="label">Year</span>
-<select class="input" (input)="onSelectChange($event)">
+<select class="input" (input)="onSelectChange($event)"
+  [value]="studentYearsDetails[0] ? studentYearsDetails[0].studentYearId : ''">
   <option *ngFor="let studentYear of studentYearsDetails" [value]="studentYear.studentYearId">{{ studentYear.fromYear }}
     - {{ studentYear.toYear }} Year {{ studentYear.yearIndex }} {{ studentYear.programShortName }}</option>
+  <option *ngIf="showOtherOption" value="0">Other</option>
 </select>

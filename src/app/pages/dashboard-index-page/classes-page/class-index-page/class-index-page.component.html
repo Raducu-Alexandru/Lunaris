@@ -5,7 +5,8 @@
   <div class="item" [routerLink]="['assigments']" routerLinkActive="selected">
     <span>Assigments</span>
   </div>
-  <div class="item" [routerLink]="['final-grades']" routerLinkActive="selected" *ngIf="userRole != 1">
+  <div class="item" [routerLink]="['final-grades']" routerLinkActive="selected"
+    *ngIf="userRole != 1 && yearSubjectId != null">
     <span>Final Grades</span>
   </div>
   <div class="item" [routerLink]="['members']" routerLinkActive="selected">

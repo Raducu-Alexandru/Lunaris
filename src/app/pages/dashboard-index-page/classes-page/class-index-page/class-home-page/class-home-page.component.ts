@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Subscription, fromEvent } from 'rxjs';
 import { SocketService } from '../../../../../services/socket.service';
 import { ActivatedRoute } from '@angular/router';
 import { SocketConnectionService } from '../../../../../custom-services/socket-connection/socket-connection.service';
@@ -15,27 +15,35 @@ import { PopupsService } from '../../../../../custom-services/popup/popups.servi
 	templateUrl: './class-home-page.component.html',
 	styleUrl: './class-home-page.component.scss',
 })
-export class ClassHomePageComponent implements OnInit, OnDestroy {
+export class ClassHomePageComponent implements OnInit, OnDestroy, AfterViewInit {
 	classId: number;
 	socketConnectionSubscription: Subscription;
 	onNewMessageEventListenerId: string;
 	classDetails: ClassDetails = {
 		className: '',
 		classDescription: '',
-		classCredits: 0,
+		classCredits: null,
+		classFinalGrade: null,
 	};
 	classMessagesDetails: ClassMessageDetails[] = [];
 	newMessage: string = '';
+	updateScroll: boolean = false;
+	scrollSubscription: Subscription;
+	@ViewChildren('channelMessages') channelMessages: QueryList<ClassMessageDetails>;
 
 	constructor(
 		private _socketService: SocketService,
 		private _activatedRoute: ActivatedRoute,
 		private _socketConnectionService: SocketConnectionService,
 		private _authenticateService: AuthenticateService,
-		private _popupsService: PopupsService
+		private _popupsService: PopupsService,
+		private _hostElement: ElementRef
 	) {}
 
 	async ngOnInit(): Promise<void> {
+		this.scrollSubscription = fromEvent(this._hostElement.nativeElement, 'scroll').subscribe((e) => {
+			this._updateUpdateScroll();
+		});
 		this.classId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('classId'));
 		if (this._socketConnectionService.getSocketState()) {
 			await this._enterClassSocketRoom();
@@ -60,12 +68,22 @@ export class ClassHomePageComponent implements OnInit, OnDestroy {
 		await this._getClassMessageDetails();
 	}
 
+	ngAfterViewInit() {
+		this.channelMessages.changes.subscribe(() => {
+			if (!this.updateScroll) {
+				return;
+			}
+			this._adjustScroll();
+		});
+	}
+
 	async ngOnDestroy(): Promise<void> {
 		try {
 			this.socketConnectionSubscription.unsubscribe();
 		} catch (err) {
 			console.log(err);
 		}
+		this.scrollSubscription.unsubscribe();
 		this._socketService.clearEventListener(this.onNewMessageEventListenerId);
 		await this._socketService.emit({
 			eventName: 'leave-class',
@@ -73,6 +91,10 @@ export class ClassHomePageComponent implements OnInit, OnDestroy {
 				classId: this.classId,
 			},
 		});
+	}
+
+	trackChatMessage(index: number, chatMessage: ClassMessageDetails) {
+		return chatMessage.classMessageId;
 	}
 
 	async onSendMessage(event): Promise<void> {
@@ -98,6 +120,14 @@ export class ClassHomePageComponent implements OnInit, OnDestroy {
 				text: messageResponse.data.statusText,
 			});
 		}
+	}
+
+	private _adjustScroll(): void {
+		this._hostElement.nativeElement.scrollTop = this._hostElement.nativeElement.scrollHeight;
+	}
+
+	private _updateUpdateScroll(): void {
+		this.updateScroll = this._hostElement.nativeElement.scrollTop >= this._hostElement.nativeElement.scrollHeight - this._hostElement.nativeElement.offsetHeight - 50;
 	}
 
 	private async _getClassDetails(): Promise<void> {
