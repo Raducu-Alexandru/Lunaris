@@ -62,14 +62,14 @@ const dbConnectionDb: string = environmentParserObj.get('DB_CONN_DB', 'string', 
 const dbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, dbConnectionDb, 'utf8mb4');
 const redisConnectionObj: RedisConnectionRelation = new RedisConnectionRelation(redisSessionUrls);
 const sessionManagerObj: SessionManager = new SessionManager({
-  redisObj: redisConnectionObj,
-  sessionPrefix: sessionManagerPrefix,
-  sessionParser: sessionManagerParser,
-  sessionExpInSec: sessionManagerSessionExpSec,
-  sessionCookieName: sessionManagerCookieName,
-  sessionCookieDomain: sessionManagerCookieDomain,
-  isSecureCookie: true,
-  sessionCookieExpInSec: sessionManagerCookieExpSec,
+	redisObj: redisConnectionObj,
+	sessionPrefix: sessionManagerPrefix,
+	sessionParser: sessionManagerParser,
+	sessionExpInSec: sessionManagerSessionExpSec,
+	sessionCookieName: sessionManagerCookieName,
+	sessionCookieDomain: sessionManagerCookieDomain,
+	isSecureCookie: true,
+	sessionCookieExpInSec: sessionManagerCookieExpSec,
 });
 const serverCommunicationObj: ServerCommunication = new ServerCommunication(namespace, serverCommunicationKey);
 const jwtMethodsObj: JwtMethods = new JwtMethods('string', jwtRsaPrivateKey, jwtRsaPublicKey, 'LunarisApp', jwtAudience);
@@ -88,14 +88,14 @@ router.use(express.json());
 router.use(handleSessionManagementMiddleware(sessionManagerObj));
 
 secureRouter.use(express.urlencoded({ extended: false }));
-secureRouter.use(bodyParser.text());
+secureRouter.use(express.json());
 secureRouter.use(secureRoutesMiddleware(serverCommunicationObj));
 
 app.use(`/apiv${apiVersion}` + pathPrefix, router);
 app.use(pathPrefix, secureRouter);
 
 app.listen(serverPort, () => {
-  console.log(`server listening on http://localhost:${serverPort}`);
+	console.log(`server listening on http://localhost:${serverPort}`);
 });
 
 appRoutes(router, dbConnection, loginMethodsObj, socketMethodsObj, serverCommunicationObj, jwtMethodsObj);

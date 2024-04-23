@@ -26,7 +26,7 @@
     "@raducualexandrumircea/lunaris-jwt": "^1.0.5",
     "@raducualexandrumircea/lunaris-login": "^1.0.2",
     "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
-    "@raducualexandrumircea/lunaris-server-communication": "^1.0.3",
+    "@raducualexandrumircea/lunaris-server-communication": "^1.0.11",
     "@raducualexandrumircea/lunaris-socket-methods": "^1.0.0",
     "@raducualexandrumircea/lunaris-sql-queries": "^1.0.4",
     "@raducualexandrumircea/redis-session-manager": "^2.0.0",
