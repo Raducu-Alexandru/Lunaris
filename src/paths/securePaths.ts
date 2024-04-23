@@ -1,27 +1,15 @@
 import { Router, Request, Response } from 'express';
 import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
 import { DbHandler, NormalPacket, SelectPacket } from '@raducualexandrumircea/custom-db-handler';
-import { LoginMethods, LoginMethodsInterface } from '@raducualexandrumircea/lunaris-login';
-import { AccountMethods, handleCheckAdminMiddleware } from '@raducualexandrumircea/lunaris-account';
-import {
-	AnnouncementInfo,
-	ClassMessageDetails,
-	CustomResponseObject,
-} from '@raducualexandrumircea/lunaris-interfaces';
-import { SessionInterface } from '@raducualexandrumircea/redis-session-manager';
+import { LoginMethods } from '@raducualexandrumircea/lunaris-login';
+import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
+import { ClassMessageDetails, CustomResponseObject } from '@raducualexandrumircea/lunaris-interfaces';
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
-export function secureRoutes(
-	router: Router,
-	dbConnection: DbHandler,
-	loginMethodsObj: LoginMethods,
-	accountMethodsObj: AccountMethods
-) {
+export function secureRoutes(router: Router, dbConnection: DbHandler, loginMethodsObj: LoginMethods, accountMethodsObj: AccountMethods) {
 	router.get('/', async (req: Request, res: Response) => {
-		res
-			.status(200)
-			.send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
 	});
 
 	router.post('/create/class/message', async (req: Request, res: Response) => {
@@ -31,7 +19,7 @@ export function secureRoutes(
 			content: string;
 		}
 		var responseObject: CustomResponseObject;
-		var body: CurrentBody = req['reqPayload'];
+		var body: CurrentBody = req.body;
 		if (!('userId' in body && 'classId' in body && 'content' in body)) {
 			responseObject = {
 				succ: false,
@@ -61,15 +49,10 @@ export function secureRoutes(
 			res.status(200).send(responseObject);
 			return;
 		}
-		var messageNormalSqlResult: NormalPacket = await dbConnection.execute<NormalPacket>(
-			'INSERT INTO classesMessages (classId, userId, content) VALUES (?, ?, ?)',
-			[classId, userId, content]
-		);
-		var fullnameSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			"SELECT CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM users WHERE users.userId = ?",
-			[userId]
-		);
+		var messageNormalSqlResult: NormalPacket = await dbConnection.execute<NormalPacket>('INSERT INTO classesMessages (classId, userId, content) VALUES (?, ?, ?)', [classId, userId, content]);
+		var fullnameSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>("SELECT CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM users WHERE users.userId = ?", [userId]);
 		var socketSendObject: ClassMessageDetails = {
+			userId: userId,
 			classMessageId: messageNormalSqlResult.insertId,
 			content: content,
 			fullname: fullnameSqlResult.length == 1 ? fullnameSqlResult[0].fullName : 'No fullname found',

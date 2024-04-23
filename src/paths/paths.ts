@@ -30,7 +30,7 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 			return;
 		}
 		var classMessagesSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classesMessages.classMessageId, classesMessages.content, CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM classesMessages
+			`SELECT classesMessages.userId, classesMessages.classMessageId, classesMessages.content, CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM classesMessages
 INNER JOIN classes ON classes.classId = classesMessages.classId
 INNER JOIN users ON users.userId = classesMessages.userId
 WHERE classes.classId = ? AND users.universityId = ?
@@ -40,6 +40,7 @@ ORDER BY classesMessages.createdDate ASC`,
 		var classMessagesDetails: ClassMessageDetails[] = [];
 		for (var i = 0; i < classMessagesSqlResult.length; i++) {
 			classMessagesDetails.push({
+				userId: classMessagesSqlResult[i].userId,
 				classMessageId: classMessagesSqlResult[i].classMessageId,
 				content: classMessagesSqlResult[i].content,
 				fullname: classMessagesSqlResult[i].fullName,
@@ -62,7 +63,7 @@ ORDER BY classesMessages.createdDate ASC`,
 		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
 		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
 		var announcementsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT CONCAT_WS(' ', firstName, lastName) as fullName, content, announcementId FROM announcements
+			`SELECT CONCAT_WS(' ', firstName, lastName) as fullName, content, announcementId, announcements.userId FROM announcements
 INNER JOIN users ON announcements.userId = users.userId
 WHERE announcements.universityId = ?`,
 			[universityId]
@@ -70,6 +71,7 @@ WHERE announcements.universityId = ?`,
 		var announcementsInfo: AnnouncementInfo[] = [];
 		for (var i = 0; i < announcementsSqlResult.length; i++) {
 			announcementsInfo.push({
+				userId: announcementsSqlResult[i].userId,
 				announcementId: announcementsSqlResult[i].announcementId,
 				announcementText: announcementsSqlResult[i].content,
 				announcementName: announcementsSqlResult[i].fullName,
