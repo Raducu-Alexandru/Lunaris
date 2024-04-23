@@ -26,7 +26,7 @@
     "@raducualexandrumircea/lunaris-interfaces": "^1.1.8",
     "@raducualexandrumircea/lunaris-login": "^1.0.3",
     "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
-    "@raducualexandrumircea/lunaris-server-communication": "^1.0.3",
+    "@raducualexandrumircea/lunaris-server-communication": "^1.0.11",
     "@raducualexandrumircea/lunaris-socket-methods": "^1.0.0",
     "@raducualexandrumircea/redis-session-manager": "^2.0.0",
     "cookie-parser": "^1.4.6",

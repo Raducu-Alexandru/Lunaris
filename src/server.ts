@@ -58,14 +58,14 @@ const dbConnectionDb: string = environmentParserObj.get('DB_CONN_DB', 'string', 
 const dbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, dbConnectionDb, 'utf8mb4');
 const redisConnectionObj: RedisConnectionRelation = new RedisConnectionRelation(redisSessionUrls);
 const sessionManagerObj: SessionManager = new SessionManager({
-  redisObj: redisConnectionObj,
-  sessionPrefix: sessionManagerPrefix,
-  sessionParser: sessionManagerParser,
-  sessionExpInSec: sessionManagerSessionExpSec,
-  sessionCookieName: sessionManagerCookieName,
-  sessionCookieDomain: sessionManagerCookieDomain,
-  isSecureCookie: true,
-  sessionCookieExpInSec: sessionManagerCookieExpSec,
+	redisObj: redisConnectionObj,
+	sessionPrefix: sessionManagerPrefix,
+	sessionParser: sessionManagerParser,
+	sessionExpInSec: sessionManagerSessionExpSec,
+	sessionCookieName: sessionManagerCookieName,
+	sessionCookieDomain: sessionManagerCookieDomain,
+	isSecureCookie: true,
+	sessionCookieExpInSec: sessionManagerCookieExpSec,
 });
 const serverCommunicationObj: ServerCommunication = new ServerCommunication(namespace, serverCommunicationKey);
 const loginMethodsObj: LoginMethods = new LoginMethods(loginCookieName, loginCookieDomain, loginCookieExpInDays, loginSessionExpInMin, serverCommunicationObj);
@@ -75,7 +75,7 @@ const accountMethodsObj: AccountMethods = new AccountMethods(dbConnection);
 const app: Express = express();
 const router: Router = Router();
 const secureRouter: Router = Router();
-const upload = multer({ limits: { fileSize: 1 * 1024 * 1024 } });
+const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } });
 
 app.use(cors(getCorsOptions([appUrl, websiteUrl])));
 app.use(cookieParser());
@@ -87,14 +87,14 @@ router.use(handleCheckDisabledMiddleware(dbConnection, loginMethodsObj));
 router.use(handleCheckAdminMiddleware(dbConnection, loginMethodsObj, accountMethodsObj));
 
 secureRouter.use(express.urlencoded({ extended: false }));
-secureRouter.use(bodyParser.text());
+secureRouter.use(express.json());
 secureRouter.use(secureRoutesMiddleware(serverCommunicationObj));
 
 app.use(`/apiv${apiVersion}` + pathPrefix, router);
 app.use(pathPrefix, secureRouter);
 
 app.listen(serverPort, () => {
-  console.log(`server listening on http://localhost:${serverPort}`);
+	console.log(`server listening on http://localhost:${serverPort}`);
 });
 
 appRoutes(router, dbConnection, loginMethodsObj, accountMethodsObj, upload);
