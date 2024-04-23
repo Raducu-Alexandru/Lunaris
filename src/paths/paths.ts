@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
 import { DbHandler, NormalPacket, SelectPacket } from '@raducualexandrumircea/custom-db-handler';
 import { LoginMethods, LoginMethodsInterface } from '@raducualexandrumircea/lunaris-login';
-import { CustomResponseObject, StudentYearsDetails, StudyYearDetails, SubjectScholarSituation } from '@raducualexandrumircea/lunaris-interfaces';
+import { CustomResponseObject, StudentYearsDetails, StudyYearDetails, SubjectScholarSituation, UserContactInfo } from '@raducualexandrumircea/lunaris-interfaces';
 import { SessionInterface } from '@raducualexandrumircea/redis-session-manager';
 import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
 import { checkIfEmailIsValid } from '@raducualexandrumircea/lunaris-regex-checks';
@@ -12,6 +12,41 @@ const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsObj: LoginMethods, accountMethodsObj: AccountMethods) {
 	router.get('/', async (req: Request, res: Response) => {
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+	});
+
+	router.get('/get/user-contact-info/:userId', async (req: Request, res: Response) => {
+		var contactUserId: number = parseInt(req.params.userId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var responseObject: CustomResponseObject;
+		var userContactInfoSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			"SELECT publicEmail, website, description, CONCAT_WS(' ', firstName, lastName) as fullName FROM users WHERE universityId = ? AND userId = ?",
+			[universityId, contactUserId]
+		);
+		if (userContactInfoSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Could not find the user under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var userContactInfo: UserContactInfo = {
+			fullname: userContactInfoSqlResult[0].fullName,
+			description: userContactInfoSqlResult[0].description || '',
+			website: userContactInfoSqlResult[0].website || '',
+			publicEmail: userContactInfoSqlResult[0].publicEmail || '',
+		};
+		var responseObject: CustomResponseObject = {
+			succ: true,
+			data: {
+				userContactInfo: userContactInfo,
+			},
+		};
+		res.status(200).send(responseObject);
+		return;
 	});
 
 	router.get('/get/scholar-situation/:studentYearId', async (req: Request, res: Response) => {
