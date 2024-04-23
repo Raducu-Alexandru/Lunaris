@@ -13,8 +13,8 @@ import { getCorsOptions } from '@raducualexandrumircea/lunaris-general';
 import { SocketMethods } from '@raducualexandrumircea/lunaris-socket-methods';
 import { AccountMethods, handleCheckDisabledMiddleware } from '@raducualexandrumircea/lunaris-account';
 import multer from 'multer';
+import { FilesMethods } from '@raducualexandrumircea/lunaris-files';
 
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
@@ -58,24 +58,25 @@ const dbConnectionDb: string = environmentParserObj.get('DB_CONN_DB', 'string', 
 const dbConnection: DbHandler = new DbHandler(dbConnectionHost, dbConnectionUser, dbConnectionPassword, dbConnectionDb, 'utf8mb4');
 const redisConnectionObj: RedisConnectionRelation = new RedisConnectionRelation(redisSessionUrls);
 const sessionManagerObj: SessionManager = new SessionManager({
-  redisObj: redisConnectionObj,
-  sessionPrefix: sessionManagerPrefix,
-  sessionParser: sessionManagerParser,
-  sessionExpInSec: sessionManagerSessionExpSec,
-  sessionCookieName: sessionManagerCookieName,
-  sessionCookieDomain: sessionManagerCookieDomain,
-  isSecureCookie: true,
-  sessionCookieExpInSec: sessionManagerCookieExpSec,
+	redisObj: redisConnectionObj,
+	sessionPrefix: sessionManagerPrefix,
+	sessionParser: sessionManagerParser,
+	sessionExpInSec: sessionManagerSessionExpSec,
+	sessionCookieName: sessionManagerCookieName,
+	sessionCookieDomain: sessionManagerCookieDomain,
+	isSecureCookie: true,
+	sessionCookieExpInSec: sessionManagerCookieExpSec,
 });
 const serverCommunicationObj: ServerCommunication = new ServerCommunication(namespace, serverCommunicationKey);
 const loginMethodsObj: LoginMethods = new LoginMethods(loginCookieName, loginCookieDomain, loginCookieExpInDays, loginSessionExpInMin, serverCommunicationObj);
 const socketMethodsObj: SocketMethods = new SocketMethods(serverCommunicationObj);
 const accountMethodsObj: AccountMethods = new AccountMethods(dbConnection);
+const filesMethodsObj: FilesMethods = new FilesMethods(serverCommunicationObj);
 
 const app: Express = express();
 const router: Router = Router();
 const secureRouter: Router = Router();
-const upload = multer({ limits: { fileSize: 1 * 1024 * 1024 } });
+const upload = multer({ limits: { fileSize: 1 * 1024 * 1024 * 1024 } });
 
 app.use(cors(getCorsOptions([appUrl, websiteUrl])));
 app.use(cookieParser());
@@ -83,18 +84,18 @@ router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
 router.use(handleSessionManagementMiddleware(sessionManagerObj));
 router.use(handleCheckLoginMiddleware(loginMethodsObj, socketMethodsObj));
-router.use(handleCheckDisabledMiddleware(dbConnection, loginMethodsObj));
+router.use(handleCheckDisabledMiddleware(dbConnection, loginMethodsObj, accountMethodsObj));
 
 secureRouter.use(express.urlencoded({ extended: false }));
-secureRouter.use(bodyParser.text());
+secureRouter.use(express.json());
 secureRouter.use(secureRoutesMiddleware(serverCommunicationObj));
 
 app.use(`/apiv${apiVersion}` + pathPrefix, router);
 app.use(pathPrefix, secureRouter);
 
 app.listen(serverPort, () => {
-  console.log(`server listening on http://localhost:${serverPort}`);
+	console.log(`server listening on http://localhost:${serverPort}`);
 });
 
-appRoutes(router, dbConnection, loginMethodsObj, accountMethodsObj, upload);
+appRoutes(router, dbConnection, loginMethodsObj, accountMethodsObj, filesMethodsObj, upload);
 healthRoutes(app);
