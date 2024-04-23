@@ -7,9 +7,7 @@ const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
 export function secureRoutes(router: Router, socketManagerObj: SocketManager) {
 	router.get('/', async (req: Request, res: Response) => {
-		res
-			.status(200)
-			.send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
 	});
 
 	router.post('/disconnect-sessions-sockets', async (req: Request, res: Response) => {
@@ -17,7 +15,7 @@ export function secureRoutes(router: Router, socketManagerObj: SocketManager) {
 			sessionId: string;
 		}
 		var responseObject: CustomResponseObject;
-		var body: CurrentBody = req['reqPayload'];
+		var body: CurrentBody = req.body;
 		if (!('sessionId' in body)) {
 			responseObject = {
 				succ: false,
