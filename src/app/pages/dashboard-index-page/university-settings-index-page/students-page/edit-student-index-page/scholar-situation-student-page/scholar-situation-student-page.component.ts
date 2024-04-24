@@ -8,89 +8,108 @@ import { PopupResult, PopupsService } from '../../../../../../custom-services/po
 import { BigLoadingFilterService } from '../../../../../../custom-services/big-loading-filter/big-loading-filter.service';
 
 @Component({
-  selector: 'app-scholar-situation-student-page',
-  templateUrl: './scholar-situation-student-page.component.html',
-  styleUrl: './scholar-situation-student-page.component.scss'
+	selector: 'app-scholar-situation-student-page',
+	templateUrl: './scholar-situation-student-page.component.html',
+	styleUrl: './scholar-situation-student-page.component.scss',
 })
 export class ScholarSituationStudentPageComponent implements OnInit {
-  studentUserId: number = null;
-  selectedStudentYearId: number = null;
-  subjectsScholarSituationPerSemester: SubjectScholarSituation[][] = [];
-  media: number = 0;
-  totalCredits: number = 0;
-  outOfCredits: number = 0;
+	studentUserId: number = null;
+	selectedStudentYearId: number = null;
+	subjectsScholarSituationPerSemester: SubjectScholarSituation[][] = [];
+	media: number = 0;
+	totalCredits: number = 0;
+	outOfCredits: number = 0;
 
-  constructor(private _activatedRoute: ActivatedRoute, private _authenticateService: AuthenticateService, private _popupsService: PopupsService, private _bigLoadingFilterService: BigLoadingFilterService) { }
+	constructor(
+		private _activatedRoute: ActivatedRoute,
+		private _authenticateService: AuthenticateService,
+		private _popupsService: PopupsService,
+		private _bigLoadingFilterService: BigLoadingFilterService
+	) {}
 
-  async ngOnInit(): Promise<void> {
-    this.studentUserId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('studentUserId'));
-  }
+	async ngOnInit(): Promise<void> {
+		this.studentUserId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('studentUserId'));
+	}
 
-  async onYearSelectInput(studentYearId: number): Promise<void> {
-    this.selectedStudentYearId = studentYearId;
-    await this._getStudentScholarSituation();
-  }
+	async onYearSelectInput(studentYearId: number): Promise<void> {
+		this.selectedStudentYearId = studentYearId;
+		await this._getStudentScholarSituation();
+	}
 
-  async onEditGradeClick(subjectId: number, isInserting: boolean): Promise<void> {
-    var popupResult: PopupResult = await this._popupsService.openPopup({
-      type: 'number-input',
-      text: 'Change grade'
-    });
-    if (!(popupResult.result == 'submit' && popupResult.data.inputNumber)) {
-      return;
-    }
-    if (this._bigLoadingFilterService.getStatus()) {
-      return;
-    }
-    this._bigLoadingFilterService.openFilter();
-    if ((await this._changeStudentGrade(subjectId, isInserting, popupResult.data.inputNumber))) {
-      await this._getStudentScholarSituation();
-    }
-    this._bigLoadingFilterService.closeFilter();
-  }
+	async onEditGradeClick(subjectId: number, isInserting: boolean): Promise<void> {
+		var popupResult: PopupResult = await this._popupsService.openPopup({
+			type: 'number-input',
+			text: 'Change grade',
+		});
+		if (!(popupResult.result == 'submit' && popupResult.data.inputNumber)) {
+			return;
+		}
+		if (this._bigLoadingFilterService.getStatus()) {
+			return;
+		}
+		var grade: number = popupResult.data.inputNumber;
+		if (grade > 10 || grade == 0 || isNaN(grade)) {
+			this._popupsService.openPopup({
+				type: 'alert',
+				text: 'Can not have a grade bigger than 10 or equal to 0',
+			});
+			return;
+		}
+		if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+			this._popupsService.openPopup({
+				type: 'alert',
+				text: 'Can not have a grade with more than 2 decimal points',
+			});
+			return;
+		}
+		this._bigLoadingFilterService.openFilter();
+		if (await this._changeStudentGrade(subjectId, isInserting, grade)) {
+			await this._getStudentScholarSituation();
+		}
+		this._bigLoadingFilterService.closeFilter();
+	}
 
-  private async _changeStudentGrade(subjectId: number, isInserting: boolean, grade: number): Promise<boolean> {
-    interface CurrentBody {
-      studentYearId: number;
-      subjectId: number;
-      grade: number;
-      isInserting: boolean;
-    }
-    var body: CurrentBody = {
-      studentYearId: this.selectedStudentYearId,
-      subjectId: subjectId,
-      grade: grade,
-      isInserting: isInserting
-    };
-    var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.universitySettingsUrl + '/update/scholar-situation', body);
-    if (!this._authenticateService.checkResponse(responseObject)) {
-      return false;
-    }
-    return true;
-  }
+	private async _changeStudentGrade(subjectId: number, isInserting: boolean, grade: number): Promise<boolean> {
+		interface CurrentBody {
+			studentYearId: number;
+			subjectId: number;
+			grade: number;
+			isInserting: boolean;
+		}
+		var body: CurrentBody = {
+			studentYearId: this.selectedStudentYearId,
+			subjectId: subjectId,
+			grade: grade,
+			isInserting: isInserting,
+		};
+		var responseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.universitySettingsUrl + '/update/scholar-situation', body);
+		if (!this._authenticateService.checkResponse(responseObject)) {
+			return false;
+		}
+		return true;
+	}
 
-  private async _getStudentScholarSituation(): Promise<void> {
-    var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.universitySettingsUrl + `/get/scholar-situation/${this.selectedStudentYearId}`);
-    if (!this._authenticateService.checkResponse(responseObject)) {
-      return;
-    }
-    var customResponseObject: CustomResponseObject = responseObject.data;
-    var subjectsScholarSituation: SubjectScholarSituation[] = customResponseObject.data.subjectsScholarSituation;
-    var semesterArray: SubjectScholarSituation[] = [];
-    var lastSemesterIndex: number = 1;
-    this.subjectsScholarSituationPerSemester = [];
-    for (var i = 0; i < subjectsScholarSituation.length; i++) {
-      if (lastSemesterIndex != subjectsScholarSituation[i].semesterIndex) {
-        this.subjectsScholarSituationPerSemester.push(semesterArray);
-        semesterArray = [];
-      }
-      semesterArray.push(Object.assign({}, subjectsScholarSituation[i]));
-    }
-    this.subjectsScholarSituationPerSemester.push(semesterArray);
-    semesterArray = [];
-    this.media = customResponseObject.data.media;
-    this.totalCredits = customResponseObject.data.totalCredits;
-    this.outOfCredits = customResponseObject.data.outOfCredits;
-  }
-
+	private async _getStudentScholarSituation(): Promise<void> {
+		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.universitySettingsUrl + `/get/scholar-situation/${this.selectedStudentYearId}`);
+		if (!this._authenticateService.checkResponse(responseObject)) {
+			return;
+		}
+		var customResponseObject: CustomResponseObject = responseObject.data;
+		var subjectsScholarSituation: SubjectScholarSituation[] = customResponseObject.data.subjectsScholarSituation;
+		var semesterArray: SubjectScholarSituation[] = [];
+		var lastSemesterIndex: number = 1;
+		this.subjectsScholarSituationPerSemester = [];
+		for (var i = 0; i < subjectsScholarSituation.length; i++) {
+			if (lastSemesterIndex != subjectsScholarSituation[i].semesterIndex) {
+				this.subjectsScholarSituationPerSemester.push(semesterArray);
+				semesterArray = [];
+			}
+			semesterArray.push(Object.assign({}, subjectsScholarSituation[i]));
+		}
+		this.subjectsScholarSituationPerSemester.push(semesterArray);
+		semesterArray = [];
+		this.media = customResponseObject.data.media;
+		this.totalCredits = customResponseObject.data.totalCredits;
+		this.outOfCredits = customResponseObject.data.outOfCredits;
+	}
 }

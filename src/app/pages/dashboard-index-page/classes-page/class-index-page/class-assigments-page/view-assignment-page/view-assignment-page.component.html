@@ -17,9 +17,13 @@
     [download-url]="downloadUrl + '/' + file.fileId" [file-name]="file.fileName"></app-file-card>
   <div class="hand-in-wrapper" *ngIf="userRole == 1">
     <div class="buttons-wrapper">
+      <span class="label" [ngClass]="{ late: handInAssignmentDetails.handedInDate >= assignmentDetails.dueDate }"
+        *ngIf="handInAssignmentDetails.handedInDate != null">Handed In {{
+        handInAssignmentDetails.handedInDate >= assignmentDetails.dueDate ? 'late': '' }} at: {{
+        handInAssignmentDetails.handedInDate | date : 'dd.MM.YYYY HH:mm:ss' }}</span>
       <app-upload-button class="upload-button" (file-upload)="onFileUpload($event)"
         *ngIf="handInAssignmentDetails.handedInDate == null"></app-upload-button>
-      <button (click)="onHandInClick()" class="button hand-in-button disabled">{{ handInAssignmentDetails.handedInDate
+      <button (click)="onHandInClick()" class="button">{{ handInAssignmentDetails.handedInDate
         == null ? 'Hand In' :
         'Undo Hand In' }}</button>
     </div>
@@ -27,5 +31,22 @@
     <app-file-card class="file-card" *ngFor="let file of userFilesAssignmentDetails; let i = index"
       [file-name]="file.fileName" [is-delete]="handInAssignmentDetails.handedInDate == null"
       [download-url]="userDownloadUrl + '/' + file.fileId" (delete)="onFileDelete(i)"></app-file-card>
+  </div>
+  <div class="handed-in-wrapper" *ngIf="userRole != 1">
+    <div class="buttons-wrapper">
+      <span class="label">Handed In</span>
+      <a [href]="userAllDownloadUrl" style="text-decoration: none;"><button class="button">Download all</button></a>
+    </div>
+    <input type="text" class="input" placeholder="Search by Email" (input)="onEmailSearchInput($event)">
+    <div class="handed-ins-wrapper" *ngIf="!searchedValue">
+      <app-assignment-hand-in-box class="hand-in-box" *ngFor="let handIn of handedInsAssignmentDetails"
+        [dueDate]="assignmentDetails.dueDate" [handedInAssignmentDetails]="handIn"
+        (grade-change)="onChangeGrade(handIn.userId, $event)"></app-assignment-hand-in-box>
+    </div>
+    <div class="handed-ins-wrapper" *ngIf="searchedValue">
+      <app-assignment-hand-in-box class="hand-in-box" *ngFor="let handIn of filteredHandedInsAssignmentDetails"
+        [dueDate]="assignmentDetails.dueDate" [handedInAssignmentDetails]="handIn"
+        (grade-change)="onChangeGrade(handIn.userId, $event)"></app-assignment-hand-in-box>
+    </div>
   </div>
 </div>

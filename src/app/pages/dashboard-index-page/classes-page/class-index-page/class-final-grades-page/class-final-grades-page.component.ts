@@ -43,7 +43,7 @@ export class ClassFinalGradesPageComponent implements OnInit {
 			return;
 		}
 		var grade: number = popupResult.data.inputNumber;
-		if (grade > 10 || grade == 0) {
+		if (grade > 10 || grade == 0 || isNaN(grade)) {
 			this._popupsService.openPopup({
 				type: 'alert',
 				text: 'Can not have a grade bigger than 10 or equal to 0',

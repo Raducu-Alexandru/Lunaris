@@ -74,7 +74,7 @@
 			overflow: auto;
 			.grade {
 				color: var(--color-primary-3);
-				font-size: 25px;
+				font-size: 35px;
 				font-weight: 600;
 				font-family: var(--montserrat-font);
 				display: block;
@@ -115,7 +115,8 @@
 		margin: auto;
 		margin-top: 30px;
 	}
-	.hand-in-wrapper {
+	.hand-in-wrapper,
+	.handed-in-wrapper {
 		width: 100%;
 		height: auto;
 		display: block;
@@ -134,20 +135,51 @@
 			background-color: var(--color-grey1);
 		}
 		.buttons-wrapper {
-			width: 100%;
+			width: 95%;
 			height: auto;
 			overflow: auto;
-			display: block;
-			.upload-button {
-				float: left;
+			display: flex;
+			align-items: center;
+			margin: auto;
+			padding: 20px 0;
+			.label {
+				width: auto;
+				margin: 0;
+				margin-right: auto;
+				&.late {
+					color: var(--color-red1);
+				}
 			}
-			.hand-in-button {
-				float: right;
+			.upload-button {
+				margin: 0;
+				margin-right: auto;
+			}
+			.button {
+				margin: 0;
+				margin-left: auto;
 			}
 		}
 		.file-card {
 			margin-top: 30px;
 			width: 100%;
+		}
+	}
+	.handed-in-wrapper {
+		.input {
+			display: block;
+			margin: auto;
+			width: 500px;
+			margin-top: 50px;
+		}
+		.handed-ins-wrapper {
+			width: 100%;
+			height: auto;
+			display: block;
+			overflow: auto;
+			margin-top: 50px;
+			.hand-in-box {
+				margin-bottom: 30px;
+			}
 		}
 	}
 }

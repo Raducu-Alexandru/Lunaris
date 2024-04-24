@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AssignmentDetails, CustomResponseObject, FileAssignmentDetails, HandInAssignmentDetails } from '@raducualexandrumircea/lunaris-interfaces';
+import { AssignmentDetails, CustomResponseObject, FileAssignmentDetails, HandInAssignmentDetails, HandedInAssignmentDetails } from '@raducualexandrumircea/lunaris-interfaces';
 import { AuthenticateService } from '../../../../../../custom-services/authenticate/authenticate.service';
 import { ResponseObject } from '../../../../../../services/cryptography-network.service';
 import { environment } from '../../../../../../../environments/environment';
@@ -27,11 +27,15 @@ export class ViewAssignmentPageComponent implements OnInit {
 	filesAssignmentDetails: FileAssignmentDetails[] = [];
 	downloadUrl: string = environment.filesUrl + '/assignment/download';
 	userDownloadUrl: string = environment.filesUrl + '/assignment/user/download';
+	userAllDownloadUrl: string = environment.filesUrl;
 	userFilesAssignmentDetails: FileAssignmentDetails[] = [];
 	handInAssignmentDetails: HandInAssignmentDetails = {
 		handedInDate: null,
 		filesIds: [],
 	};
+	handedInsAssignmentDetails: HandedInAssignmentDetails[] = [];
+	filteredHandedInsAssignmentDetails: HandedInAssignmentDetails[] = [];
+	searchedValue: string = '';
 
 	constructor(
 		private _authenticateService: AuthenticateService,
@@ -43,16 +47,60 @@ export class ViewAssignmentPageComponent implements OnInit {
 
 	async ngOnInit(): Promise<void> {
 		this.classAssigId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('classAssigId'));
+		this.userAllDownloadUrl += `/assignment/${this.classAssigId}/user/download/all`;
 		this.currentTimestamp = new Date().getTime();
 		this.userRole = await this._userRoleService.getUserRole();
 		await this._getAssigDetails();
 		await this._getFilesDetails();
 		if (this.userRole == 1) {
 			await this._getAssigHandInDetails();
+		} else {
+			await this._getAssigHandedInsDetails();
+		}
+	}
+
+	onEmailSearchInput(event): void {
+		this.searchedValue = event.target.value;
+		this.filteredHandedInsAssignmentDetails = [];
+		for (var student of this.handedInsAssignmentDetails) {
+			if (student.email.toLowerCase().includes(this.searchedValue.toLowerCase())) {
+				this.filteredHandedInsAssignmentDetails.push(Object.assign({}, student));
+			}
+		}
+	}
+
+	async onChangeGrade(userId: number, grade: number): Promise<void> {
+		interface CurrentBody {
+			userId: number;
+			grade: number;
+		}
+		var body: CurrentBody = {
+			userId: userId,
+			grade: grade,
+		};
+		var filesResponseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.classesUrl + `/update/assignment/${this.classAssigId}/grade`, body);
+		if (this._authenticateService.checkResponse(filesResponseObject)) {
+			try {
+				this.handedInsAssignmentDetails.find((handIn) => handIn.userId == userId).grade = grade;
+			} catch (err) {
+				console.log(err);
+			}
+			try {
+				this.filteredHandedInsAssignmentDetails.find((handIn) => handIn.userId == userId).grade = grade;
+			} catch (err) {
+				console.log(err);
+			}
 		}
 	}
 
 	async onHandInClick(): Promise<void> {
+		if (this.assignmentDetails.grade != null) {
+			this._popupsService.openPopup({
+				type: 'alert',
+				text: 'You can not undo the hand in after the assignment has been graded',
+			});
+			return;
+		}
 		var popupResult: PopupResult = await this._popupsService.openPopup({
 			type: 'alert-confirmation',
 			text: this.handInAssignmentDetails.handedInDate == null ? 'Are you sure you want to hand in?' : 'Are you sure you want to undo hand in?',
@@ -123,6 +171,15 @@ export class ViewAssignmentPageComponent implements OnInit {
 		this.assignmentDetails = customResponseObject.data.assignmentDetails;
 	}
 
+	private async _getAssigHandedInsDetails(): Promise<void> {
+		var responseObject: ResponseObject = await this._authenticateService.sendGetReq(environment.classesUrl + `/get/assignment/${this.classAssigId}/handed-ins`);
+		if (!this._authenticateService.checkResponse(responseObject)) {
+			return null;
+		}
+		var customResponseObject: CustomResponseObject = responseObject.data;
+		this.handedInsAssignmentDetails = customResponseObject.data.handedInsAssignmentDetails;
+	}
+
 	private async _getFilesDetails(): Promise<void> {
 		interface CurrentBody {
 			filesIds: number[];
@@ -155,7 +212,7 @@ export class ViewAssignmentPageComponent implements OnInit {
 			filesIds: this.handInAssignmentDetails.filesIds,
 		};
 		var filesResponseObject: ResponseObject = await this._authenticateService.sendPostReq(environment.filesUrl + '/assignment/user/details', body);
-		if (!this._authenticateService.checkResponse(responseObject)) {
+		if (!this._authenticateService.checkResponse(filesResponseObject)) {
 			return null;
 		}
 		var filesCustomResponseObject: CustomResponseObject = filesResponseObject.data;

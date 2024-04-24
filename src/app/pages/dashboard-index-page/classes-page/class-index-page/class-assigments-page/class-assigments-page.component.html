@@ -3,5 +3,5 @@
 <div class="wrapper">
   <app-card-with-date class="assig" *ngFor="let assig of assignmentsPreviewDetails" [timestamp]="assig.dueDate"
     [name]="assig.classAssigName" [description]="assig.classAssigDesc" [show-late-date]="true"
-    [routerLink]="assig.classAssigId.toString()"></app-card-with-date>
+    [routerLink]="assig.classAssigId.toString()" [grade]="assig.grade"></app-card-with-date>
 </div>

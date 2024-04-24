@@ -10,6 +10,7 @@ export class CardWithDateComponent implements OnInit {
 	@Input('name') name: string = '';
 	@Input('description') description: string = '';
 	@Input('show-late-date') showLateDate: boolean = false;
+	@Input('grade') grade: number = null;
 	currentTimestamp: number = -1;
 
 	ngOnInit(): void {

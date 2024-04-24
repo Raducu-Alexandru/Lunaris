@@ -79,6 +79,7 @@ import { DatePipe } from '@angular/common';
 import { FileCardComponent } from './components/file-card/file-card.component';
 import { UploadButtonComponent } from './components/upload-button/upload-button.component';
 import { UserContactPopupComponent } from './components/popups/user-contact-popup/user-contact-popup.component';
+import { AssignmentHandInBoxComponent } from './components/assignment-hand-in-box/assignment-hand-in-box.component';
 
 @NgModule({
 	declarations: [
@@ -155,6 +156,7 @@ import { UserContactPopupComponent } from './components/popups/user-contact-popu
   FileCardComponent,
   UploadButtonComponent,
   UserContactPopupComponent,
+  AssignmentHandInBoxComponent,
 	],
 	imports: [BrowserModule, AppRoutingModule, FormsModule],
 	providers: [

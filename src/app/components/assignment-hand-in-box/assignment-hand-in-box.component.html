@@ -1,0 +1,18 @@
+<div class="info-top-wrapper" [ngClass]="{ open: isOpen }" (click)="onToggleState()">
+  <div class="info-wrapper">
+    <span class="email">{{ handedInAssignmentDetails.email }}</span>
+    <span class="handed-in-date" [ngClass]="{ late: handedInAssignmentDetails.handedInDate >= dueDate }"
+      *ngIf="handedInAssignmentDetails.handedInDate != null">Handed In {{
+      handedInAssignmentDetails.handedInDate >= dueDate ? 'late': '' }} at: {{
+      handedInAssignmentDetails.handedInDate | date : 'dd.MM.YYYY HH:mm:ss' }}</span>
+  </div>
+  <span class="grade">{{ handedInAssignmentDetails.grade == null ? '' : handedInAssignmentDetails.grade }} <span
+      class="out-of">/ 10</span></span>
+  <img src="/assets/imgs/arrowIcon939393.png">
+</div>
+<div class="details-wrapper" *ngIf="isOpen">
+  <button class="button" (click)="onGradeClick()">{{ handedInAssignmentDetails.grade == null ? 'Add Grade' :
+    'Change Grade' }}</button>
+  <app-file-card class="file-card" *ngFor="let file of userFilesAssignmentDetails" [file-name]="file.fileName"
+    [download-url]="userDownloadUrl + '/' + file.fileId"></app-file-card>
+</div>
