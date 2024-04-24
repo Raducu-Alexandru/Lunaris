@@ -166,6 +166,7 @@ export interface AssignmentPreviewDetails {
 	classAssigName: string;
 	classAssigDesc: string;
 	dueDate: number;
+	grade: number;
 }
 
 export interface AssignmentDetails {
@@ -197,6 +198,14 @@ export interface UserContactInfo {
 }
 
 export interface HandInAssignmentDetails {
+	handedInDate: number;
+	filesIds: number[];
+}
+
+export interface HandedInAssignmentDetails {
+	userId: number;
+	email: string;
+	grade: number;
 	handedInDate: number;
 	filesIds: number[];
 }
