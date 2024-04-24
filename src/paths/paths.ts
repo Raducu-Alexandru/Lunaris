@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { EnvironmentParser } from '@raducualexandrumircea/environment-parser';
 import { DbHandler, SelectPacket } from '@raducualexandrumircea/custom-db-handler';
 import { LoginMethods, LoginMethodsInterface } from '@raducualexandrumircea/lunaris-login';
-import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
+import { AccountMethods, handleCheckProfessorMiddleware } from '@raducualexandrumircea/lunaris-account';
 import multer from 'multer';
 import { SessionInterface } from '@raducualexandrumircea/redis-session-manager';
 import { CustomResponseObject, FileAssignmentDetails } from '@raducualexandrumircea/lunaris-interfaces';
@@ -13,6 +13,71 @@ const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsObj: LoginMethods, accountMethodsObj: AccountMethods, upload: multer.Multer) {
 	router.get('/', async (req: Request, res: Response) => {
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+	});
+
+	router.get('/assignment/:classAssigId/user/download/all', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+		var responseObject: CustomResponseObject;
+		var classAssigId: number = parseInt(req.params.classAssigId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var userRole: number = await accountMethodsObj.getUserRole(userId);
+		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+		if (getClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Could not find the assignment',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to get the class details as you are not in that class',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT classes.classId FROM classes
+INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
+WHERE classes.classId = ? AND studyYears.universityId = ?`,
+			[getClassIdSqlResult[0].classId, universityId]
+		);
+		if (checkClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var filesSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT files.storedFileName, files.fileName, users.email FROM classesAssignmentsUserFiles
+INNER JOIN classesAssignmentsGrades ON classesAssignmentsGrades.classAssigId = classesAssignmentsUserFiles.classAssigId
+INNER JOIN files ON files.fileId = classesAssignmentsUserFiles.fileId
+INNER JOIN users ON users.userId = classesAssignmentsUserFiles.userId
+WHERE classesAssignmentsGrades.handedInDate IS NOT NULL AND classesAssignmentsUserFiles.classAssigId = ?`,
+			[classAssigId]
+		);
+		var zipFilesObject: {
+			path: string;
+			name: string;
+		}[] = [];
+		for (var i = 0; i < filesSqlResult.length; i++) {
+			zipFilesObject.push({
+				path: path.join('/files', filesSqlResult[i].storedFileName),
+				name: path.join(`/${filesSqlResult[i].email}`, filesSqlResult[i].fileName),
+			});
+		}
+		//@ts-ignore
+		res.zip({
+			files: zipFilesObject,
+			filename: 'Assignment-files.zip',
+		});
+		return;
 	});
 
 	router.get('/assignment/user/download/:fileId', async (req: Request, res: Response) => {

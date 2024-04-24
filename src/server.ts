@@ -17,6 +17,7 @@ import { secureRoutes } from './paths/securePaths';
 
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const zip = require('express-easy-zip');
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
@@ -79,6 +80,7 @@ const upload = multer({ limits: { fileSize: 1 * 1024 * 1024 * 1024 } });
 
 app.use(cors(getCorsOptions([appUrl, websiteUrl])));
 app.use(cookieParser());
+app.use(zip());
 router.use(express.urlencoded({ extended: false }));
 router.use(express.json());
 router.use(handleSessionManagementMiddleware(sessionManagerObj));
