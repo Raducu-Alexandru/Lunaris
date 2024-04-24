@@ -15,6 +15,7 @@ import {
 	CustomResponseObject,
 	FileAssignmentDetails,
 	HandInAssignmentDetails,
+	HandedInAssignmentDetails,
 	StudyYearStudentDetails,
 	UpcommingDeadlinePreviewDetails,
 	UserTableDetails,
@@ -27,6 +28,159 @@ const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsObj: LoginMethods, accountMethodsObj: AccountMethods, filesMethodsObj: FilesMethods, upload: multer.Multer) {
 	router.get('/', async (req: Request, res: Response) => {
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+	});
+
+	router.post('/update/assignment/:classAssigId/grade', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+		interface CurrentBody {
+			userId: number;
+			grade: number;
+		}
+		var responseObject: CustomResponseObject;
+		var body: CurrentBody = req.body;
+		if (!('userId' in body && 'grade' in body)) {
+			responseObject = {
+				succ: false,
+				mes: 'Something went wrong',
+				debugMes: 'Invalid number of POST parameters',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var classAssigId: number = parseInt(req.params.classAssigId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var userRole: number = await accountMethodsObj.getUserRole(userId);
+		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+		if (getClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Could not find the assignment',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to get the class details as you are not in that class',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT classes.classId FROM classes
+INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
+WHERE classes.classId = ? AND studyYears.universityId = ?`,
+			[getClassIdSqlResult[0].classId, universityId]
+		);
+		if (checkClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var studentUserId: number = body.userId;
+		var grade: number = body.grade;
+		if (grade > 10 || grade == 0) {
+			responseObject = {
+				succ: false,
+				mes: 'Can not have a grade bigger than 10 or equal to 0',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+			responseObject = {
+				succ: false,
+				mes: 'Can not have a grade with more than 2 decimal points',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var updateGradeSqlResult: NormalPacket = await dbConnection.execute<NormalPacket>(
+			'UPDATE classesAssignmentsGrades SET grade = ? WHERE classAssigId = ? AND userId = ? AND handedInDate IS NOT NULL',
+			[grade, classAssigId, studentUserId]
+		);
+		responseObject = {
+			succ: updateGradeSqlResult.affectedRows == 1,
+			mes: 'Could not find the user, maybe they undid their hand in. Try refreshing the page.',
+		};
+		res.status(200).send(responseObject);
+		return;
+	});
+
+	router.get('/get/assignment/:classAssigId/handed-ins', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+		var responseObject: CustomResponseObject;
+		var classAssigId: number = parseInt(req.params.classAssigId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var userRole: number = await accountMethodsObj.getUserRole(userId);
+		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+		if (getClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Could not find the assignment',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to get the class details as you are not in that class',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT classes.classId FROM classes
+INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
+WHERE classes.classId = ? AND studyYears.universityId = ?`,
+			[getClassIdSqlResult[0].classId, universityId]
+		);
+		if (checkClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var handedInsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT users.email, classesAssignmentsGrades.userId, classesAssignmentsGrades.grade, classesAssignmentsGrades.handedInDate FROM classesAssignmentsGrades
+INNER JOIN users ON users.userId = classesAssignmentsGrades.userId
+WHERE classesAssignmentsGrades.handedInDate IS NOT NULL AND classesAssignmentsGrades.classAssigId = ?`,
+			[classAssigId]
+		);
+		var filesIdsSqlResult: SelectPacket;
+		var handedInsAssignmentDetails: HandedInAssignmentDetails[] = [];
+		for (var i = 0; i < handedInsSqlResult.length; i++) {
+			filesIdsSqlResult = await dbConnection.execute<SelectPacket>('SELECT fileId FROM classesAssignmentsUserFiles WHERE classAssigId = ? AND userId = ?', [
+				classAssigId,
+				handedInsSqlResult[i].userId,
+			]);
+			handedInsAssignmentDetails.push({
+				userId: handedInsSqlResult[i].userId,
+				email: handedInsSqlResult[i].email,
+				grade: handedInsSqlResult[i].grade,
+				handedInDate: handedInsSqlResult[i].handedInDate == null ? null : handedInsSqlResult[i].handedInDate.getTime(),
+				filesIds: Array.from(filesIdsSqlResult, (val) => val.fileId),
+			});
+		}
+		responseObject = {
+			succ: true,
+			data: {
+				handedInsAssignmentDetails: handedInsAssignmentDetails,
+			},
+		};
+		res.status(200).send(responseObject);
+		return;
 	});
 
 	router.post('/update/assignment/:classAssigId/hand-in', async (req: Request, res: Response) => {
@@ -82,11 +236,11 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			return;
 		}
 		var handIn: boolean = body.handIn;
-		var checkHandInSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT handedInDate FROM classesAssignmentsGrades WHERE classAssigId = ? AND userId = ?', [
+		var checkHandInSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT handedInDate, grade FROM classesAssignmentsGrades WHERE classAssigId = ? AND userId = ?', [
 			classAssigId,
 			userId,
 		]);
-		var handedInDate: Date;
+		var handedInDate: Date = null;
 		if (checkHandInSqlResult.length == 0) {
 			if (handIn) {
 				handedInDate = new Date();
@@ -94,13 +248,17 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 				handedInDate = null;
 			}
 			await dbConnection.execute<NormalPacket>('INSERT INTO classesAssignmentsGrades (classAssigId, userId, handedInDate) VALUES (?, ?, ?)', [classAssigId, userId, handedInDate]);
-		} else if (checkClassIdSqlResult.length == 1) {
-			if (handIn) {
-				handedInDate = new Date();
+		} else if (checkHandInSqlResult.length == 1) {
+			if (checkHandInSqlResult[0].grade == null) {
+				if (handIn) {
+					handedInDate = new Date();
+				} else {
+					handedInDate = null;
+				}
+				await dbConnection.execute<NormalPacket>('UPDATE classesAssignmentsGrades SET handedInDate = ? WHERE classAssigId = ? AND userId = ?', [handedInDate, classAssigId, userId]);
 			} else {
-				handedInDate = null;
+				handedInDate = checkHandInSqlResult[0].handedInDate;
 			}
-			await dbConnection.execute<NormalPacket>('UPDATE classesAssignmentsGrades SET handedInDate = ? WHERE classAssigId = ? AND userId = ?', [handedInDate, classAssigId, userId]);
 		} else {
 			responseObject = {
 				succ: false,
@@ -318,7 +476,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 		]);
 		var handedInDate: number = null;
 		if (handedInAssignmentSqlResult.length == 1) {
-			handedInDate = handedInAssignmentSqlResult[0].handedInDate.getTime();
+			handedInDate = handedInAssignmentSqlResult[0].handedInDate == null ? null : handedInAssignmentSqlResult[0].handedInDate.getTime();
 		}
 		var fileIdsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT fileId FROM classesAssignmentsUserFiles WHERE classAssigId = ? AND userId = ?', [classAssigId, userId]);
 		var handInAssignmentDetails: HandInAssignmentDetails = {
@@ -703,6 +861,7 @@ WHERE classId = ?
 ORDER BY dueDate ASC`,
 			[classId]
 		);
+		var gradeSqlResult: SelectPacket;
 		var assignmentsPreviewDetails: AssignmentPreviewDetails[] = [];
 		for (var i = 0; i < assignmentsSqlResult.length; i++) {
 			assignmentsPreviewDetails.push({
@@ -710,7 +869,14 @@ ORDER BY dueDate ASC`,
 				classAssigName: assignmentsSqlResult[i].classAssigName,
 				classAssigDesc: assignmentsSqlResult[i].classAssigDesc,
 				dueDate: assignmentsSqlResult[i].dueDate.getTime(),
+				grade: null,
 			});
+			if (userRole == 1) {
+				gradeSqlResult = await dbConnection.execute<SelectPacket>('SELECT grade FROM classesAssignmentsGrades WHERE classAssigId = ? AND userId = ?', [assignmentsSqlResult[i].classAssigId, userId]);
+				if (gradeSqlResult.length == 1) {
+					assignmentsPreviewDetails[i].grade = gradeSqlResult[0].grade;
+				}
+			}
 		}
 		responseObject = {
 			succ: true,

@@ -23,7 +23,7 @@
     "@raducualexandrumircea/lunaris-files": "^1.0.19",
     "@raducualexandrumircea/lunaris-general": "^1.0.3",
     "@raducualexandrumircea/lunaris-health-paths": "^1.0.0",
-    "@raducualexandrumircea/lunaris-interfaces": "^1.2.10",
+    "@raducualexandrumircea/lunaris-interfaces": "^1.2.12",
     "@raducualexandrumircea/lunaris-login": "^1.0.3",
     "@raducualexandrumircea/lunaris-regex-checks": "^1.0.0",
     "@raducualexandrumircea/lunaris-server-communication": "^1.0.11",
