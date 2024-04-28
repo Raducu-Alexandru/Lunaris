@@ -59,7 +59,8 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 INNER JOIN classesAssignmentsGrades ON classesAssignmentsGrades.classAssigId = classesAssignmentsUserFiles.classAssigId
 INNER JOIN files ON files.fileId = classesAssignmentsUserFiles.fileId
 INNER JOIN users ON users.userId = classesAssignmentsUserFiles.userId
-WHERE classesAssignmentsGrades.handedInDate IS NOT NULL AND classesAssignmentsUserFiles.classAssigId = ?`,
+WHERE classesAssignmentsGrades.handedInDate IS NOT NULL AND classesAssignmentsUserFiles.classAssigId = ?
+GROUP BY files.storedFileName, files.fileName, users.email`,
 			[classAssigId]
 		);
 		var zipFilesObject: {
@@ -69,7 +70,7 @@ WHERE classesAssignmentsGrades.handedInDate IS NOT NULL AND classesAssignmentsUs
 		for (var i = 0; i < filesSqlResult.length; i++) {
 			zipFilesObject.push({
 				path: path.join('/files', filesSqlResult[i].storedFileName),
-				name: path.join(`/${filesSqlResult[i].email}`, filesSqlResult[i].fileName),
+				name: path.join(`/${filesSqlResult[i].email}`, `${i + 1}-${filesSqlResult[i].fileName}`),
 			});
 		}
 		//@ts-ignore
