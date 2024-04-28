@@ -22,12 +22,181 @@ import {
 } from '@raducualexandrumircea/lunaris-interfaces';
 import { v4 as uuidv4 } from 'uuid';
 import { FilesMethods } from '@raducualexandrumircea/lunaris-files';
+import * as xl from 'excel4node';
+import { formatDate } from '@raducualexandrumircea/lunaris-general';
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
 export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsObj: LoginMethods, accountMethodsObj: AccountMethods, filesMethodsObj: FilesMethods, upload: multer.Multer) {
 	router.get('/', async (req: Request, res: Response) => {
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
+	});
+
+	router.get('/excel/class/:classId/grades', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+		var classId: number = parseInt(req.params.classId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var userRole: number = await accountMethodsObj.getUserRole(userId);
+		var responseObject: CustomResponseObject;
+		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(classId, userId))) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to get the class details as you are not in that class',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT classes.classPrefix, classes.classSuffix, classes.className, subjects.subjectName, subjects.subjectId FROM classes
+LEFT JOIN yearsSubjects ON yearsSubjects.yearSubjectId = classes.yearSubjectId
+LEFT JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
+INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
+WHERE classes.classId = ? AND studyYears.universityId = ?`,
+			[classId, universityId]
+		);
+		if (checkClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var className: string = checkClassIdSqlResult[0].subjectId
+			? checkClassIdSqlResult[0].classPrefix + ' ' + checkClassIdSqlResult[0].subjectName + ' ' + checkClassIdSqlResult[0].classSuffix
+			: checkClassIdSqlResult[0].className;
+		var excelSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT users.userId, users.email, CONCAT_WS(' ', users.firstName, users.lastName) as fullName, finalGrades.grade FROM classesMembers
+INNER JOIN users ON users.userId = classesMembers.userId
+INNER JOIN classes ON classes.classId = classesMembers.classId
+INNER JOIN yearsSubjects ON yearsSubjects.yearSubjectId = classes.yearSubjectId
+INNER JOIN studentsYears ON studentsYears.userId = classesMembers.userId AND studentsYears.yearId = yearsSubjects.yearId AND studentsYears.studyYearId = classes.studyYearId
+LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId AND finalGrades.subjectId = yearsSubjects.subjectId
+WHERE classes.classId = ?`,
+			[classId]
+		);
+		var wb = new xl.Workbook();
+		var mainSheet = wb.addWorksheet('Class Grades');
+		mainSheet.cell(1, 1).string('UserId');
+		mainSheet.cell(1, 2).string('Email');
+		mainSheet.cell(1, 3).string('Fullname');
+		mainSheet.cell(1, 4).string('Grade');
+		var leftAlignStyle = wb.createStyle({
+			alignment: {
+				horizontal: 'left',
+			},
+		});
+		for (var i = 0; i < excelSqlResult.length; i++) {
+			mainSheet
+				.cell(i + 2, 1)
+				.number(excelSqlResult[i].userId)
+				.style(leftAlignStyle);
+			mainSheet.cell(i + 2, 2).string(excelSqlResult[i].email);
+			mainSheet.cell(i + 2, 3).string(excelSqlResult[i].fullName);
+			mainSheet
+				.cell(i + 2, 4)
+				.number(excelSqlResult[i].grade)
+				.style(leftAlignStyle);
+		}
+		mainSheet.column(1).setWidth(10);
+		mainSheet.column(2).setWidth(50);
+		mainSheet.column(3).setWidth(50);
+		mainSheet.column(4).setWidth(10);
+		var buffer: Buffer = await wb.writeToBuffer();
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.setHeader('Content-Disposition', 'attachment; filename=' + `Class ${className} Grades (${formatDate(new Date())}).xlsx`);
+		res.status(200);
+		res.end(buffer);
+		return;
+	});
+
+	router.get('/excel/assignment/:classAssigId/grades', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+		var classAssigId: number = parseInt(req.params.classAssigId);
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var userRole: number = await accountMethodsObj.getUserRole(userId);
+		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId, classAssigName FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+		var responseObject: CustomResponseObject;
+		if (getClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Could not find the assignment',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to get the class details as you are not in that class',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT classes.classId FROM classes
+INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
+WHERE classes.classId = ? AND studyYears.universityId = ?`,
+			[getClassIdSqlResult[0].classId, universityId]
+		);
+		if (checkClassIdSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var excelSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT  CONCAT_WS(' ', users.firstName, users.lastName) as fullName, users.userId, users.email, classesAssignmentsGrades.grade, classesAssignmentsGrades.handedInDate FROM classesAssignmentsGrades
+INNER JOIN users ON users.userId = classesAssignmentsGrades.userId
+WHERE classesAssignmentsGrades.classAssigId = ? AND classesAssignmentsGrades.handedInDate IS NOT NULL`,
+			[classAssigId]
+		);
+		var wb = new xl.Workbook();
+		var mainSheet = wb.addWorksheet('Assignment Grades');
+		mainSheet.cell(1, 1).string('UserId');
+		mainSheet.cell(1, 2).string('Email');
+		mainSheet.cell(1, 3).string('Fullname');
+		mainSheet.cell(1, 4).string('Grade');
+		mainSheet.cell(1, 5).string('HandedInDate');
+		var leftAlignStyle = wb.createStyle({
+			alignment: {
+				horizontal: 'left',
+			},
+		});
+		for (var i = 0; i < excelSqlResult.length; i++) {
+			mainSheet
+				.cell(i + 2, 1)
+				.number(excelSqlResult[i].userId)
+				.style(leftAlignStyle);
+			mainSheet.cell(i + 2, 2).string(excelSqlResult[i].email);
+			mainSheet.cell(i + 2, 3).string(excelSqlResult[i].fullName);
+			mainSheet
+				.cell(i + 2, 4)
+				.number(excelSqlResult[i].grade || 0)
+				.style(leftAlignStyle);
+			mainSheet
+				.cell(i + 2, 5)
+				.date(excelSqlResult[i].handedInDate)
+				.style({ numberFormat: 'dd.mm.yyyy hh:MM:ss' })
+				.style(leftAlignStyle);
+		}
+		mainSheet.column(1).setWidth(10);
+		mainSheet.column(2).setWidth(50);
+		mainSheet.column(3).setWidth(50);
+		mainSheet.column(4).setWidth(10);
+		mainSheet.column(5).setWidth(20);
+		var buffer: Buffer = await wb.writeToBuffer();
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.setHeader('Content-Disposition', 'attachment; filename=' + `Assignment ${getClassIdSqlResult[0].classAssigName} Grades (${formatDate(new Date())}).xlsx`);
+		res.status(200);
+		res.end(buffer);
+		return;
 	});
 
 	router.post('/update/assignment/:classAssigId/grade', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
@@ -503,7 +672,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			`SELECT classesAssignments.classAssigId, classesAssignments.classId, classesAssignments.classAssigName, classesAssignments.classAssigDesc, classesAssignments.dueDate FROM classesAssignments
 INNER JOIN classesMembers ON classesMembers.classId = classesAssignments.classId
 INNER JOIN users ON users.userId = classesMembers.userId
-LEFT JOIN classesAssignmentsGrades ON classesAssignmentsGrades.classAssigId = classesAssignments.classAssigId
+LEFT JOIN classesAssignmentsGrades ON classesAssignmentsGrades.classAssigId = classesAssignments.classAssigId AND classesAssignmentsGrades.userId = classesMembers.userId
 WHERE classesMembers.userId = ? AND users.universityId = ? AND classesAssignments.dueDate <= DATE_ADD(NOW(), INTERVAL 14 DAY) AND classesAssignments.dueDate >= DATE_SUB(NOW(), INTERVAL 14 DAY) AND classesAssignmentsGrades.handedInDate IS NULL
 ORDER BY dueDate ASC`,
 			[userId, universityId]
