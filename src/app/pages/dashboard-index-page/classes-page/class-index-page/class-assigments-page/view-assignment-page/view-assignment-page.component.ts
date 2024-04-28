@@ -27,6 +27,7 @@ export class ViewAssignmentPageComponent implements OnInit {
 	filesAssignmentDetails: FileAssignmentDetails[] = [];
 	downloadUrl: string = environment.filesUrl + '/assignment/download';
 	userDownloadUrl: string = environment.filesUrl + '/assignment/user/download';
+	excelDownloadUrl: string = environment.classesUrl;
 	userAllDownloadUrl: string = environment.filesUrl;
 	userFilesAssignmentDetails: FileAssignmentDetails[] = [];
 	handInAssignmentDetails: HandInAssignmentDetails = {
@@ -48,6 +49,7 @@ export class ViewAssignmentPageComponent implements OnInit {
 	async ngOnInit(): Promise<void> {
 		this.classAssigId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('classAssigId'));
 		this.userAllDownloadUrl += `/assignment/${this.classAssigId}/user/download/all`;
+		this.excelDownloadUrl += `/excel/assignment/${this.classAssigId}/grades`;
 		this.currentTimestamp = new Date().getTime();
 		this.userRole = await this._userRoleService.getUserRole();
 		await this._getAssigDetails();

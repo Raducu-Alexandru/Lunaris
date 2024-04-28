@@ -34,6 +34,7 @@
   </div>
   <div class="handed-in-wrapper" *ngIf="userRole != 1">
     <div class="buttons-wrapper">
+      <a [href]="excelDownloadUrl" style="text-decoration: none;"><button class="button">Download Excel</button></a>
       <span class="label">Handed In</span>
       <a [href]="userAllDownloadUrl" style="text-decoration: none;"><button class="button">Download all</button></a>
     </div>

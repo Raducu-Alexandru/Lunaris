@@ -16,11 +16,13 @@ export class ClassFinalGradesPageComponent implements OnInit {
 	searchedValue: string = '';
 	classFinalGradesDetails: ClassFinalGradeDetails[] = [];
 	filteredClassFinalGradesDetails: ClassFinalGradeDetails[] = [];
+	excelDownloadUrl: string = environment.classesUrl;
 
 	constructor(private _activatedRoute: ActivatedRoute, private _authenticateService: AuthenticateService, private _popupsService: PopupsService) {}
 
 	async ngOnInit(): Promise<void> {
 		this.classId = parseInt(this._activatedRoute.parent.snapshot.paramMap.get('classId'));
+		this.excelDownloadUrl += `/excel/class/${this.classId}/grades`;
 		await this._getClassFinalGradesDetails();
 	}
 

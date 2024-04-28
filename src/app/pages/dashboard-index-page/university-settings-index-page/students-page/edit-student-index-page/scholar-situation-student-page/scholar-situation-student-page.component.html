@@ -1,5 +1,6 @@
 <app-student-years-dropdown [student-id]="studentUserId"
   (custom-input)="onYearSelectInput($event)"></app-student-years-dropdown>
+<a [href]="excelDownloadUrl" style="text-decoration: none;"><button class="button">Download Excel</button></a>
 <div class="wrapper">
   <div class="cards-wrapper">
     <app-out-of-box class="card" [main-value]="media || '-'" out-of-value="10" title="Media"></app-out-of-box>

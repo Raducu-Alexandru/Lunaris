@@ -1,4 +1,5 @@
 <h1 class="page-name">Final Grades</h1>
+<a [href]="excelDownloadUrl" style="text-decoration: none;"><button class="button">Download Excel</button></a>
 <input type="text" class="input" placeholder="Search by Email" [(ngModel)]="searchedValue" name="emai-search"
   autocomplete="off" (input)="onEmailSearchInput()">
 <div class="wrapper" *ngIf="!searchedValue">

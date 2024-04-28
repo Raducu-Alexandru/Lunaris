@@ -19,6 +19,7 @@ export class ScholarSituationStudentPageComponent implements OnInit {
 	media: number = 0;
 	totalCredits: number = 0;
 	outOfCredits: number = 0;
+	excelDownloadUrl: string;
 
 	constructor(
 		private _activatedRoute: ActivatedRoute,
@@ -33,6 +34,7 @@ export class ScholarSituationStudentPageComponent implements OnInit {
 
 	async onYearSelectInput(studentYearId: number): Promise<void> {
 		this.selectedStudentYearId = studentYearId;
+		this.excelDownloadUrl = environment.universitySettingsUrl + `/excel/student/scholar-situation/${this.selectedStudentYearId}`;
 		await this._getStudentScholarSituation();
 	}
 
