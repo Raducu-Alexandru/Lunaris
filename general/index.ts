@@ -1,3 +1,6 @@
+import { DbHandler, NormalPacket } from '@raducualexandrumircea/custom-db-handler';
+import { NextFunction, Request, Response } from 'express';
+
 export function getCorsOptions(urls: string[]) {
 	var splittedUrl: string[];
 	var hostname: string;
@@ -31,4 +34,26 @@ export function formatDate(date: Date): string {
 	let seconds = date.getSeconds().toString().padStart(2, '0');
 
 	return `${day}.${month}.${year} ${hours}-${minutes}-${seconds}`;
+}
+
+export function handleEventManagerMiddleware(dbConnection: DbHandler) {
+	return async (req: Request, res: Response, next: NextFunction) => {
+		res.on('finish', async () => {
+			if (!res['adminEventDataObj']) {
+				return;
+			}
+			var adminEventDataObj: AdminEventData = res['adminEventDataObj'];
+			try {
+				await dbConnection.execute<NormalPacket>('INSERT INTO adminEvents (userId, message) VALUES (?, ?)', [adminEventDataObj.userId, adminEventDataObj.message]);
+			} catch (err) {
+				console.log(err);
+			}
+		});
+		next();
+	};
+}
+
+export interface AdminEventData {
+	userId: number;
+	message: string;
 }
