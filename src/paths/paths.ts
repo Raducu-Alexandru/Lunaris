@@ -28,7 +28,7 @@ import { saveImage } from '@raducualexandrumircea/lunaris-file';
 import { checkIfEmailIsValid } from '@raducualexandrumircea/lunaris-regex-checks';
 import { LoginAuthenticate } from '@raducualexandrumircea/login-authenticate';
 import * as xl from 'excel4node';
-import { formatDate } from '@raducualexandrumircea/lunaris-general';
+import { formatDate, handleEventManagerMiddleware } from '@raducualexandrumircea/lunaris-general';
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
@@ -37,7 +37,7 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
 	});
 
-	router.get('/excel/student/scholar-situation/:studentYearId', async (req: Request, res: Response) => {
+	router.get('/excel/student/scholar-situation/:studentYearId', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		var studentYearId: number = parseInt(req.params.studentYearId);
 		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
 		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
@@ -92,6 +92,10 @@ ORDER BY yearsSubjects.semesterIndex ASC`,
 		mainSheet.column(4).setWidth(10);
 		mainSheet.column(4).setWidth(10);
 		var buffer: Buffer = await wb.writeToBuffer();
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Downloaded Excel Grades for Student ${excelSqlResult[0].fullName} Year ${excelSqlResult[0].yearIndex} ${excelSqlResult[0].programShortName}`,
+		};
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		res.setHeader(
 			'Content-Disposition',
@@ -102,7 +106,7 @@ ORDER BY yearsSubjects.semesterIndex ASC`,
 		return;
 	});
 
-	router.post('/create/study-year', async (req: Request, res: Response) => {
+	router.post('/create/study-year', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			fromYear: number;
 			toYear: number;
@@ -207,6 +211,10 @@ WHERE users.universityId = ? AND users.role = 1 AND users.disabled = ?`;
 			res.status(200).send(responseObject);
 			return;
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: 'Created a new study year',
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -301,7 +309,7 @@ WHERE users.universityId = ? AND users.role = 1 AND users.disabled = ?`;
 		return;
 	});
 
-	router.post('/create/student', async (req: Request, res: Response) => {
+	router.post('/create/student', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			firstName: string;
 			lastName: string;
@@ -352,7 +360,7 @@ WHERE users.universityId = ? AND users.role = 1 AND users.disabled = ?`;
 			};
 			res.status(200).send(responseObject);
 			return;
-		} //
+		}
 		if (!password) {
 			responseObject = {
 				succ: false,
@@ -433,6 +441,10 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 			res.status(200).send(responseObject);
 			return;
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Create a new student ${firstName} ${lastName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -440,7 +452,7 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/update/scholar-situation', async (req: Request, res: Response) => {
+	router.post('/update/scholar-situation', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			studentYearId: number;
 			subjectId: number;
@@ -467,7 +479,7 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 		var isInserting: boolean = body.isInserting;
 		var grade: number = body.grade;
 		var checkStudentYearIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT studentsYears.userId FROM studentsYears
+			`SELECT studentsYears.userId, CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM studentsYears
 INNER JOIN users ON users.userId = studentsYears.userId
 WHERE users.universityId = ? AND studentsYears.studentYearId = ?`,
 			[universityId, studentYearId]
@@ -480,7 +492,7 @@ WHERE users.universityId = ? AND studentsYears.studentYearId = ?`,
 			res.status(200).send(responseObject);
 			return;
 		}
-		var checkSubjectIdSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectId FROM subjects WHERE universityId = ? AND subjectId = ?', [universityId, subjectId]);
+		var checkSubjectIdSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectName, subjectId FROM subjects WHERE universityId = ? AND subjectId = ?', [universityId, subjectId]);
 		if (checkSubjectIdSqlResult.length != 1) {
 			responseObject = {
 				succ: false,
@@ -505,8 +517,16 @@ WHERE users.universityId = ? AND studentsYears.studentYearId = ?`,
 				grade,
 				getSubjectCreditsSqlResult[0].credits,
 			]);
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: `Set a new grade ${grade} for ${checkStudentYearIdSqlResult[0].fullName}, subject ${checkSubjectIdSqlResult[0].subjectName}`,
+			};
 		} else {
 			await dbConnection.execute<NormalPacket>('UPDATE finalGrades SET grade = ? WHERE studentYearId = ? AND subjectId = ?', [grade, studentYearId, subjectId]);
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: `Updated a grade ${grade} for ${checkStudentYearIdSqlResult[0].fullName}, subject ${checkSubjectIdSqlResult[0].subjectName}`,
+			};
 		}
 		responseObject = {
 			succ: true,
@@ -606,7 +626,7 @@ ORDER BY studyYears.createdDate DESC`,
 		return;
 	});
 
-	router.post('/create/student/program', async (req: Request, res: Response) => {
+	router.post('/create/student/program', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			yearId: number;
 			studentUserId: number;
@@ -629,7 +649,7 @@ ORDER BY studyYears.createdDate DESC`,
 		var yearId: number = body.yearId;
 		var studentUserId: number = body.studentUserId;
 		var checkYearIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT years.yearId FROM years
+			`SELECT years.yearId, years.yearIndex, programs.programName FROM years
 INNER JOIN programs ON years.programId = programs.programId
 INNER JOIN schools ON programs.schoolId = schools.schoolId
 WHERE years.yearId = ? AND schools.universityId = ?`,
@@ -643,10 +663,10 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 			res.status(200).send(responseObject);
 			return;
 		}
-		var checkStudentUserIdUniversitySqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT userId FROM users WHERE userId = ? AND universityId = ? AND role = 1', [
-			studentUserId,
-			universityId,
-		]);
+		var checkStudentUserIdUniversitySqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			"SELECT userId, CONCAT_WS(' ', users.firstName, users.lastName) as fullName FROM users WHERE userId = ? AND universityId = ? AND role = 1",
+			[studentUserId, universityId]
+		);
 		if (checkStudentUserIdUniversitySqlResult.length != 1) {
 			responseObject = {
 				succ: false,
@@ -667,6 +687,10 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 			return;
 		}
 		await dbConnection.execute<NormalPacket>('INSERT INTO studentsYears (yearId, userId, studyYearId) VALUES (?, ?, ?)', [yearId, studentUserId, getLastStudyYearIdSqlResult[0].studyYearId]);
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Added the program ${checkYearIdSqlResult[0].programName} year ${checkYearIdSqlResult[0].yearIndex} to the student ${checkStudentUserIdUniversitySqlResult[0].fullName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -713,7 +737,7 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		return;
 	});
 
-	router.post('/update/student/platform-info', async (req: Request, res: Response) => {
+	router.post('/update/student/platform-info', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			firstName: string;
 			lastName: string;
@@ -743,6 +767,16 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		var password: string = body.password;
 		var disabled: boolean = body.disabled;
 		var studentUserId: number = body.studentUserId;
+		var getStudentEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 1', [studentUserId, universityId]);
+		if (getStudentEmailSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'The student does not exist',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var adminEventMessage: string = `Changed student ${getStudentEmailSqlResult[0].email} platform info`;
 		if (email) {
 			if (!checkIfEmailIsValid(email)) {
 				responseObject = {
@@ -770,6 +804,7 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		}
 		if (email) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET email = ? WHERE userId = ? AND universityId = ?', [email, studentUserId, universityId]);
+			adminEventMessage += ` email to ${email}`;
 		}
 		if (password) {
 			var loginAuthenticateObj: LoginAuthenticate = new LoginAuthenticate();
@@ -779,6 +814,10 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		if (disabled != undefined) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET disabled = ? WHERE userId = ? AND universityId = ?', [disabled, studentUserId, universityId]);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: adminEventMessage,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -848,7 +887,7 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		return;
 	});
 
-	router.post('/update/year', async (req: Request, res: Response) => {
+	router.post('/update/year', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			yearId: number;
 			year: YearEditDetails[];
@@ -872,7 +911,7 @@ WHERE studentsYears.userId = ? AND users.universityId = ?`,
 		var yearId: number = body.yearId;
 		var year: YearEditDetails[] = body.year;
 		var checkYearIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT years.yearId FROM years
+			`SELECT years.yearId, programs.programName, years.yearIndex FROM years
 INNER JOIN programs ON years.programId = programs.programId
 INNER JOIN schools ON programs.schoolId = schools.schoolId
 WHERE years.yearId = ? AND schools.universityId = ?`,
@@ -918,6 +957,10 @@ WHERE years.yearId = ? AND schools.universityId = ?`,
 			res.status(200).send(responseObject);
 			return;
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Updated the program ${checkYearIdSqlResult[0].programName} year ${checkYearIdSqlResult[0].yearIndex}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1033,7 +1076,7 @@ GROUP BY years.yearId`,
 		return;
 	});
 
-	router.post('/update/program', async (req: Request, res: Response) => {
+	router.post('/update/program', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			programId: number;
 			programName: string;
@@ -1065,7 +1108,7 @@ GROUP BY years.yearId`,
 		var archived: boolean = body.archived;
 		var years: ProgramYearEditDetails[] = body.years;
 		var checkProgramIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT programs.programId FROM programs
+			`SELECT programs.programId, programs.programName FROM programs
 INNER JOIN schools ON programs.schoolId = schools.schoolId
 WHERE programs.programId = ? AND schools.universityId = ?`,
 			[programId, universityId]
@@ -1175,6 +1218,10 @@ WHERE programs.programId = ? AND schools.universityId = ?`,
 				return;
 			}
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Edited the program ${checkProgramIdSqlResult[0].programName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1260,7 +1307,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/program', async (req: Request, res: Response) => {
+	router.post('/create/program', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			programName: string;
 			programShortName: string;
@@ -1377,6 +1424,10 @@ WHERE schools.universityId = ?`,
 			res.status(200).send(responseObject);
 			return;
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created a new program ${programName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1384,7 +1435,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/update/subject', async (req: Request, res: Response) => {
+	router.post('/update/subject', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			subjectId: number;
 			subjectName: string;
@@ -1410,6 +1461,16 @@ WHERE schools.universityId = ?`,
 		var subjectCredits: number = body.subjectCredits;
 		var archived: boolean = body.archived;
 		var subjectId: number = body.subjectId;
+		var getSubjectNameSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT subjectName FROM subjects WHERE subjectId = ? AND universityId = ?', [subjectId, universityId]);
+		if (getSubjectNameSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'Subject does not exist',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var adminEventMessage: string = `Changed subject ${getSubjectNameSqlResult[0].subjectName}`;
 		if (subjectCredits != undefined) {
 			if (subjectCredits == 0 || parseInt(String(subjectCredits)) != subjectCredits) {
 				responseObject = {
@@ -1422,6 +1483,7 @@ WHERE schools.universityId = ?`,
 		}
 		if (subjectName) {
 			await dbConnection.execute<NormalPacket>('UPDATE subjects SET subjectName = ? WHERE subjectId = ? AND universityId = ?', [subjectName, subjectId, universityId]);
+			adminEventMessage += ` to ${subjectName}`;
 		}
 		if (subjectCredits) {
 			await dbConnection.execute<NormalPacket>('UPDATE subjects SET credits = ? WHERE subjectId = ? AND universityId = ?', [subjectCredits, subjectId, universityId]);
@@ -1432,6 +1494,10 @@ WHERE schools.universityId = ?`,
 		if (archived != undefined) {
 			await dbConnection.execute<NormalPacket>('UPDATE subjects SET archived = ? WHERE subjectId = ? AND universityId = ?', [archived, subjectId, universityId]);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: adminEventMessage,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1439,7 +1505,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/subject', async (req: Request, res: Response) => {
+	router.post('/create/subject', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			subjectName: string;
 			subjectCredits: number;
@@ -1478,6 +1544,10 @@ WHERE schools.universityId = ?`,
 			return;
 		}
 		await dbConnection.execute<NormalPacket>('INSERT INTO subjects (universityId, subjectName, credits) VALUES (?, ?, ?)', [universityId, subjectName, subjectCredits]);
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created the subject ${subjectName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1581,7 +1651,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/school', async (req: Request, res: Response) => {
+	router.post('/create/school', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			schoolName: string;
 		}
@@ -1613,11 +1683,15 @@ WHERE schools.universityId = ?`,
 		responseObject = {
 			succ: true,
 		};
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created the school ${schoolName}`,
+		};
 		res.status(200).send(responseObject);
 		return;
 	});
 
-	router.post('/update/school', async (req: Request, res: Response) => {
+	router.post('/update/school', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			schoolName: string;
 			schoolId: number;
@@ -1639,8 +1713,21 @@ WHERE schools.universityId = ?`,
 		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
 		var schoolName: string = body.schoolName;
 		var schoolId: number = body.schoolId;
+		var getSchoolNameSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT schoolName FROM schools WHERE schoolId = ? AND universityId = ?', [schoolId, universityId]);
+		if (getSchoolNameSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'The school does not exist',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
 		if (schoolName) {
 			await dbConnection.execute<NormalPacket>('UPDATE schools SET schoolName = ? WHERE universityId = ? AND schoolId = ?', [schoolName, universityId, schoolId]);
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: `Updated school name ${getSchoolNameSqlResult[0].schoolName} to ${schoolName}`,
+			};
 		}
 		responseObject = {
 			succ: true,
@@ -1736,7 +1823,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/admin', async (req: Request, res: Response) => {
+	router.post('/create/admin', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			firstName: string;
 			lastName: string;
@@ -1813,6 +1900,10 @@ WHERE schools.universityId = ?`,
 			firstName,
 			lastName,
 		]);
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created an admin ${firstName} ${lastName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1820,7 +1911,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/update/admin', async (req: Request, res: Response) => {
+	router.post('/update/admin', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			firstName: string;
 			lastName: string;
@@ -1850,6 +1941,16 @@ WHERE schools.universityId = ?`,
 		var password: string = body.password;
 		var disabled: boolean = body.disabled;
 		var adminUserId: number = body.adminUserId;
+		var getAdminEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 3', [adminUserId, universityId]);
+		if (getAdminEmailSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'The admin does not exist',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var adminEventMessage: string = `Changed admin ${getAdminEmailSqlResult[0].email} platform info`;
 		if (email) {
 			if (!checkIfEmailIsValid(email)) {
 				responseObject = {
@@ -1877,6 +1978,7 @@ WHERE schools.universityId = ?`,
 		}
 		if (email) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET email = ? WHERE userId = ? AND universityId = ?', [email, adminUserId, universityId]);
+			adminEventMessage += ` email to ${email}`;
 		}
 		if (password) {
 			var loginAuthenticateObj: LoginAuthenticate = new LoginAuthenticate();
@@ -1886,6 +1988,10 @@ WHERE schools.universityId = ?`,
 		if (disabled != undefined) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET disabled = ? WHERE userId = ? AND universityId = ?', [disabled, adminUserId, universityId]);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: adminEventMessage,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1954,7 +2060,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/professor', async (req: Request, res: Response) => {
+	router.post('/create/professor', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			firstName: string;
 			lastName: string;
@@ -2031,6 +2137,10 @@ WHERE schools.universityId = ?`,
 			firstName,
 			lastName,
 		]);
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created a professor ${firstName} ${lastName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -2068,6 +2178,19 @@ WHERE schools.universityId = ?`,
 		var password: string = body.password;
 		var disabled: boolean = body.disabled;
 		var professorUserId: number = body.professorUserId;
+		var getProfessorEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 2', [
+			professorUserId,
+			universityId,
+		]);
+		if (getProfessorEmailSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'The professor does not exist',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var adminEventMessage: string = `Changed professor ${getProfessorEmailSqlResult[0].email} platform info`;
 		if (email) {
 			if (!checkIfEmailIsValid(email)) {
 				responseObject = {
@@ -2095,6 +2218,7 @@ WHERE schools.universityId = ?`,
 		}
 		if (email) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET email = ? WHERE userId = ? AND universityId = ?', [email, professorUserId, universityId]);
+			adminEventMessage += ` email to ${email}`;
 		}
 		if (password) {
 			var loginAuthenticateObj: LoginAuthenticate = new LoginAuthenticate();
@@ -2104,6 +2228,10 @@ WHERE schools.universityId = ?`,
 		if (disabled != undefined) {
 			await dbConnection.execute<NormalPacket>('UPDATE users SET disabled = ? WHERE userId = ? AND universityId = ?', [disabled, professorUserId, universityId]);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: adminEventMessage,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -2151,7 +2279,7 @@ WHERE schools.universityId = ?`,
 		return;
 	});
 
-	router.route('/update/university-settings').post(upload.single('universityLogo'), async (req: Request, res: Response) => {
+	router.route('/update/university-settings').post(upload.single('universityLogo'), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			universityName: string;
 		}
@@ -2171,6 +2299,10 @@ WHERE schools.universityId = ?`,
 			var universityLongId: string = await accountMethodsObj.getUserUniveristyLongId(userId);
 			await saveImage(universityLogo.buffer, staticPath + '/universities-images', `${universityLongId}.png`);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: 'Updated the University Settings',
+		};
 		responseObject = {
 			succ: true,
 		};
