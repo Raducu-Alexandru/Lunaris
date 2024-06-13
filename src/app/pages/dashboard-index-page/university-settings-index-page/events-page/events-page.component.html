@@ -1,0 +1,44 @@
+<h1 class="page-name">Events</h1>
+<span class="label">From</span>
+<input type="datetime-local" class="input" placeholder="Search by Date" (input)="onDateSearchInput()"
+  [(ngModel)]="fromSearchedValue">
+<span class="label">To</span>
+<input type="datetime-local" class="input" placeholder="Search by Date" (input)="onDateSearchInput()"
+  [(ngModel)]="toSearchedValue">
+<input style="margin-top: 50px;" type="text" class="input" placeholder="Search by Email" (input)="onEmailSearchInput()"
+  [(ngModel)]="emailSearchedValue">
+<button class="button" (click)="onClearDateSearch()">Clear Search</button>
+<div class="wrapper">
+  <table *ngIf="!(fromSearchedValue || toSearchedValue || emailSearchedValue)">
+    <tr>
+      <th class="admin-event-id">ID</th>
+      <th>Date</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Message</th>
+    </tr>
+    <tr *ngFor="let adminEvent of adminEventsDetails">
+      <td class="admin-event-id">{{ adminEvent.adminEventId}}</td>
+      <td>{{ adminEvent.createdDate | date: 'HH:mm:ss dd.MM.YYYY'}}</td>
+      <td>{{ adminEvent.email }}</td>
+      <td>{{ adminEvent.role }}</td>
+      <td>{{ adminEvent.message }}</td>
+    </tr>
+  </table>
+  <table *ngIf="fromSearchedValue || toSearchedValue || emailSearchedValue">
+    <tr>
+      <th class="admin-event-id">ID</th>
+      <th>Date</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Message</th>
+    </tr>
+    <tr *ngFor="let adminEvent of filteredAdminEventsDetails">
+      <td class="admin-event-id">{{ adminEvent.adminEventId}}</td>
+      <td>{{ adminEvent.createdDate | date: 'HH:mm:ss dd.MM.YYYY'}}</td>
+      <td>{{ adminEvent.email }}</td>
+      <td>{{ adminEvent.role }}</td>
+      <td>{{ adminEvent.message }}</td>
+    </tr>
+  </table>
+</div>

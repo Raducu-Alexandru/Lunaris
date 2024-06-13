@@ -80,6 +80,7 @@ import { FileCardComponent } from './components/file-card/file-card.component';
 import { UploadButtonComponent } from './components/upload-button/upload-button.component';
 import { UserContactPopupComponent } from './components/popups/user-contact-popup/user-contact-popup.component';
 import { AssignmentHandInBoxComponent } from './components/assignment-hand-in-box/assignment-hand-in-box.component';
+import { EventsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/events-page/events-page.component';
 
 @NgModule({
 	declarations: [
@@ -157,6 +158,7 @@ import { AssignmentHandInBoxComponent } from './components/assignment-hand-in-bo
   UploadButtonComponent,
   UserContactPopupComponent,
   AssignmentHandInBoxComponent,
+  EventsPageComponent,
 	],
 	imports: [BrowserModule, AppRoutingModule, FormsModule],
 	providers: [

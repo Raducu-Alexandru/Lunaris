@@ -45,6 +45,7 @@ import { ScholarSituationPageComponent } from './pages/dashboard-index-page/scho
 import { CreateAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/create-assignment-page/create-assignment-page.component';
 import { ViewAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/view-assignment-page/view-assignment-page.component';
 import { EditAssignmentPageComponent } from './pages/dashboard-index-page/classes-page/class-index-page/class-assigments-page/edit-assignment-page/edit-assignment-page.component';
+import { EventsPageComponent } from './pages/dashboard-index-page/university-settings-index-page/events-page/events-page.component';
 
 const routes: Routes = [
 	{
@@ -314,6 +315,10 @@ const routes: Routes = [
 					{
 						path: 'new-study-year',
 						component: NewStudyYearPageComponent,
+					},
+					{
+						path: 'events',
+						component: EventsPageComponent,
 					},
 				],
 			},
