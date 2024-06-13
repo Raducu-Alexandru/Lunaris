@@ -23,7 +23,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { FilesMethods } from '@raducualexandrumircea/lunaris-files';
 import * as xl from 'excel4node';
-import { formatDate } from '@raducualexandrumircea/lunaris-general';
+import { formatDate, handleEventManagerMiddleware } from '@raducualexandrumircea/lunaris-general';
 
 const environmentParserObj: EnvironmentParser = new EnvironmentParser();
 
@@ -32,7 +32,7 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
 	});
 
-	router.get('/excel/class/:classId/grades', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+	router.get('/excel/class/:classId/grades', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		var classId: number = parseInt(req.params.classId);
 		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
 		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
@@ -105,6 +105,10 @@ WHERE classes.classId = ?`,
 		mainSheet.column(3).setWidth(50);
 		mainSheet.column(4).setWidth(10);
 		var buffer: Buffer = await wb.writeToBuffer();
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Downloaded Excel for Class ${className} Grades`,
+		};
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		res.setHeader('Content-Disposition', 'attachment; filename=' + `Class ${className} Grades (${formatDate(new Date())}).xlsx`);
 		res.status(200);
@@ -112,175 +116,207 @@ WHERE classes.classId = ?`,
 		return;
 	});
 
-	router.get('/excel/assignment/:classAssigId/grades', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
-		var classAssigId: number = parseInt(req.params.classAssigId);
-		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
-		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
-		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
-		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
-		var userRole: number = await accountMethodsObj.getUserRole(userId);
-		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId, classAssigName FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
-		var responseObject: CustomResponseObject;
-		if (getClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'Could not find the assignment',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to get the class details as you are not in that class',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classes.classId FROM classes
+	router.get(
+		'/excel/assignment/:classAssigId/grades',
+		handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj),
+		handleEventManagerMiddleware(dbConnection),
+		async (req: Request, res: Response) => {
+			var classAssigId: number = parseInt(req.params.classAssigId);
+			var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+			var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+			var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+			var userRole: number = await accountMethodsObj.getUserRole(userId);
+			var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId, classAssigName FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+			var responseObject: CustomResponseObject;
+			if (getClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'Could not find the assignment',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to get the class details as you are not in that class',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+				`SELECT classes.classId FROM classes
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
-			[getClassIdSqlResult[0].classId, universityId]
-		);
-		if (checkClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to edit this class as is not under your university',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var excelSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT  CONCAT_WS(' ', users.firstName, users.lastName) as fullName, users.userId, users.email, classesAssignmentsGrades.grade, classesAssignmentsGrades.handedInDate FROM classesAssignmentsGrades
+				[getClassIdSqlResult[0].classId, universityId]
+			);
+			if (checkClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to edit this class as is not under your university',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var excelSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+				`SELECT  CONCAT_WS(' ', users.firstName, users.lastName) as fullName, users.userId, users.email, classesAssignmentsGrades.grade, classesAssignmentsGrades.handedInDate FROM classesAssignmentsGrades
 INNER JOIN users ON users.userId = classesAssignmentsGrades.userId
 WHERE classesAssignmentsGrades.classAssigId = ? AND classesAssignmentsGrades.handedInDate IS NOT NULL`,
-			[classAssigId]
-		);
-		var wb = new xl.Workbook();
-		var mainSheet = wb.addWorksheet('Assignment Grades');
-		mainSheet.cell(1, 1).string('UserId');
-		mainSheet.cell(1, 2).string('Email');
-		mainSheet.cell(1, 3).string('Fullname');
-		mainSheet.cell(1, 4).string('Grade');
-		mainSheet.cell(1, 5).string('HandedInDate');
-		var leftAlignStyle = wb.createStyle({
-			alignment: {
-				horizontal: 'left',
-			},
-		});
-		for (var i = 0; i < excelSqlResult.length; i++) {
-			mainSheet
-				.cell(i + 2, 1)
-				.number(excelSqlResult[i].userId)
-				.style(leftAlignStyle);
-			mainSheet.cell(i + 2, 2).string(excelSqlResult[i].email);
-			mainSheet.cell(i + 2, 3).string(excelSqlResult[i].fullName);
-			mainSheet
-				.cell(i + 2, 4)
-				.number(excelSqlResult[i].grade || 0)
-				.style(leftAlignStyle);
-			mainSheet
-				.cell(i + 2, 5)
-				.date(excelSqlResult[i].handedInDate)
-				.style({ numberFormat: 'dd.mm.yyyy hh:MM:ss' })
-				.style(leftAlignStyle);
+				[classAssigId]
+			);
+			var wb = new xl.Workbook();
+			var mainSheet = wb.addWorksheet('Assignment Grades');
+			mainSheet.cell(1, 1).string('UserId');
+			mainSheet.cell(1, 2).string('Email');
+			mainSheet.cell(1, 3).string('Fullname');
+			mainSheet.cell(1, 4).string('Grade');
+			mainSheet.cell(1, 5).string('HandedInDate');
+			var leftAlignStyle = wb.createStyle({
+				alignment: {
+					horizontal: 'left',
+				},
+			});
+			for (var i = 0; i < excelSqlResult.length; i++) {
+				mainSheet
+					.cell(i + 2, 1)
+					.number(excelSqlResult[i].userId)
+					.style(leftAlignStyle);
+				mainSheet.cell(i + 2, 2).string(excelSqlResult[i].email);
+				mainSheet.cell(i + 2, 3).string(excelSqlResult[i].fullName);
+				mainSheet
+					.cell(i + 2, 4)
+					.number(excelSqlResult[i].grade || 0)
+					.style(leftAlignStyle);
+				mainSheet
+					.cell(i + 2, 5)
+					.date(excelSqlResult[i].handedInDate)
+					.style({ numberFormat: 'dd.mm.yyyy hh:MM:ss' })
+					.style(leftAlignStyle);
+			}
+			mainSheet.column(1).setWidth(10);
+			mainSheet.column(2).setWidth(50);
+			mainSheet.column(3).setWidth(50);
+			mainSheet.column(4).setWidth(10);
+			mainSheet.column(5).setWidth(20);
+			var buffer: Buffer = await wb.writeToBuffer();
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: `Downloaded Excel for Assignment ${getClassIdSqlResult[0].classAssigName} Grades`,
+			};
+			res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			res.setHeader('Content-Disposition', 'attachment; filename=' + `Assignment ${getClassIdSqlResult[0].classAssigName} Grades (${formatDate(new Date())}).xlsx`);
+			res.status(200);
+			res.end(buffer);
+			return;
 		}
-		mainSheet.column(1).setWidth(10);
-		mainSheet.column(2).setWidth(50);
-		mainSheet.column(3).setWidth(50);
-		mainSheet.column(4).setWidth(10);
-		mainSheet.column(5).setWidth(20);
-		var buffer: Buffer = await wb.writeToBuffer();
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.setHeader('Content-Disposition', 'attachment; filename=' + `Assignment ${getClassIdSqlResult[0].classAssigName} Grades (${formatDate(new Date())}).xlsx`);
-		res.status(200);
-		res.end(buffer);
-		return;
-	});
+	);
 
-	router.post('/update/assignment/:classAssigId/grade', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
-		interface CurrentBody {
-			userId: number;
-			grade: number;
-		}
-		var responseObject: CustomResponseObject;
-		var body: CurrentBody = req.body;
-		if (!('userId' in body && 'grade' in body)) {
-			responseObject = {
-				succ: false,
-				mes: 'Something went wrong',
-				debugMes: 'Invalid number of POST parameters',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var classAssigId: number = parseInt(req.params.classAssigId);
-		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
-		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
-		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
-		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
-		var userRole: number = await accountMethodsObj.getUserRole(userId);
-		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
-		if (getClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'Could not find the assignment',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to get the class details as you are not in that class',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classes.classId FROM classes
+	router.post(
+		'/update/assignment/:classAssigId/grade',
+		handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj),
+		handleEventManagerMiddleware(dbConnection),
+		async (req: Request, res: Response) => {
+			interface CurrentBody {
+				userId: number;
+				grade: number;
+			}
+			var responseObject: CustomResponseObject;
+			var body: CurrentBody = req.body;
+			if (!('userId' in body && 'grade' in body)) {
+				responseObject = {
+					succ: false,
+					mes: 'Something went wrong',
+					debugMes: 'Invalid number of POST parameters',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var classAssigId: number = parseInt(req.params.classAssigId);
+			var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+			var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+			var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+			var userRole: number = await accountMethodsObj.getUserRole(userId);
+			var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId, classAssigName FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+			if (getClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'Could not find the assignment',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to get the class details as you are not in that class',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var getStudentEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 1', [
+				studentUserId,
+				universityId,
+			]);
+			if (getStudentEmailSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'The student does not exist',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+				`SELECT classes.classId FROM classes
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
-			[getClassIdSqlResult[0].classId, universityId]
-		);
-		if (checkClassIdSqlResult.length != 1) {
+				[getClassIdSqlResult[0].classId, universityId]
+			);
+			if (checkClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to edit this class as is not under your university',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var studentUserId: number = body.userId;
+			var grade: number = body.grade;
+			if (grade > 10 || grade == 0) {
+				responseObject = {
+					succ: false,
+					mes: 'Can not have a grade bigger than 10 or equal to 0',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+				responseObject = {
+					succ: false,
+					mes: 'Can not have a grade with more than 2 decimal points',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var updateGradeSqlResult: NormalPacket = await dbConnection.execute<NormalPacket>(
+				'UPDATE classesAssignmentsGrades SET grade = ? WHERE classAssigId = ? AND userId = ? AND handedInDate IS NOT NULL',
+				[grade, classAssigId, studentUserId]
+			);
+			if (updateGradeSqlResult.affectedRows == 1) {
+				res['adminEventDataObj'] = {
+					userId: userId,
+					message: `Updated the student ${getStudentEmailSqlResult[0].email} assignment ${getClassIdSqlResult[0].classAssigName} grade ${grade}`,
+				};
+			}
 			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to edit this class as is not under your university',
+				succ: updateGradeSqlResult.affectedRows == 1,
+				mes: 'Could not find the user, maybe they undid their hand in. Try refreshing the page.',
 			};
 			res.status(200).send(responseObject);
 			return;
 		}
-		var studentUserId: number = body.userId;
-		var grade: number = body.grade;
-		if (grade > 10 || grade == 0) {
-			responseObject = {
-				succ: false,
-				mes: 'Can not have a grade bigger than 10 or equal to 0',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
-			responseObject = {
-				succ: false,
-				mes: 'Can not have a grade with more than 2 decimal points',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var updateGradeSqlResult: NormalPacket = await dbConnection.execute<NormalPacket>(
-			'UPDATE classesAssignmentsGrades SET grade = ? WHERE classAssigId = ? AND userId = ? AND handedInDate IS NOT NULL',
-			[grade, classAssigId, studentUserId]
-		);
-		responseObject = {
-			succ: updateGradeSqlResult.affectedRows == 1,
-			mes: 'Could not find the user, maybe they undid their hand in. Try refreshing the page.',
-		};
-		res.status(200).send(responseObject);
-		return;
-	});
+	);
 
 	router.get('/get/assignment/:classAssigId/handed-ins', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
 		var responseObject: CustomResponseObject;
@@ -697,132 +733,140 @@ ORDER BY dueDate ASC`,
 		return;
 	});
 
-	router.route('/update/assignment/:classAssigId').post(upload.array('files'), handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
-		interface CurrentBody {
-			name: string;
-			dueDate: string;
-			description: string;
-			deletedFilesIds: string;
-		}
-		var responseObject: CustomResponseObject;
-		var body: CurrentBody = req.body;
-		console.log('body', body);
-		if (!('name' in body && 'dueDate' in body && 'description' in body && 'deletedFilesIds' in body)) {
-			responseObject = {
-				succ: false,
-				mes: 'Something went wrong',
-				debugMes: 'Invalid number of POST parameters',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var classAssigId: number = parseInt(req.params.classAssigId);
-		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
-		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
-		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
-		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
-		var userRole: number = await accountMethodsObj.getUserRole(userId);
-		var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
-		if (getClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'Could not find the assignment',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to get the class details as you are not in that class',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classes.classId FROM classes
+	router
+		.route('/update/assignment/:classAssigId')
+		.post(upload.array('files'), handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
+			interface CurrentBody {
+				name: string;
+				dueDate: string;
+				description: string;
+				deletedFilesIds: string;
+			}
+			var responseObject: CustomResponseObject;
+			var body: CurrentBody = req.body;
+			console.log('body', body);
+			if (!('name' in body && 'dueDate' in body && 'description' in body && 'deletedFilesIds' in body)) {
+				responseObject = {
+					succ: false,
+					mes: 'Something went wrong',
+					debugMes: 'Invalid number of POST parameters',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var classAssigId: number = parseInt(req.params.classAssigId);
+			var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+			var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+			var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+			var userRole: number = await accountMethodsObj.getUserRole(userId);
+			var getClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT classId, classAssigName FROM classesAssignments WHERE classAssigId = ?', [classAssigId]);
+			if (getClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'Could not find the assignment',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var adminEventMessage: string = `Updated assignment ${getClassIdSqlResult[0].classAssigName}`;
+			if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(getClassIdSqlResult[0].classId, userId))) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to get the class details as you are not in that class',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+				`SELECT classes.classId FROM classes
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
-			[getClassIdSqlResult[0].classId, universityId]
-		);
-		if (checkClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to edit this class as is not under your university',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var name: string = body.name;
-		var dueDate: number = parseInt(body.dueDate);
-		var description: string = body.description;
-		var deletedFilesIds: number[] = JSON.parse(body.deletedFilesIds);
-		var files = (req.files as Express.Multer.File[]) || [];
-		if (dueDate && dueDate <= new Date().getTime()) {
-			responseObject = {
-				succ: false,
-				mes: 'Please enter a valid due date',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var transaction = await dbConnection.startTransaction();
-		var filesIds: number[] = [];
-		if (files.length > 0) {
-			filesIds = await filesMethodsObj.sendFiles(userId, [], files);
-		}
-		try {
-			if (name) {
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET classAssigName = ? WHERE classAssigId = ?', [name, classAssigId]);
+				[getClassIdSqlResult[0].classId, universityId]
+			);
+			if (checkClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to edit this class as is not under your university',
+				};
+				res.status(200).send(responseObject);
+				return;
 			}
-			if (dueDate) {
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET dueDate = ? WHERE classAssigId = ?', [new Date(dueDate), classAssigId]);
+			var name: string = body.name;
+			var dueDate: number = parseInt(body.dueDate);
+			var description: string = body.description;
+			var deletedFilesIds: number[] = JSON.parse(body.deletedFilesIds);
+			var files = (req.files as Express.Multer.File[]) || [];
+			if (dueDate && dueDate <= new Date().getTime()) {
+				responseObject = {
+					succ: false,
+					mes: 'Please enter a valid due date',
+				};
+				res.status(200).send(responseObject);
+				return;
 			}
-			if (description) {
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET classAssigDesc = ? WHERE classAssigId = ?', [description, classAssigId]);
+			var transaction = await dbConnection.startTransaction();
+			var filesIds: number[] = [];
+			if (files.length > 0) {
+				filesIds = await filesMethodsObj.sendFiles(userId, [], files);
 			}
-			var checkFileIdSqlResult: SelectPacket;
-			for (var i = 0; i < deletedFilesIds.length; i++) {
-				checkFileIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT fileId FROM classesAssignmentsFiles WHERE classAssigId = ? AND fileId = ?', [
-					classAssigId,
-					deletedFilesIds[i],
-				]);
-				if (checkFileIdSqlResult.length != 1) {
-					await dbConnection.rollbackTransactionAndClose(transaction);
-					responseObject = {
-						succ: false,
-						mes: 'The file you tried to delete was not found for this assignment',
-					};
-					res.status(200).send(responseObject);
-					return;
+			try {
+				if (name) {
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET classAssigName = ? WHERE classAssigId = ?', [name, classAssigId]);
+					adminEventMessage += ` name to ${name}`;
 				}
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'DELETE FROM classesAssignmentsFiles WHERE classAssigId = ? AND fileId = ?', [classAssigId, deletedFilesIds[i]]);
+				if (dueDate) {
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET dueDate = ? WHERE classAssigId = ?', [new Date(dueDate), classAssigId]);
+				}
+				if (description) {
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'UPDATE classesAssignments SET classAssigDesc = ? WHERE classAssigId = ?', [description, classAssigId]);
+				}
+				var checkFileIdSqlResult: SelectPacket;
+				for (var i = 0; i < deletedFilesIds.length; i++) {
+					checkFileIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT fileId FROM classesAssignmentsFiles WHERE classAssigId = ? AND fileId = ?', [
+						classAssigId,
+						deletedFilesIds[i],
+					]);
+					if (checkFileIdSqlResult.length != 1) {
+						await dbConnection.rollbackTransactionAndClose(transaction);
+						responseObject = {
+							succ: false,
+							mes: 'The file you tried to delete was not found for this assignment',
+						};
+						res.status(200).send(responseObject);
+						return;
+					}
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'DELETE FROM classesAssignmentsFiles WHERE classAssigId = ? AND fileId = ?', [classAssigId, deletedFilesIds[i]]);
+				}
+				for (var i = 0; i < filesIds.length; i++) {
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'INSERT INTO classesAssignmentsFiles (classAssigId, fileId) VALUES (?, ?)', [classAssigId, filesIds[i]]);
+				}
+				await dbConnection.commitTransactionAndClose(transaction);
+			} catch (err) {
+				if (filesIds.length > 0) {
+					await filesMethodsObj.deleteFiles(filesIds);
+				}
+				await dbConnection.rollbackTransactionAndClose(transaction);
+				responseObject = {
+					succ: false,
+					mes: String(err),
+				};
+				res.status(200).send(responseObject);
+				return;
 			}
-			for (var i = 0; i < filesIds.length; i++) {
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'INSERT INTO classesAssignmentsFiles (classAssigId, fileId) VALUES (?, ?)', [classAssigId, filesIds[i]]);
+			if (deletedFilesIds.length > 0) {
+				await filesMethodsObj.deleteFiles(deletedFilesIds);
 			}
-			await dbConnection.commitTransactionAndClose(transaction);
-		} catch (err) {
-			if (filesIds.length > 0) {
-				await filesMethodsObj.deleteFiles(filesIds);
-			}
-			await dbConnection.rollbackTransactionAndClose(transaction);
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: adminEventMessage,
+			};
 			responseObject = {
-				succ: false,
-				mes: String(err),
+				succ: true,
 			};
 			res.status(200).send(responseObject);
 			return;
-		}
-		if (deletedFilesIds.length > 0) {
-			await filesMethodsObj.deleteFiles(deletedFilesIds);
-		}
-		responseObject = {
-			succ: true,
-		};
-		res.status(200).send(responseObject);
-		return;
-	});
+		});
 
 	router.get('/get/assignment/:classAssigId', async (req: Request, res: Response) => {
 		var classAssigId: number = parseInt(req.params.classAssigId);
@@ -893,106 +937,112 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 		return;
 	});
 
-	router.route('/create/assignment/:classId').post(upload.array('files'), handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
-		interface CurrentBody {
-			name: string;
-			dueDate: string;
-			description: string;
-		}
-		var classId: number = parseInt(req.params.classId);
-		var responseObject: CustomResponseObject;
-		var body: CurrentBody = req.body;
-		console.log('body', body);
-		if (!('name' in body && 'dueDate' in body && 'description' in body)) {
-			responseObject = {
-				succ: false,
-				mes: 'Something went wrong',
-				debugMes: 'Invalid number of POST parameters',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
-		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
-		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
-		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
-		var userRole: number = await accountMethodsObj.getUserRole(userId);
-		if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(classId, userId))) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to get the class details as you are not in that class',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var name: string = body.name;
-		var dueDate: number = parseInt(body.dueDate);
-		var description: string = body.description;
-		var files = (req.files as Express.Multer.File[]) || [];
-		if (name == '') {
-			responseObject = {
-				succ: false,
-				mes: 'Please enter a valid name',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		if (dueDate <= new Date().getTime()) {
-			responseObject = {
-				succ: false,
-				mes: 'Please enter a valid due date',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classes.classId FROM classes
+	router
+		.route('/create/assignment/:classId')
+		.post(upload.array('files'), handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
+			interface CurrentBody {
+				name: string;
+				dueDate: string;
+				description: string;
+			}
+			var classId: number = parseInt(req.params.classId);
+			var responseObject: CustomResponseObject;
+			var body: CurrentBody = req.body;
+			console.log('body', body);
+			if (!('name' in body && 'dueDate' in body && 'description' in body)) {
+				responseObject = {
+					succ: false,
+					mes: 'Something went wrong',
+					debugMes: 'Invalid number of POST parameters',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+			var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+			var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+			var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+			var userRole: number = await accountMethodsObj.getUserRole(userId);
+			if (userRole != 3 && !(await accountMethodsObj.checkIfClassMember(classId, userId))) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to get the class details as you are not in that class',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var name: string = body.name;
+			var dueDate: number = parseInt(body.dueDate);
+			var description: string = body.description;
+			var files = (req.files as Express.Multer.File[]) || [];
+			if (name == '') {
+				responseObject = {
+					succ: false,
+					mes: 'Please enter a valid name',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			if (dueDate <= new Date().getTime()) {
+				responseObject = {
+					succ: false,
+					mes: 'Please enter a valid due date',
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+				`SELECT classes.classId FROM classes
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
-			[classId, universityId]
-		);
-		if (checkClassIdSqlResult.length != 1) {
-			responseObject = {
-				succ: false,
-				mes: 'You don not permissions to edit this class as is not under your university',
-			};
-			res.status(200).send(responseObject);
-			return;
-		}
-		console.log(files);
-		var filesIds: number[] = [];
-		if (files.length > 0) {
-			filesIds = await filesMethodsObj.sendFiles(userId, [], files);
-		}
-		var transaction = await dbConnection.startTransaction();
-		try {
-			var assigInsertSqlResult: NormalPacket = await dbConnection.executeInTransaction<NormalPacket>(
-				transaction,
-				'INSERT INTO classesAssignments (classId, classAssigName, classAssigDesc, dueDate) VALUES (?, ?, ?, ?)',
-				[classId, name, description, new Date(dueDate)]
+				[classId, universityId]
 			);
-			for (var i = 0; i < filesIds.length; i++) {
-				await dbConnection.executeInTransaction<NormalPacket>(transaction, 'INSERT INTO classesAssignmentsFiles (classAssigId, fileId) VALUES (?, ?)', [assigInsertSqlResult.insertId, filesIds[i]]);
+			if (checkClassIdSqlResult.length != 1) {
+				responseObject = {
+					succ: false,
+					mes: 'You don not permissions to edit this class as is not under your university',
+				};
+				res.status(200).send(responseObject);
+				return;
 			}
-			await dbConnection.commitTransactionAndClose(transaction);
-		} catch (err) {
-			if (filesIds.length > 0) {
-				await filesMethodsObj.deleteFiles(filesIds);
+			console.log(files);
+			var filesIds: number[] = [];
+			if (files.length > 0) {
+				filesIds = await filesMethodsObj.sendFiles(userId, [], files);
 			}
-			await dbConnection.rollbackTransactionAndClose(transaction);
+			var transaction = await dbConnection.startTransaction();
+			try {
+				var assigInsertSqlResult: NormalPacket = await dbConnection.executeInTransaction<NormalPacket>(
+					transaction,
+					'INSERT INTO classesAssignments (classId, classAssigName, classAssigDesc, dueDate) VALUES (?, ?, ?, ?)',
+					[classId, name, description, new Date(dueDate)]
+				);
+				for (var i = 0; i < filesIds.length; i++) {
+					await dbConnection.executeInTransaction<NormalPacket>(transaction, 'INSERT INTO classesAssignmentsFiles (classAssigId, fileId) VALUES (?, ?)', [assigInsertSqlResult.insertId, filesIds[i]]);
+				}
+				await dbConnection.commitTransactionAndClose(transaction);
+			} catch (err) {
+				if (filesIds.length > 0) {
+					await filesMethodsObj.deleteFiles(filesIds);
+				}
+				await dbConnection.rollbackTransactionAndClose(transaction);
+				responseObject = {
+					succ: false,
+					mes: String(err),
+				};
+				res.status(200).send(responseObject);
+				return;
+			}
+			res['adminEventDataObj'] = {
+				userId: userId,
+				message: `Created assignment ${name}`,
+			};
 			responseObject = {
-				succ: false,
-				mes: String(err),
+				succ: true,
 			};
 			res.status(200).send(responseObject);
 			return;
-		}
-		responseObject = {
-			succ: true,
-		};
-		res.status(200).send(responseObject);
-		return;
-	});
+		});
 
 	router.get('/get/class/:classId/assignments', async (req: Request, res: Response) => {
 		var classId: number = parseInt(req.params.classId);
@@ -1057,7 +1107,7 @@ ORDER BY dueDate ASC`,
 		return;
 	});
 
-	router.post('/update/class/final-grade', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+	router.post('/update/class/final-grade', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			classId: number;
 			grade: number;
@@ -1107,7 +1157,8 @@ ORDER BY dueDate ASC`,
 			return;
 		}
 		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT classes.classId FROM classes
+			`SELECT classes.classId, classes.classPrefix, classes.classSuffix, classes.className, subjects.subjectId, subjects.subjectName FROM classes
+LEFT JOIN subjects ON subjects.subjectId = classes.subjectId
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			[classId, universityId]
@@ -1116,6 +1167,15 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			responseObject = {
 				succ: false,
 				mes: 'You don not permissions to edit this class as is not under your university',
+			};
+			res.status(200).send(responseObject);
+			return;
+		}
+		var getStudentEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 1', [studentUserId, universityId]);
+		if (getStudentEmailSqlResult.length != 1) {
+			responseObject = {
+				succ: false,
+				mes: 'The student does not exist',
 			};
 			res.status(200).send(responseObject);
 			return;
@@ -1161,6 +1221,14 @@ WHERE classes.classId = ? AND users.role = 1 AND users.universityId = ? AND user
 				getSubjectCreditsSqlResult[0].credits,
 			]);
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Updated grade for ${getStudentEmailSqlResult[0].email} to ${grade} for class ${
+				checkClassIdSqlResult[0].subjectId
+					? checkClassIdSqlResult[0].classPrefix + ' ' + checkClassIdSqlResult[0].subjectName + ' ' + checkClassIdSqlResult[0].classSuffix
+					: checkClassIdSqlResult[0].className
+			}`,
+		};
 		responseObject = {
 			succ: true,
 		};
@@ -1566,7 +1634,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 		return;
 	});
 
-	router.post('/create/class', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), async (req: Request, res: Response) => {
+	router.post('/create/class', handleCheckProfessorMiddleware(loginMethodsObj, accountMethodsObj), handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		interface CurrentBody {
 			studyYearId: number;
 			classSuffix: string;
@@ -1612,7 +1680,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 		}
 		if (yearSubjectId != null) {
 			var checkYearSubjectIdIdSqlResult = await dbConnection.execute<SelectPacket>(
-				`SELECT yearsSubjects.yearSubjectId FROM yearsSubjects
+				`SELECT yearsSubjects.yearSubjectId, subjects.subjectName FROM yearsSubjects
 INNER JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
 WHERE subjects.universityId = ? AND yearsSubjects.yearSubjectId = ?`,
 				[universityId, yearSubjectId]
@@ -1678,6 +1746,10 @@ WHERE studentsYears.userId = ? AND studentsYears.studyYearId = ? AND yearsSubjec
 			res.status(200).send(responseObject);
 			return;
 		}
+		res['adminEventDataObj'] = {
+			userId: userId,
+			message: `Created class ${yearSubjectId == null ? className : 'for ' + checkYearSubjectIdIdSqlResult[0].subjectName}`,
+		};
 		responseObject = {
 			succ: true,
 		};
