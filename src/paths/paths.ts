@@ -5,6 +5,7 @@ import { LoginMethods, LoginMethodsInterface } from '@raducualexandrumircea/luna
 import { AccountMethods } from '@raducualexandrumircea/lunaris-account';
 import { SessionInterface } from '@raducualexandrumircea/redis-session-manager';
 import {
+	AdminEventDetails,
 	CustomResponseObject,
 	ProgamPreviewDetails,
 	ProgramEditDetails,
@@ -37,6 +38,38 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 		res.status(200).send(environmentParserObj.get('SERVER_NAME', 'string', false) || 'root path works');
 	});
 
+	router.get('/get/admin-events', async (req: Request, res: Response) => {
+		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
+		var loginMethodsInterfaceObj: LoginMethodsInterface = new LoginMethodsInterface(sessionInterfaceObj, loginMethodsObj);
+		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
+		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
+		var adminEventsSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
+			`SELECT adminEvents.adminEventId, adminEvents.message, adminEvents.createdDate, users.role, users.email FROM adminEvents
+INNER JOIN users ON users.userId = adminEvents.userId
+WHERE users.universityId = ?
+ORDER BY adminEvents.createdDate DESC`,
+			[universityId]
+		);
+		var adminEventsDetails: AdminEventDetails[] = [];
+		for (var i = 0; i < adminEventsSqlResult.length; i++) {
+			adminEventsDetails.push({
+				adminEventId: adminEventsSqlResult[i].adminEventId,
+				createdDate: adminEventsSqlResult[i].createdDate.getTime(),
+				email: adminEventsSqlResult[i].email,
+				role: adminEventsSqlResult[i].role == 3 ? 'Admin' : adminEventsSqlResult[i].role == 2 ? 'Professor' : adminEventsSqlResult[i].role == 1 ? 'Student' : 'No role',
+				message: adminEventsSqlResult[i].message,
+			});
+		}
+		var responseObject: CustomResponseObject = {
+			succ: true,
+			data: {
+				adminEventsDetails: adminEventsDetails,
+			},
+		};
+		res.status(200).send(responseObject);
+		return;
+	});
+
 	router.get('/excel/student/scholar-situation/:studentYearId', handleEventManagerMiddleware(dbConnection), async (req: Request, res: Response) => {
 		var studentYearId: number = parseInt(req.params.studentYearId);
 		var sessionInterfaceObj: SessionInterface = req['sessionInterfaceObj'];
@@ -44,7 +77,7 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 		var userId: number = await loginMethodsInterfaceObj.getLoggedInUserId();
 		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
 		var excelSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
-			`SELECT programs.programShortName, years.yearIndex, CONCAT_WS(' ', users.firstName, users.lastName) as fullName, yearsSubjects.subjectId, finalGrades.grade, finalGrades.credits as finalGradesCredits, subjects.credits as subjectsCredits, subjects.subjectName, yearsSubjects.semesterIndex FROM yearsSubjects
+			`SELECT programs.programShortName, years.yearIndex, users.email, CONCAT_WS(' ', users.firstName, users.lastName) as fullName, yearsSubjects.subjectId, finalGrades.grade, finalGrades.credits as finalGradesCredits, subjects.credits as subjectsCredits, subjects.subjectName, yearsSubjects.semesterIndex FROM yearsSubjects
 INNER JOIN years ON years.yearId = yearsSubjects.yearId
 INNER JOIN programs ON programs.programId = years.programId
 INNER JOIN studentsYears ON studentsYears.yearId = years.yearId
@@ -94,12 +127,13 @@ ORDER BY yearsSubjects.semesterIndex ASC`,
 		var buffer: Buffer = await wb.writeToBuffer();
 		res['adminEventDataObj'] = {
 			userId: userId,
-			message: `Downloaded Excel Grades for Student ${excelSqlResult[0].fullName} Year ${excelSqlResult[0].yearIndex} ${excelSqlResult[0].programShortName}`,
+			message: `Downloaded Excel Grades for Student ${excelSqlResult[0].email} Year ${excelSqlResult[0].yearIndex} ${excelSqlResult[0].programShortName}`,
 		};
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		res.setHeader(
 			'Content-Disposition',
-			'attachment; filename=' + `Student ${excelSqlResult[0].fullName} Year ${excelSqlResult[0].yearIndex} ${excelSqlResult[0].programShortName} Grades (${formatDate(new Date())}).xlsx`
+			'attachment; filename=' +
+				`Student ${excelSqlResult[0].fullName} (${excelSqlResult[0].email}) Year ${excelSqlResult[0].yearIndex} ${excelSqlResult[0].programShortName} Grades (${formatDate(new Date())}).xlsx`
 		);
 		res.status(200);
 		res.end(buffer);
