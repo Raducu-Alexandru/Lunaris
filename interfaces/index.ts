@@ -209,3 +209,11 @@ export interface HandedInAssignmentDetails {
 	handedInDate: number;
 	filesIds: number[];
 }
+
+export interface AdminEventDetails {
+	adminEventId: number;
+	createdDate: number;
+	email: string;
+	role: string;
+	message: string;
+}
