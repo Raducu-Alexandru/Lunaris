@@ -38,6 +38,7 @@ export class ScholarSituationPageComponent {
 			if (lastSemesterIndex != subjectsScholarSituation[i].semesterIndex) {
 				this.subjectsScholarSituationPerSemester.push(semesterArray);
 				semesterArray = [];
+				lastSemesterIndex++;
 			}
 			semesterArray.push(Object.assign({}, subjectsScholarSituation[i]));
 		}

@@ -27,6 +27,9 @@ export class HomePageComponent implements OnInit {
 	async ngOnInit(): Promise<void> {
 		this.userRole = await this._userRoleService.getUserRole();
 		await this._getAnnouncements();
+		if (this.userRole == 3) {
+			return;
+		}
 		await this._getUpcommingDetailsDetails();
 	}
 

@@ -57,7 +57,7 @@ export class ScholarSituationStudentPageComponent implements OnInit {
 			});
 			return;
 		}
-		if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+		if (String(grade).split('.')[1]?.length > 2) {
 			this._popupsService.openPopup({
 				type: 'alert',
 				text: 'Can not have a grade with more than 2 decimal points',
@@ -105,6 +105,7 @@ export class ScholarSituationStudentPageComponent implements OnInit {
 			if (lastSemesterIndex != subjectsScholarSituation[i].semesterIndex) {
 				this.subjectsScholarSituationPerSemester.push(semesterArray);
 				semesterArray = [];
+				lastSemesterIndex++;
 			}
 			semesterArray.push(Object.assign({}, subjectsScholarSituation[i]));
 		}
