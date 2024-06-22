@@ -196,6 +196,6 @@ app.listen(serverPort, () => {
 	console.log(`server listening on http://localhost:${serverPort}`);
 });
 
-secureRoutes(router, socketManagerObj);
+secureRoutes(secureRouter, socketManagerObj);
 socketRoutes(socketManagerObj, serverCommunicationObj, accountMethodsObj);
 healthRoutes(app);
