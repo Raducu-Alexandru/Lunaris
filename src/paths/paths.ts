@@ -255,6 +255,8 @@ WHERE classesAssignmentsGrades.classAssigId = ? AND classesAssignmentsGrades.han
 				res.status(200).send(responseObject);
 				return;
 			}
+			var studentUserId: number = body.userId;
+			var grade: number = body.grade;
 			var getStudentEmailSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>('SELECT email FROM users WHERE userId = ? AND universityId = ? AND role = 1', [
 				studentUserId,
 				universityId,
@@ -281,8 +283,6 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 				res.status(200).send(responseObject);
 				return;
 			}
-			var studentUserId: number = body.userId;
-			var grade: number = body.grade;
 			if (grade > 10 || grade == 0) {
 				responseObject = {
 					succ: false,
@@ -291,7 +291,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 				res.status(200).send(responseObject);
 				return;
 			}
-			if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+			if (String(grade).split('.')[1]?.length > 2) {
 				responseObject = {
 					succ: false,
 					mes: 'Can not have a grade with more than 2 decimal points',
@@ -1148,7 +1148,7 @@ ORDER BY dueDate ASC`,
 			res.status(200).send(responseObject);
 			return;
 		}
-		if (String(grade).includes('.') && grade * 100 != parseInt(String(grade).replaceAll('.', ''))) {
+		if (String(grade).split('.')[1]?.length > 2) {
 			responseObject = {
 				succ: false,
 				mes: 'Can not have a grade with more than 2 decimal points',
@@ -1158,7 +1158,8 @@ ORDER BY dueDate ASC`,
 		}
 		var checkClassIdSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
 			`SELECT classes.classId, classes.classPrefix, classes.classSuffix, classes.className, subjects.subjectId, subjects.subjectName FROM classes
-LEFT JOIN subjects ON subjects.subjectId = classes.subjectId
+INNER JOIN yearsSubjects ON yearsSubjects.yearSubjectId = classes.yearSubjectId
+LEFT JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
 INNER JOIN studyYears ON studyYears.studyYearId = classes.studyYearId
 WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			[classId, universityId]
@@ -1473,7 +1474,7 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 			var checkStudentSubjectSqlResult: SelectPacket;
 			var insertClassMembersSql: string = 'INSERT INTO classesMembers (classId, userId) VALUES (?, ?)';
 			for (var i = 0; i < usersIds.length; i++) {
-				checkUserIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT userId FROM users WHERE userId = ? AND universityId = ?', [usersIds[i], universityId]);
+				checkUserIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT userId, role FROM users WHERE userId = ? AND universityId = ?', [usersIds[i], universityId]);
 				if (checkUserIdSqlResult.length != 1) {
 					await dbConnection.rollbackTransactionAndClose(transaction);
 					responseObject = {
@@ -1493,20 +1494,22 @@ WHERE classes.classId = ? AND studyYears.universityId = ?`,
 					res.status(200).send(responseObject);
 					return;
 				}
-				checkStudentSubjectSqlResult = await dbConnection.execute<SelectPacket>(
-					`SELECT studentsYears.userId FROM studentsYears
+				if (yearSubjectId != null && checkUserIdSqlResult[0].role == 1) {
+					checkStudentSubjectSqlResult = await dbConnection.execute<SelectPacket>(
+						`SELECT studentsYears.userId FROM studentsYears
 INNER JOIN yearsSubjects ON yearsSubjects.yearId = studentsYears.yearId
 WHERE studentsYears.userId = ? AND studentsYears.studyYearId = ? AND yearsSubjects.yearSubjectId = ?`,
-					[usersIds[i], studyYearId, yearSubjectId]
-				);
-				if (checkStudentSubjectSqlResult.length != 1) {
-					await dbConnection.rollbackTransactionAndClose(transaction);
-					responseObject = {
-						succ: false,
-						mes: 'There is no user with that email has the selected subject',
-					};
-					res.status(200).send(responseObject);
-					return;
+						[usersIds[i], studyYearId, yearSubjectId]
+					);
+					if (checkStudentSubjectSqlResult.length != 1) {
+						await dbConnection.rollbackTransactionAndClose(transaction);
+						responseObject = {
+							succ: false,
+							mes: 'There is no user with that email has the selected subject',
+						};
+						res.status(200).send(responseObject);
+						return;
+					}
 				}
 				await dbConnection.executeInTransaction<NormalPacket>(transaction, insertClassMembersSql, [classId, usersIds[i]]);
 			}
@@ -1707,7 +1710,7 @@ WHERE subjects.universityId = ? AND yearsSubjects.yearSubjectId = ?`,
 			var insertClassMembersSql: string = 'INSERT INTO classesMembers (classId, userId) VALUES (?, ?)';
 			await dbConnection.executeInTransaction<NormalPacket>(transaction, insertClassMembersSql, [classInserSqlResult.insertId, userId]);
 			for (var i = 0; i < usersIds.length; i++) {
-				checkUserIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT userId FROM users WHERE userId = ? AND universityId = ?', [usersIds[i], universityId]);
+				checkUserIdSqlResult = await dbConnection.executeInTransaction<SelectPacket>(transaction, 'SELECT userId, role FROM users WHERE userId = ? AND universityId = ?', [usersIds[i], universityId]);
 				if (checkUserIdSqlResult.length != 1) {
 					await dbConnection.rollbackTransactionAndClose(transaction);
 					responseObject = {
@@ -1717,7 +1720,7 @@ WHERE subjects.universityId = ? AND yearsSubjects.yearSubjectId = ?`,
 					res.status(200).send(responseObject);
 					return;
 				}
-				if (yearSubjectId != null) {
+				if (yearSubjectId != null && checkUserIdSqlResult[0].role == 1) {
 					checkStudentSubjectSqlResult = await dbConnection.execute<SelectPacket>(
 						`SELECT studentsYears.userId FROM studentsYears
 INNER JOIN yearsSubjects ON yearsSubjects.yearId = studentsYears.yearId
