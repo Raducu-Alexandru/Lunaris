@@ -83,7 +83,7 @@ INNER JOIN programs ON programs.programId = years.programId
 INNER JOIN studentsYears ON studentsYears.yearId = years.yearId
 INNER JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
 INNER JOIN users ON users.userId = studentsYears.userId
-LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId
+LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId AND finalGrades.subjectId = yearsSubjects.subjectId
 WHERE users.universityId = ? AND studentsYears.studentYearId = ?
 ORDER BY yearsSubjects.semesterIndex ASC`,
 			[universityId, studentYearId]
@@ -581,7 +581,7 @@ INNER JOIN years ON years.yearId = yearsSubjects.yearId
 INNER JOIN studentsYears ON studentsYears.yearId = years.yearId
 INNER JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
 INNER JOIN users ON users.userId = studentsYears.userId
-LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId
+LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId AND finalGrades.subjectId = yearsSubjects.subjectId
 WHERE users.universityId = ? AND studentsYears.studentYearId = ?
 ORDER BY yearsSubjects.semesterIndex ASC`,
 			[universityId, studentYearId]
@@ -1631,12 +1631,12 @@ WHERE schools.universityId = ?`,
 		var universityId: number = await accountMethodsObj.getUserUniveristy(userId);
 		var subjectsSqlResult: SelectPacket;
 		if (isArchived != null) {
-			subjectsSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectId, subjectName, credits, archived FROM subjects WHERE universityId = ? AND archived = ?', [
+			subjectsSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectId, subjectName, credits, archived FROM subjects WHERE universityId = ? AND archived = ? ORDER BY subjectName ASC', [
 				universityId,
 				isArchived,
 			]);
 		} else {
-			subjectsSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectId, subjectName, credits, archived FROM subjects WHERE universityId = ?', [universityId]);
+			subjectsSqlResult = await dbConnection.execute<SelectPacket>('SELECT subjectId, subjectName, credits, archived FROM subjects WHERE universityId = ? ORDER BY subjectName ASC', [universityId]);
 		}
 		var subjectsPreviewDetails: SubjectPreviewDetails[] = [];
 		for (var i = 0; i < subjectsSqlResult.length; i++) {
