@@ -4,7 +4,7 @@ metadata:
   name: socket-server-configmap
   namespace: lunaris-mcs
 data:
-  SERVER_NAME: 'Socket Server '
+  SERVER_NAME: 'Socket Server'
   SERVER_PORT: '8080'
   SOCKET_PORT: '3000'
   PATH_PREFIX: '/socket'
