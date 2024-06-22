@@ -58,11 +58,12 @@ export function appRoutes(router: Router, dbConnection: DbHandler, loginMethodsO
 		var scholarSituationSqlResult: SelectPacket = await dbConnection.execute<SelectPacket>(
 			`SELECT yearsSubjects.subjectId, finalGrades.grade, finalGrades.credits as finalGradesCredits, subjects.credits as subjectsCredits, subjects.subjectName, yearsSubjects.semesterIndex FROM yearsSubjects
 INNER JOIN years ON years.yearId = yearsSubjects.yearId
+INNER JOIN programs ON programs.programId = years.programId
 INNER JOIN studentsYears ON studentsYears.yearId = years.yearId
 INNER JOIN subjects ON subjects.subjectId = yearsSubjects.subjectId
 INNER JOIN users ON users.userId = studentsYears.userId
-LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId
-WHERE users.universityId = ? AND studentsYears.studentYearId = ? AND users.userId = ?
+LEFT JOIN finalGrades ON finalGrades.studentYearId = studentsYears.studentYearId AND finalGrades.subjectId = yearsSubjects.subjectId
+WHERE users.universityId = ? AND studentsYears.studentYearId = ?
 ORDER BY yearsSubjects.semesterIndex ASC`,
 			[universityId, studentYearId, userId]
 		);
